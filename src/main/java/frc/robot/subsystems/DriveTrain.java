@@ -272,7 +272,47 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         stopDrive();
     }
 
-    public void turnProportionalOnMeasurement(double degrees, Direction direction, double speed, double allowableError) {
+    public void turnP(double degrees, Direction direction, double speed, double allowableError, double killTime) throws AutoInterruptedException {
+        resetGyro();
+
+        double error;
+        double power;
+        double kp = 0.05;
+        double integral = 0;
+        double ki = 0.00003;
+        double prevTime = System.currentTimeMillis();
+
+        double sTime = System.currentTimeMillis();
+
+        int count = 0;
+        System.out.println(gyro.getAngle());
+        do {
+
+            if (Robot.isTeleop || Robot.isDisabled) {
+                throw new AutoInterruptedException();
+            } else {
+                error = direction.value * ((Math.abs(degrees)/*90*/ < gyro.getAngle() ? (gyro.getAngle() - Math.abs(degrees)) : -((Math.abs(degrees)) - gyro.getAngle())));
+                //error = direction.value * degrees - gyro.getAngle();
+                System.out.print(error > 1 ? error + " " : "");
+                integral += error * (System.currentTimeMillis() - prevTime);
+                prevTime = System.currentTimeMillis();
+                power = kp * error + ki * integral;
+                power = clip(power, -speed, +speed);
+                setTarget(power, power, ControlMode.PercentOutput);
+
+                if (Math.abs(error) < allowableError) {
+                    count++;
+                } else {
+                    count = 0;
+                }
+            }
+        } while (count < 500 && System.currentTimeMillis() - sTime < killTime);
+        System.out.println("Completed");
+        stopDrive();
+    }
+
+
+    public void turnProportionalOnMeasurement(double degrees, Direction direction, double speed) throws AutoInterruptedException{
         resetGyro();
  
         double error = direction.value * degrees - gyro.getAngle();
@@ -283,8 +323,10 @@ public class DriveTrain extends Subsystem implements Constants, Section {
  
  
         while (Math.abs(error) > angleTolerance) {
+            if (Robot.isTeleop || Robot.isDisabled) {
+                throw new AutoInterruptedException();
+            } else {
             long dt = System.nanoTime() - prevTime;
-            prevTime = System.nanoTime();
             error = direction.value * degrees - gyro.getAngle();
             measurement = gyro.getAngle();
             integral = turnPOMIDamper * integral + error * dt;
@@ -292,7 +334,10 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             prevError = error;
             double power = -turnPOMKp * measurement + turnPOMKi * integral - turnPOMKd * derivative;
             power = clip(power, -speed, +speed);
+            System.out.println(power);
             setTarget(-power, +power, ControlMode.PercentOutput);
+            prevTime = System.nanoTime();
+            }
         } 
         stopDrive();
     }
@@ -547,43 +592,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
 //     }
 
-//     public void turnP(double degrees, Direction direction, double speed, double allowableError, double killTime) throws AutoInterruptedException {
-//         resetGyro();
 
-//         double error;
-//         double power;
-//         double kp = 0.05;
-//         double integral = 0;
-//         double ki = 0.00003;
-//         double prevTime = System.currentTimeMillis();
-
-//         double sTime = System.currentTimeMillis();
-
-//         int count = 0;
-//         System.out.println(gyro.getAngle());
-//         do {
-
-//             if (Robot.isTeleop || Robot.isDisabled) {
-//                 throw new AutoInterruptedException();
-//             } else {
-//                 error = direction.value * ((Math.abs(degrees)/*90*/ < gyro.getAngle() ? (gyro.getAngle() - Math.abs(degrees)) : -((Math.abs(degrees)) - gyro.getAngle())));
-//                 //error = direction.value * degrees - gyro.getAngle();
-//                 System.out.print(error > 1 ? error + " " : "");
-//                 integral += error * (System.currentTimeMillis() - prevTime);
-//                 prevTime = System.currentTimeMillis();
-//                 power = kp * error + ki * integral;
-//                 power = clip(power, -speed, +speed);
-//                 setTarget(power, power, ControlMode.PercentOutput);
-
-//                 if (Math.abs(error) < allowableError) {
-//                     count++;
-//                 } else {
-//                     count = 0;
-//                 }
-//             }
-//         } while (count < 500 && System.currentTimeMillis() - sTime < killTime);
-//         System.out.println("Completed");
-//         stopDrive();
-//     }
 
 }

@@ -115,11 +115,18 @@ public class Robot extends IterativeRobot {
      * chooser code above (like the commented example) or additional comparisons
      * to the switch structure below with additional strings & commands.
      */
+
+    //Hey change this
+    private Auto a = new TurnTest();
+
+
     @Override
     public void autonomousInit() {
         Robot.isDisabled = false;
         SmartDashboard.putNumber("Disabled Init Ran", 0);
-        a = chooser.getSelected();
+
+        //EY bruh fix this
+        //a = chooser.getSelected();
 
         if (a != null)
 //            a.delay = (int)SmartDashboard.getNumber("Delay MS (C H A N G E T H I S E V E R Y M A T C H)", 0);
@@ -127,14 +134,14 @@ public class Robot extends IterativeRobot {
                     a.auto();
     }
 
-    private Auto a;
+
 
     /**
      * This function is called periodically during autonomous
      */
     @Override
     public void autonomousPeriodic() {
-
+        
         Scheduler.getInstance().run();
         if (a != null) {
             a.loop();
@@ -143,6 +150,7 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putNumber("R RPM v2", driveTrain.getRightTalon().getSelectedSensorVelocity(0));
 
         SmartDashboard.putNumber("GyroAngle", driveTrain.getGyroAngle());
+
     }
 
     @Override
