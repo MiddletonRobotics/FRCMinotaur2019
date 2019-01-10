@@ -202,7 +202,11 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public double getLeftVelocity() {
-        return leftTalon.getSensorCollection().getQuadratureVelocity();
+        return leftTalon.getSensorCollection().getQuadratureVelocity()/NATIVE_PER_ROTATION;
+    }
+
+    public double getRightVelocity() {
+        return rightTalon.getSensorCollection().getQuadratureVelocity()/NATIVE_PER_ROTATION;
     }
 
     private double clip(double value, double min, double max) {
