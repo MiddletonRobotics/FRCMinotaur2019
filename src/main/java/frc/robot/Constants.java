@@ -81,6 +81,23 @@ public interface Constants {
     double kiDriveTrainPos2 = 0.0;
     double kdDriveTrainPos2 = 0;
 
+    double turnKp = 0.025;
+    double turnKi = 0.0;
+    double turnKd = 0.0;
+    double turnIDamper = 1.0;
+
+    double turnPOMKp = 0.025;
+    double turnPOMKi = 0.0;
+    double turnPOMKd = 0.0;
+    double turnPOMIDamper = 1.0;
+
+    double gyroDrivePOMKP = 0.05;
+    double gyroDrivePOMKI = 0.00005;
+    double gyroCorrectionKP = 0.05;
+    double gyroCorrectionKI = 0;
+
+
+    double angleTolerance = 0.5;
 
     int maxRPM = 1250;
 
