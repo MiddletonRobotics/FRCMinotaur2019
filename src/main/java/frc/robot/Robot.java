@@ -31,13 +31,9 @@ public class Robot extends IterativeRobot {
     //	public static SpeedShift speedShift;
 //	public static ScalerShift scalerShift;
 //	public static GearGrabber gearGrabber;
-    public static Intake intake;
-    public static Forks forks;
     //	public static Shootaur shootaur;
     public static Lift lift;
-    public static Climbaur climbaur;
     //	public static MinoRangeSensor rangeSensor;
-    public static IntakeTilt intakeTilt;
     public static boolean isTeleop = false;
     public static boolean isDisabled = false;
 
@@ -76,18 +72,8 @@ public class Robot extends IterativeRobot {
          */
 
         driveTrain = new DriveTrain();
-        intake = new Intake();
-        intakeTilt = new IntakeTilt();
         lift = new Lift();
-        climbaur = new Climbaur();
-        forks = new Forks();
-        chooser.addObject("Cross the Auto Line (No Droppy Droppy :p)", new MoveAutoLine());
-        chooser.addObject("Drop in the switch starting on the right side :DDDDDDD", new DropSwitchRightNoWhip());
-        chooser.addObject("Drop in the switch starting on the left side :DD", new DropSwitchLeftNoWhip());
-
-        chooser.addObject("Drop in the switch starting from the center position. (WITH ALLAH'S POWER, YOU SHALL DESTROY THE INFIDELS LUKE :DD <3) <3<3<3<3<3<3<3<3<3<3<3<3<3", new MiddleSwitchAuto());
-        chooser.addObject("Drop in the LEFT scale if it is the same side otherwise activate plan B<3", new ScaleSameSide('L'));
-        chooser.addObject("Drop in the RIGHT scale if it is the same side otherwise activate plan B", new ScaleSameSide('R'));
+ 
 
         chooser.addDefault("Do nothing :O", null);
 
@@ -183,11 +169,8 @@ public class Robot extends IterativeRobot {
         Scheduler.getInstance().run();
 
         driveTrain.teleop(gamepad1);
-        intake.teleop(gamepad1);
-        intakeTilt.teleop(gamepad2);
         lift.teleop(gamepad2);
-        climbaur.teleop(gamepad2);
-        forks.teleop(gamepad2);
+
 
 
         SmartDashboard.putNumber("Potentiometer:", lift.potentiometer.pidGet());
