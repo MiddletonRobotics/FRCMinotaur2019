@@ -88,7 +88,7 @@ public interface Constants {
     double LIFT_TOP = 0.0106;
     double LIFT_BOTTOM = .615;
 
-    double SENT_FROM_MY_iPHONE = LIFT_TOP - LIFT_BOTTOM;
+    double LIFT_DISTANCE = LIFT_TOP - LIFT_BOTTOM;
 
     double kfDriveTrainVel = .687;
     double kpDriveTrainVel = 0.0842;

@@ -11,8 +11,8 @@ public class Utils implements Constants {
         }
     }
 
-    public static double iPhoneMath(double percentHeight) {
-        return LIFT_BOTTOM + SENT_FROM_MY_iPHONE * percentHeight;
+    public static double liftPositionFromPercent(double percentHeight) {
+        return LIFT_BOTTOM + LIFT_DISTANCE * percentHeight;
     }
 
     public static void resetRobot() {
