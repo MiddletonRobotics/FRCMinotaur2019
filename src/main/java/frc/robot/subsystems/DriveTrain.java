@@ -194,11 +194,15 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     public void driveDistance(double distInches) {
         resetEncoders();
-        double poop = distInches * CLICKS_PER_INCH;
+        double clicks = distInches * CLICKS_PER_INCH;
 
-        this.driveInMode(ControlMode.Position, -poop, poop);
-//        System.out.println(poop + " : " + getLeftTalon().getClosedLoopError(0));
+        this.driveInMode(ControlMode.Position, -clicks, clicks);
+//        System.out.println(clicks + " : " + getLeftTalon().getClosedLoopError(0));
         // driveInMode(ControlMode.Position, distInches * CLICKS_PER_INCH);
+    }
+
+    public double getLeftVelocity() {
+        return leftTalon.getSensorCollection().getQuadratureVelocity();
     }
 
     private double clip(double value, double min, double max) {

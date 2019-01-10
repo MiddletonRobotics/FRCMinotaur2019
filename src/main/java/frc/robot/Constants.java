@@ -10,28 +10,16 @@ import edu.wpi.first.wpilibj.SPI;
  */
 public interface Constants {
 
-    double VISION_TARG_WIDTH = 10;
     //Hardware Ports
     int masterLeftPort = 5;
     int slaveLeftPort = 6;
     int masterRightPort = 3;
     int slaveRightPort = 4;
 
-    int leftIntakePort = 1;
-    int rightIntakePort = 2;
-
-    int tiltMotorPort = 0;
-
     int liftMotor1Port = 49;
     int liftMotor2Port = 39;
     int liftMotor3Port = 29;
     int liftMotor4Port = 19;
-
-    int winchMotor1Port = 3;
-    int winchMotor2Port = 4;
-
-    int limitSwitchTiltBottomPort = 2;
-    int limitSwitchTiltTopPort = 3;
 
     int limitSwitchLiftBottomPort = 0;
     int limitSwitchLiftTopPort = 1;
@@ -64,11 +52,6 @@ public interface Constants {
 
     int DPAD_NOT_PRESSED = -1;
 
-    int DPAD_UP = 0;
-    int DPAD_RIGHT = 90;
-    int DPAD_DOWN = 180;
-    int DPAD_LEFT = 270;
-
     int DPAD_NORTH = 0;
     int DPAD_NORTHEAST = 45;
     int DPAD_EAST = 90;
@@ -77,13 +60,6 @@ public interface Constants {
     int DPAD_SOUTHWEST = 225;
     int DPAD_WEST = 270;
     int DPAD_NORTHWEST = 315;
-
-
-    double TILT_BOTTOM = .53;
-    double TILT_MIDDLE = .73;
-    double TILT_TOP = .893;
-    double TILT_BACK = .893;
-
 
     double LIFT_TOP = 0.0106;
     double LIFT_BOTTOM = .615;
@@ -114,9 +90,9 @@ public interface Constants {
 
     int RANGE_VOLTAGE_CONSTANT = 5021;
 
-    int NATIVE_PER_ROTATION = 1024;
     int ENCODER_PPR = 256;
+    int NATIVE_PER_ROTATION = ENCODER_PPR * 4;
     double WHEEL_DIAMETER = 4.0;
-    double CLICKS_PER_INCH = (ENCODER_PPR * 4) / (WHEEL_DIAMETER * Math.PI);
+    double CLICKS_PER_INCH = (NATIVE_PER_ROTATION) / (WHEEL_DIAMETER * Math.PI);
     double VOLTS_PER_MM = (ANALOG_OUTPUT_VOLTAGE / RANGE_VOLTAGE_CONSTANT);
 }
