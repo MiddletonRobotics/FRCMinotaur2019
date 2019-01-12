@@ -312,34 +312,39 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
 
-    public void turnProportionalOnMeasurement(double degrees, Direction direction, double speed) throws AutoInterruptedException{
+    double error;
+    double measurement;
+    double prevError;
+    double integral;
+    long prevTime;
+    public boolean turnProportionalOnMeasurement(double degrees, Direction direction, double speed) {
         resetGyro();
  
-        double error = direction.value * degrees - gyro.getAngle();
-        double measurement = gyro.getAngle();
-        double prevError = error;
-        double integral = 0;
-        long prevTime = System.nanoTime();
+        error = direction.value * degrees - gyro.getAngle();
+        measurement = gyro.getAngle();
+        prevError = error;
+        integral = 0;
+        prevTime = System.nanoTime();
  
  
-        while (Math.abs(error) > angleTolerance) {
-            if (Robot.isTeleop || Robot.isDisabled) {
-                throw new AutoInterruptedException();
-            } else {
+        if (Math.abs(error) > angleTolerance) {
             long dt = System.nanoTime() - prevTime;
             error = direction.value * degrees - gyro.getAngle();
             measurement = gyro.getAngle();
             integral = turnPOMIDamper * integral + error * dt;
             double derivative = (error - prevError) / dt;
             prevError = error;
-            double power = -turnPOMKp * measurement + turnPOMKi * integral - turnPOMKd * derivative;
+            double power = -turnPOMKp * measurement + turnPOMKi * integral + turnPOMKd * derivative;
             power = clip(power, -speed, +speed);
             System.out.println(power);
-            setTarget(-power, +power, ControlMode.PercentOutput);
+            setTarget(-power, -power, ControlMode.Velocity);
             prevTime = System.nanoTime();
-            }
-        } 
-        stopDrive();
+            return false;
+        } else {
+            stopDrive();
+            return true;
+        }
+
     }
 
     public void moveByGyroDistance(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {

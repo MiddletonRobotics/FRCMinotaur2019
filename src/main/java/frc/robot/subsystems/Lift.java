@@ -90,7 +90,7 @@ public class Lift extends PIDSubsystem implements Section, Constants {
         } else*/
             usePIDOutput(-getPIDController().get());
 
-        System.out.println("Er" + "ror: " + getPIDController().get() + " : " + liftMotor.get() + " : " + potentiometer.pidGet());
+        //System.out.println("Er" + "ror: " + getPIDController().get() + " : " + liftMotor.get() + " : " + potentiometer.pidGet());
     }
 
     public void autoPID(){

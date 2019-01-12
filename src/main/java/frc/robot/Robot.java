@@ -46,6 +46,7 @@ public class Robot extends IterativeRobot {
      */
     @Override
     public void robotInit() {
+        
         gamepad1 = new Joystick(Constants.gamepad1Port);
         gamepad2 = new Joystick(Constants.gamepad2Port);
         cs = CameraServer.getInstance();
@@ -128,10 +129,9 @@ public class Robot extends IterativeRobot {
         //EY bruh fix this
         //a = chooser.getSelected();
 
-        if (a != null)
-//            a.delay = (int)SmartDashboard.getNumber("Delay MS (C H A N G E T H I S E V E R Y M A T C H)", 0);
-//        a.start();
-                    a.auto();
+        if (a != null) {
+            a.auto();
+        }
     }
 
 
@@ -181,7 +181,7 @@ public class Robot extends IterativeRobot {
 
 
 
-        SmartDashboard.putNumber("Potentiometer:", lift.potentiometer.pidGet());
+        //SmartDashboard.putNumber("Potentiometer:", lift.potentiometer.pidGet());
 //		SmartDashboard.putNumber("Distance form egeg", rangeSensor.getDistance());
        /* SmartDashboard.putNumber("Left motor", driveTrain.getLeftTalon().get());
         SmartDashboard.putNumber("Right motor", driveTrain.getRightTalon().get());

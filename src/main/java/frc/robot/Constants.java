@@ -86,8 +86,8 @@ public interface Constants {
     double turnKd = 0.0;
     double turnIDamper = 1.0;
 
-    double turnPOMKp = 0.0;
-    double turnPOMKi = 0.0001;
+    double turnPOMKp = 0.05;
+    double turnPOMKi = 0.0000000015;
     double turnPOMKd = 0.0;
     double turnPOMIDamper = 1.0;
 
