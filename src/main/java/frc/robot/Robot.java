@@ -28,6 +28,7 @@ public class Robot extends IterativeRobot {
     public static Joystick gamepad2;
 
     public static DriveTrain driveTrain;
+    public static Vision vision;
     //	public static SpeedShift speedShift;
 //	public static ScalerShift scalerShift;
 //	public static GearGrabber gearGrabber;
@@ -73,6 +74,7 @@ public class Robot extends IterativeRobot {
          */
 
         driveTrain = new DriveTrain();
+        vision = new Vision();
         lift = new Lift();
  
 
@@ -178,6 +180,7 @@ public class Robot extends IterativeRobot {
 
         driveTrain.teleop(gamepad1);
         lift.teleop(gamepad2);
+        vision.teleop(gamepad1);
 
 
 
