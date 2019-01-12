@@ -35,7 +35,8 @@ public class Vision extends Subsystem implements Constants, Section{
   @Override
   public void teleop(Joystick gamepad) {
     NetworkTableEntry tx = table.getEntry("tx");
-    System.out.println(tx);
+    double x = tx.getDouble(0.0);
+    System.out.println(x);
   }
 
   @Override

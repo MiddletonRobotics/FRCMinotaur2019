@@ -148,10 +148,7 @@ public class Robot extends IterativeRobot {
         if (a != null) {
             a.loop();
         }
-        SmartDashboard.putNumber("L RPM v2", driveTrain.getLeftTalon().getSelectedSensorVelocity(0));
-        SmartDashboard.putNumber("R RPM v2", driveTrain.getRightTalon().getSelectedSensorVelocity(0));
-
-        SmartDashboard.putNumber("GyroAngle", driveTrain.getGyroAngle());
+        System.out.println("gay");
 
     }
 
