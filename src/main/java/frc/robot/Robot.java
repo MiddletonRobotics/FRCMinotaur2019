@@ -98,6 +98,8 @@ public class Robot extends IterativeRobot {
         Robot.isTeleop = false;
         Robot.isDisabled = true;
         SmartDashboard.putNumber("Disabled Init Ran", 1);
+        driveTrain.initializeVariables();
+        driveTrain.stopDrive();
     }
 
     @Override
@@ -120,7 +122,7 @@ public class Robot extends IterativeRobot {
      */
 
     //Hey change this
-    private Auto a = new TurnTest();
+    private Auto a;
 
 
     @Override
@@ -131,6 +133,7 @@ public class Robot extends IterativeRobot {
         //EY bruh fix this
         //a = chooser.getSelected();
 
+        a = new TurnTest();
         if (a != null) {
             a.auto();
         }
@@ -148,7 +151,6 @@ public class Robot extends IterativeRobot {
         if (a != null) {
             a.loop();
         }
-        System.out.println("gay");
 
     }
 

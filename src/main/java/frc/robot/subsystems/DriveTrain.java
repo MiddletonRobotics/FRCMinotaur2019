@@ -312,40 +312,115 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
 
-    double error;
-    double measurement;
-    double prevError;
-    double integral;
-    long prevTime;
-    public boolean turnProportionalOnMeasurement(double degrees, Direction direction, double speed) {
-        resetGyro();
+    private double errorTPOM;
+    private double measurementTPOM;
+    private double prevErrorTPOM;
+    private double integralTPOM;
+    private long prevTimeTPOM;
+    private boolean firstRunTPOM = true;
+    public boolean turnProportionalOnMeasurement(double degrees, Direction direction) {
+        if (firstRunTPOM) {
+            resetGyro();
+            prevTimeTPOM = System.nanoTime();
+            firstRunTPOM = !firstRunTPOM;
+        }
  
-        error = direction.value * degrees - gyro.getAngle();
-        measurement = gyro.getAngle();
-        prevError = error;
-        integral = 0;
-        prevTime = System.nanoTime();
- 
- 
-        if (Math.abs(error) > angleTolerance) {
-            long dt = System.nanoTime() - prevTime;
-            error = direction.value * degrees - gyro.getAngle();
-            measurement = gyro.getAngle();
-            integral = turnPOMIDamper * integral + error * dt;
-            double derivative = (error - prevError) / dt;
-            prevError = error;
-            double power = -turnPOMKp * measurement + turnPOMKi * integral + turnPOMKd * derivative;
-            power = clip(power, -speed, +speed);
-            System.out.println(power);
-            setTarget(-power, -power, ControlMode.Velocity);
-            prevTime = System.nanoTime();
+        errorTPOM = direction.value * degrees - gyro.getAngle();
+        System.out.println(errorTPOM);
+        if (Math.abs(errorTPOM) > angleTolerance? true: gyro.getRate() > ROBOT_THRESHOLD_DEGREES_PER_SECOND? true: false) {
+            long dt = System.nanoTime() - prevTimeTPOM;
+            measurementTPOM = gyro.getAngle();
+            integralTPOM += gyro.getRate() <= ROBOT_MAX_DEGREES_PER_SECOND? errorTPOM * dt : 0;
+            double derivative = (errorTPOM - prevErrorTPOM) / dt;
+            prevErrorTPOM = errorTPOM;
+            double velocity = -turnPOMKp * measurementTPOM + turnPOMKi * integralTPOM + turnPOMKd * derivative;
+            velocity = -clip(velocity, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+            setTarget(velocity, velocity, ControlMode.Velocity);
+            prevTimeTPOM = System.nanoTime();
             return false;
         } else {
             stopDrive();
+            initializeVariables();
             return true;
         }
 
     }
+
+    
+    private double errorMGDPOM;
+    private double measurementMGDPOM;
+    private double prevErrorMGDPOM;
+    private double integralMGDPOM;
+    private long prevTimeMGDPOM;
+    private boolean firstRunMGDPOM = true;
+    public void moveGyroDistanceProportionalOnMeasurement(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {
+        if (firstRunMGDPOM) {
+            resetGyro();
+            resetEncoders();            
+            prevTimeMGDPOM = System.nanoTime();
+            firstRunMGDPOM = !firstRunMGDPOM;
+        }
+
+        
+        int targetClicks = (int) (inches * CLICKS_PER_INCH);
+        int clicksRemaining;
+        double distanceIntegral = 0;
+        double angleIntegral = 0;
+        long prevTime = System.nanoTime();
+
+        double prevAngle = 0;
+        double leftPower;
+        double rightPower;
+        double inchesRemaining;
+        double angularError;
+
+
+        //int count = 0;
+        double time = System.currentTimeMillis();
+        do {
+            
+            if (Robot.isDisabled || Robot.isTeleop) {
+                //throw new Exception();
+                break;
+            }
+
+            long dt = System.nanoTime() - prevTime;
+            prevTime = System.nanoTime();
+
+            clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
+            inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
+
+            double measurement = Math.abs(rightTalon.getSensorCollection().getQuadraturePosition())/CLICKS_PER_INCH;
+            angularError = gyro.getAngle();
+
+            distanceIntegral += inchesRemaining * dt;
+            angleIntegral += angularError * dt;
+
+            double power = speed * direction.value * (-measurement * gyroDrivePOMKP + distanceIntegral * gyroDrivePOMKI);
+            power = clip(power, -speed, speed);
+
+            double powerAdjustment = direction.value * (gyroCorrectionKP * angularError + angleIntegral * gyroCorrectionKI);
+            powerAdjustment = clip(powerAdjustment, -1.0, +1.0);
+
+            leftPower = direction == Direction.BACKWARD ?  - powerAdjustment : power + powerAdjustment;
+            rightPower = direction == Direction.BACKWARD ? power + powerAdjustment : power - powerAdjustment;
+
+            double maxPower = Math.max(Math.abs(leftPower), Math.abs(rightPower));
+            if (maxPower > 1.0) {
+                leftPower /= maxPower;
+                rightPower /= maxPower;
+            }
+
+            leftPower = clip(leftPower, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+            rightPower = clip(rightPower, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+
+
+            setTarget(leftPower, -rightPower, ControlMode.Velocity);
+
+        } while (inchesRemaining > 3 || angularError > 2 && System.currentTimeMillis() - time < timeKill);
+        stopDrive();
+    }
+
 
     public void moveByGyroDistance(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {
         int targetClicks = (int) (inches * CLICKS_PER_INCH);
@@ -438,66 +513,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
 
-    public void moveGyroDistanceProportionalOnMeasurement(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {
-        resetGyro();
-        resetEncoders();
-        
-        int targetClicks = (int) (inches * CLICKS_PER_INCH);
-        int clicksRemaining;
-        double distanceIntegral = 0;
-        double angleIntegral = 0;
-        long prevTime = System.nanoTime();
-
-        double prevAngle = 0;
-        double leftPower;
-        double rightPower;
-        double inchesRemaining;
-        double angularError;
-
-
-        //int count = 0;
-        double time = System.currentTimeMillis();
-        do {
-            
-            if (Robot.isDisabled || Robot.isTeleop) {
-                //throw new Exception();
-                break;
-            }
-
-            long dt = System.nanoTime() - prevTime;
-            prevTime = System.nanoTime();
-
-            clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
-            inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
-
-            double measurement = Math.abs(rightTalon.getSensorCollection().getQuadraturePosition())/CLICKS_PER_INCH;
-            angularError = gyro.getAngle();
-
-            distanceIntegral += inchesRemaining * dt;
-            angleIntegral += angularError * dt;
-
-            double power = speed * direction.value * (-measurement * gyroDrivePOMKP + distanceIntegral * gyroDrivePOMKI);
-            power = clip(power, -speed, speed);
-
-            double powerAdjustment = direction.value * (gyroCorrectionKP * angularError + angleIntegral * gyroCorrectionKI);
-            powerAdjustment = clip(powerAdjustment, -1.0, +1.0);
-
-            leftPower = direction == Direction.BACKWARD ?  - powerAdjustment : power + powerAdjustment;
-            rightPower = direction == Direction.BACKWARD ? power + powerAdjustment : power - powerAdjustment;
-
-            double maxPower = Math.max(Math.abs(leftPower), Math.abs(rightPower));
-            if (maxPower > 1.0) {
-                leftPower /= maxPower;
-                rightPower /= maxPower;
-            }
-
-            setTarget(-900 * leftPower, 900 * rightPower, ControlMode.Velocity);
-
-        } while (inchesRemaining > 3 || angularError > 2 && System.currentTimeMillis() - time < timeKill);
-        stopDrive();
-    }
-
-
     public double deadband(double input) {
         return Math.abs(input) < 0.15 ? 0.0 : input;
     }
@@ -552,6 +567,15 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         }
     }
 
+
+    public void initializeVariables() {
+        error = 0;
+        measurement = 0;
+        prevError = 0;
+        integral = 0;
+        prevTime = 0;
+        firstRun = true;
+    }
 
     @Override
     protected void initDefaultCommand() {

@@ -86,8 +86,8 @@ public interface Constants {
     double turnKd = 0.0;
     double turnIDamper = 1.0;
 
-    double turnPOMKp = 0.05;
-    double turnPOMKi = 0.0000000015;
+    double turnPOMKp = 17.3;
+    double turnPOMKi = 0.000000035;
     double turnPOMKd = 0.0;
     double turnPOMIDamper = 1.0;
 
@@ -97,7 +97,7 @@ public interface Constants {
     double gyroCorrectionKI = 0;
 
 
-    double angleTolerance = 0.5;
+    double angleTolerance = 0.05;
 
     int maxRPM = 1250;
 
@@ -107,9 +107,12 @@ public interface Constants {
 
     int RANGE_VOLTAGE_CONSTANT = 5021;
 
+    double ROBOT_MAX_DEGREES_PER_SECOND = 0.5;
+    double ROBOT_THRESHOLD_DEGREES_PER_SECOND = 2;
     int ENCODER_PPR = 256;
     int NATIVE_PER_ROTATION = ENCODER_PPR * 4;
     double WHEEL_DIAMETER = 4.0;
+    double MAX_VELOCITY_NATIVE = maxRPM * NATIVE_PER_ROTATION/10;
     double CLICKS_PER_INCH = (NATIVE_PER_ROTATION) / (WHEEL_DIAMETER * Math.PI);
     double VOLTS_PER_MM = (ANALOG_OUTPUT_VOLTAGE / RANGE_VOLTAGE_CONSTANT);
 }

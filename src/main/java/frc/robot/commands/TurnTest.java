@@ -10,6 +10,7 @@ import java.util.Arrays;
 
 public class TurnTest extends Auto {
     
+    public boolean autoCompleted = false;
     public int currState = 0;
     public enum States {
      turn   
@@ -17,19 +18,19 @@ public class TurnTest extends Auto {
     public ArrayList<States> statesList = new ArrayList();
 
     public void auto() {
-        statesList.addAll(Arrays.asList(States.turn));
+        statesList.addAll(Arrays.asList(States.turn, States.turn,States.turn,States.turn,States.turn,States.turn,States.turn,States.turn));
     }
 
     public void loop() {
-
-        switch (statesList.get(currState)) {
-            case turn: 
-                if (Robot.driveTrain.turnProportionalOnMeasurement(90, Direction.CLOCKWISE, 1)) {
-                    nextState();
-                }
-                break;
+        if (!autoCompleted) {
+            switch (statesList.get(currState)) {
+                case turn: 
+                    if (Robot.driveTrain.turnProportionalOnMeasurement(45, Direction.CLOCKWISE)) {
+                        nextState();
+                    }
+                    break;
+            }
         }
-
     }
 
     public void stop() {
@@ -38,6 +39,9 @@ public class TurnTest extends Auto {
 
     public void nextState() {
         currState++;
+        if (currState >= statesList.size()) {
+            autoCompleted = true;
+        }
     }
 }
 
