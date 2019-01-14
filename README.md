@@ -1,5 +1,6 @@
 # FRCMinotaur2019
 Private repo for 2019 Team 1369 code.
+### DELETE THE FOLDER FOR THE OLD REPO BEFORE CLONING THIS ONE
 
 ## Setup
 To use with git bash, choose a folder to clone into, then run:
