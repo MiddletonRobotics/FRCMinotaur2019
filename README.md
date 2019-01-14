@@ -27,6 +27,9 @@ Switch to a different branch at anytime with:
 git checkout your-branch-name
 ```
 ## Merging
+### We are going to try using pull requests first and see how it goes.  Casey, Ramsey, and Andrew have the ability to approve pull requests.
+
+#### General Merge Info:
 After your feature is done being implemented on a given branch you should merge it back into master:
 ```
 git checkout master
