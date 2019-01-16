@@ -99,6 +99,9 @@ public interface Constants {
 
     double angleTolerance = 0.05;
 
+    double distanceTolerance = 0.5;
+    
+
     int maxRPM = 1250;
 
     float NOMINAL_OUTPUT_VOLTAGE = 0.0f;

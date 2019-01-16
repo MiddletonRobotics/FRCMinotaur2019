@@ -21,37 +21,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     private final WPI_TalonSRX leftSlave, rightSlave;
     private AHRS gyro = new AHRS(SPI.Port.kMXP);
 
-    private AHRS getGyro() {
-        return gyro;
-    }
-
-    public double getGyroAngle() {
-        return getGyro().getAngle();
-    }
-
-    public WPI_TalonSRX getLeftTalon() {
-        return this.leftTalon;
-    }
-
-    public WPI_TalonSRX getRightTalon() {
-        return this.rightTalon;
-    }
-
-    public enum Direction {
-        FORWARD(+1.0), BACKWARD(-1.0), CLOCKWISE(+1.0), COUNTERCLOCKWISE(-1.0);
-        public final double value;
-
-        Direction(double value) {
-            this.value = value;
-        }
-    }
-
-    public enum TeleopDriveModes {
-        TANK_DRIVE, NEED_4_SPEED
-    }
-
     private TeleopDriveModes driveMode = TeleopDriveModes.NEED_4_SPEED;
-    private int clicksRemaining;
 
     public DriveTrain() {
         leftTalon = new WPI_TalonSRX(masterLeftPort);
@@ -65,161 +35,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
         configTalon(leftTalon, true);
         configTalon(rightTalon, true);
-    }
-
-    @Override
-    public void reset() {
-        leftTalon.set(0);
-        rightTalon.set(0);
-        resetEncoders();
-        resetGyro();
-        setProfile(0);
-
-    }
-
-    private void setupSlaves(WPI_TalonSRX master, WPI_TalonSRX slave) {
-        slave.set(ControlMode.Follower, master.getDeviceID());
-    }
-
-    private void configTalon(WPI_TalonSRX master, boolean reversed) {
-        master.set(0);
-
-        master.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
-        master.setSensorPhase(reversed);
-        // master.configClosedloopRamp(0.25, 0);
-        master.configOpenloopRamp(0.25, 0);
-//      masteqr.configNominalOutputForward(NOMINAL_OUTPUT_VOLTAGE, -NOMINAL_OUTPUT_VOLTAGE);
-        //    master.configPeakOutputVoltage(+PEAK_OUTPUT_VOLTAGE, -PEAK_OUTPUT_VOLTAGE);
-
-        //aster.configSen R);
-
-        master.configAllowableClosedloopError(0, 0, 0);
-
-        //  master.setVoltageRampRate(48);
-        master.config_kF(0, kfDriveTrainVel, 0);
-        master.config_kP(0, kpDriveTrainVel, 0);
-        master.config_kI(0, kiDriveTrainVel, 0);
-        master.config_kD(0, kdDriveTrainVel, 0);
-
-        master.config_kF(1, kfDriveTrainPos, 0);
-        master.config_kP(1, kpDriveTrainPos, 0);
-        master.config_kI(1, kiDriveTrainPos, 0);
-        master.config_kD(1, kdDriveTrainPos, 0);
-
-        master.config_kF(2, kfDriveTrainPos2, 0);
-        master.config_kP(2, kpDriveTrainPos2, 0);
-        master.config_kI(2, kiDriveTrainPos2, 0);
-        master.config_kD(2, kdDriveTrainPos2, 0);
-        //aster.setF(kfDriveTrainVbus);
-        //master.setP(kpDriveTrainVbus);
-        //master.setI(kiDriveTrainVbus);.config
-        //     master.setD(kdDriveTrainVbus);
-    }
-
-    public void setLeftTarget(double target, ControlMode controlMode) {
-        leftTalon.set(controlMode, target);
-    }
-
-    public void setRightTarget(double target, ControlMode controlMode) {
-        rightTalon.set(controlMode, target);
-    }
-
-    public void setTarget(double left, double right, ControlMode controlMode) {
-        setLeftTarget(left, controlMode);
-        setRightTarget(right, controlMode);
-    }
-
-    public void setTarget(double target, ControlMode controlMode) {
-        setTarget(target, target, controlMode);
-    }
-
-    public void stopDrive() {
-        setTarget(0, ControlMode.PercentOutput);
-    }
-
-    public void resetEncoders() {
-        stopDrive();
-        leftTalon.getSensorCollection().setQuadraturePosition(0, 10);
-        rightTalon.getSensorCollection().setQuadraturePosition(0, 10);
-
-    }
-
-    public void resetGyro() {
-        gyro.reset();
-
-    }
-
-    public void driveByGyroOnly() {
-
-    }
-
-    public void driveInMode(ControlMode mode, double left, double right) {
-        setTarget(left, right, mode);
-    }
-
-    public void driveInMode(ControlMode mode, double target) {
-        driveInMode(mode, target, target);
-    }
-
-    public void drivePosition(double left, double right) {
-        driveInMode(ControlMode.Position, left, right);
-    }
-
-    public void drivePosition(double target) {
-        drivePosition(target, target);
-    }
-
-    public void driveVbus(double left, double right) {
-        driveInMode(ControlMode.PercentOutput, left, right);
-    }
-
-    public void driveVbus(double target) {
-        driveVbus(target, target);
-    }
-
-    public void driveVelocity(double left, double right) {
-
-        if (left == 0 && right == 0) {
-            leftTalon.set(0);
-            rightTalon.set(0);
-        } else {
-            setTarget(left, right, ControlMode.Velocity);
-        }
-        // driveInMode(ControlMode.Speed, left, right);
-    }
-
-    public void driveVelocity(double target) {
-        driveVelocity(target, target);
-    }
-
-    public void driveDistance(double distInches) {
-        resetEncoders();
-        double clicks = distInches * CLICKS_PER_INCH;
-
-        this.driveInMode(ControlMode.Position, -clicks, clicks);
-//        System.out.println(clicks + " : " + getLeftTalon().getClosedLoopError(0));
-        // driveInMode(ControlMode.Position, distInches * CLICKS_PER_INCH);
-    }
-
-    public double getLeftVelocity() {
-        return leftTalon.getSensorCollection().getQuadratureVelocity()/NATIVE_PER_ROTATION;
-    }
-
-    public double getRightVelocity() {
-        return rightTalon.getSensorCollection().getQuadratureVelocity()/NATIVE_PER_ROTATION;
-    }
-
-    private double clip(double value, double min, double max) {
-        if (value < min)
-            value = min;
-        if (value > max)
-            value = max;
-        return value;
-    }
-
-    public void setProfile(int slotID) {
-        leftTalon.selectProfileSlot(slotID, 0);
-        rightTalon.selectProfileSlot(slotID, 0);
     }
 
     @Deprecated
@@ -242,13 +57,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         } while (inchesRemaining > 0.5);
         stopDrive();
     }
-
-    public double inchesToRotations(double inches) {
-        return inches / (WHEEL_DIAMETER * Math.PI);
-    }
-
-
-    public static boolean robotStop = false;
 
     public void turnPID(double degrees, Direction direction, double speed) {
         resetGyro();
@@ -312,8 +120,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
 
-    private double errorTPOM;
-    private double measurementTPOM;
     private double prevErrorTPOM;
     private double integralTPOM;
     private long prevTimeTPOM;
@@ -325,11 +131,10 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             firstRunTPOM = !firstRunTPOM;
         }
  
-        errorTPOM = direction.value * degrees - gyro.getAngle();
-        System.out.println(errorTPOM);
+        double errorTPOM = direction.value * degrees - gyro.getAngle();
         if (Math.abs(errorTPOM) > angleTolerance? true: gyro.getRate() > ROBOT_THRESHOLD_DEGREES_PER_SECOND? true: false) {
             long dt = System.nanoTime() - prevTimeTPOM;
-            measurementTPOM = gyro.getAngle();
+            double measurementTPOM = gyro.getAngle();
             integralTPOM += gyro.getRate() <= ROBOT_MAX_DEGREES_PER_SECOND? errorTPOM * dt : 0;
             double derivative = (errorTPOM - prevErrorTPOM) / dt;
             prevErrorTPOM = errorTPOM;
@@ -347,78 +152,68 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     
-    private double errorMGDPOM;
-    private double measurementMGDPOM;
+
     private double prevErrorMGDPOM;
-    private double integralMGDPOM;
     private long prevTimeMGDPOM;
     private boolean firstRunMGDPOM = true;
-    public void moveGyroDistanceProportionalOnMeasurement(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {
+    private double distanceIntegralMGDPOM = 0;
+    private double angleIntegralMGDPOM = 0;
+    public boolean moveGyroDistanceProportionalOnMeasurement(double inches, Direction direction,  double allowableError, double timeKill) {
         if (firstRunMGDPOM) {
             resetGyro();
             resetEncoders();            
             prevTimeMGDPOM = System.nanoTime();
             firstRunMGDPOM = !firstRunMGDPOM;
         }
-
         
         int targetClicks = (int) (inches * CLICKS_PER_INCH);
-        int clicksRemaining;
-        double distanceIntegral = 0;
-        double angleIntegral = 0;
-        long prevTime = System.nanoTime();
+        int clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
 
-        double prevAngle = 0;
-        double leftPower;
-        double rightPower;
-        double inchesRemaining;
-        double angularError;
+        double inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
+        double angularError = gyro.getAngle();
 
 
-        //int count = 0;
         double time = System.currentTimeMillis();
-        do {
+    // ADDDDDD MIN SPEED THRESHOLD
+
+        if (Math.abs(inchesRemaining) > distanceTolerance || Math.abs(angularError) > angleTolerance && System.currentTimeMillis() - time < timeKill) {
             
-            if (Robot.isDisabled || Robot.isTeleop) {
-                //throw new Exception();
-                break;
-            }
-
-            long dt = System.nanoTime() - prevTime;
-            prevTime = System.nanoTime();
-
-            clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
-            inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
+            long dt = System.nanoTime() - prevTimeMGDPOM;
 
             double measurement = Math.abs(rightTalon.getSensorCollection().getQuadraturePosition())/CLICKS_PER_INCH;
-            angularError = gyro.getAngle();
 
-            distanceIntegral += inchesRemaining * dt;
-            angleIntegral += angularError * dt;
+            distanceIntegralMGDPOM += inchesRemaining * dt;
+            angleIntegralMGDPOM += angularError * dt;
 
-            double power = speed * direction.value * (-measurement * gyroDrivePOMKP + distanceIntegral * gyroDrivePOMKI);
-            power = clip(power, -speed, speed);
+            double speed = direction.value * (-measurement * gyroDrivePOMKP + distanceIntegralMGDPOM * gyroDrivePOMKI);
+            speed = clip(speed, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
 
-            double powerAdjustment = direction.value * (gyroCorrectionKP * angularError + angleIntegral * gyroCorrectionKI);
-            powerAdjustment = clip(powerAdjustment, -1.0, +1.0);
+            double powerAdjustment = direction.value * (gyroCorrectionKP * angularError + angleIntegralMGDPOM * gyroCorrectionKI);
+            powerAdjustment = clip(powerAdjustment, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+     
+            double leftSpeed = speed + powerAdjustment;
+            double rightSpeed = speed + powerAdjustment;
 
-            leftPower = direction == Direction.BACKWARD ?  - powerAdjustment : power + powerAdjustment;
-            rightPower = direction == Direction.BACKWARD ? power + powerAdjustment : power - powerAdjustment;
+            double maxPower = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
 
-            double maxPower = Math.max(Math.abs(leftPower), Math.abs(rightPower));
-            if (maxPower > 1.0) {
-                leftPower /= maxPower;
-                rightPower /= maxPower;
+            if (maxPower > MAX_VELOCITY_NATIVE) {
+                leftSpeed /= maxPower;
+                rightSpeed /= maxPower;
             }
 
-            leftPower = clip(leftPower, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
-            rightPower = clip(rightPower, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+            leftSpeed = clip(leftSpeed, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+            rightSpeed = clip(rightSpeed, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
 
 
-            setTarget(leftPower, -rightPower, ControlMode.Velocity);
+            setTarget(leftSpeed, -rightSpeed, ControlMode.Velocity);
+            prevTimeMGDPOM = System.nanoTime();
 
-        } while (inchesRemaining > 3 || angularError > 2 && System.currentTimeMillis() - time < timeKill);
-        stopDrive();
+            return true;
+        } else {
+            stopDrive();
+            initializeVariables();
+            return true;
+        }
     }
 
 
@@ -569,58 +364,211 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
 
     public void initializeVariables() {
-        error = 0;
-        measurement = 0;
-        prevError = 0;
-        integral = 0;
-        prevTime = 0;
-        firstRun = true;
+        prevErrorTPOM = 0;
+        integralTPOM = 0;
+        prevTimeTPOM = 0;
+        firstRunTPOM = true;
+
+        prevErrorMGDPOM = 0;
+        prevTimeMGDPOM = 0;
+        firstRunMGDPOM = true;
+        distanceIntegralMGDPOM = 0;
+        angleIntegralMGDPOM = 0;
+
+        // prevError = 0;
+        // integral = 0;
+        // prevTime = 0;
+        // firstRun = true;
     }
 
     @Override
     protected void initDefaultCommand() {
         System.out.println("Minotaur DriveTrain");
     }
+    
+    @Override
+    public void reset() {
+        leftTalon.set(0);
+        rightTalon.set(0);
+        resetEncoders();
+        resetGyro();
+        setProfile(0);
 
-//     public void turnP(double degrees, Direction direction, double speed, double allowableError, double timeKill, boolean xd) throws AutoInterruptedException {
-//         resetGyro();
-//         double error;
-//         double power;
-//         double kp = 0.04;
-//         double integral = 0;
-//         double ki = 0.00005;
-//         double prevTime = System.currentTimeMillis();
+    }
 
-//         double sTime = System.currentTimeMillis();
+    private void setupSlaves(WPI_TalonSRX master, WPI_TalonSRX slave) {
+        slave.set(ControlMode.Follower, master.getDeviceID());
+    }
 
-//         int count = 0;
-//         do {
+    private void configTalon(WPI_TalonSRX master, boolean reversed) {
+        master.set(0);
 
-//             if (Robot.isTeleop || Robot.isDisabled) {
-//                 throw new AutoInterruptedException();
-//             } else {
-//                 error = (direction.value * degrees) - gyro.getAngle();
-// //                error = direction.value * ((Math.abs(degrees)/*90*/ > gyro.getAngle() ? (gyro.getAngle() - Math.abs(degrees)) : -((Math.abs(degrees)) - gyro.getAngle())));
-// //                integral += error * (System.currentTimeMillis() - prevTime);
-// //                prevTime = System.currentTimeMillis();
-//                 power = kp * error/* + ki * integral*/;
-//                 power = clip(power, -speed, +speed);
-//                 setTarget(-power, -power, ControlMode.PercentOutput);
+        master.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+        master.setSensorPhase(reversed);
+        // master.configClosedloopRamp(0.25, 0);
+        master.configOpenloopRamp(0.25, 0);
+//      masteqr.configNominalOutputForward(NOMINAL_OUTPUT_VOLTAGE, -NOMINAL_OUTPUT_VOLTAGE);
+        //    master.configPeakOutputVoltage(+PEAK_OUTPUT_VOLTAGE, -PEAK_OUTPUT_VOLTAGE);
 
-//                 if (Math.abs(error) < allowableError) {
-//                     count++;
-//                 } else {
-//                     //count = 0;
-//                 }
-//             }
-//             System.out.println("turning: " + degrees + ":" + direction.toString() + ":" + power);
-//         } while (count < 500 && System.currentTimeMillis() - sTime < timeKill);
-//         System.out.println("Completed");
+        //aster.configSen R);
 
-//         stopDrive();
+        master.configAllowableClosedloopError(0, 0, 0);
 
-//     }
+        //  master.setVoltageRampRate(48);
+        master.config_kF(0, kfDriveTrainVel, 0);
+        master.config_kP(0, kpDriveTrainVel, 0);
+        master.config_kI(0, kiDriveTrainVel, 0);
+        master.config_kD(0, kdDriveTrainVel, 0);
+
+        master.config_kF(1, kfDriveTrainPos, 0);
+        master.config_kP(1, kpDriveTrainPos, 0);
+        master.config_kI(1, kiDriveTrainPos, 0);
+        master.config_kD(1, kdDriveTrainPos, 0);
+
+        master.config_kF(2, kfDriveTrainPos2, 0);
+        master.config_kP(2, kpDriveTrainPos2, 0);
+        master.config_kI(2, kiDriveTrainPos2, 0);
+        master.config_kD(2, kdDriveTrainPos2, 0);
+        //aster.setF(kfDriveTrainVbus);
+        //master.setP(kpDriveTrainVbus);
+        //master.setI(kiDriveTrainVbus);.config
+        //     master.setD(kdDriveTrainVbus);
+    }
+
+    public void setLeftTarget(double target, ControlMode controlMode) {
+        leftTalon.set(controlMode, target);
+    }
+
+    public void setRightTarget(double target, ControlMode controlMode) {
+        rightTalon.set(controlMode, target);
+    }
+
+    public void setTarget(double left, double right, ControlMode controlMode) {
+        setLeftTarget(left, controlMode);
+        setRightTarget(right, controlMode);
+    }
+
+    public void setTarget(double target, ControlMode controlMode) {
+        setTarget(target, target, controlMode);
+    }
+
+    public void stopDrive() {
+        setTarget(0, ControlMode.PercentOutput);
+    }
+
+    public void resetEncoders() {
+        stopDrive();
+        leftTalon.getSensorCollection().setQuadraturePosition(0, 10);
+        rightTalon.getSensorCollection().setQuadraturePosition(0, 10);
+
+    }
+
+    public void resetGyro() {
+        gyro.reset();
+
+    }
+
+    public void driveByGyroOnly() {
+
+    }
+
+    public void driveInMode(ControlMode mode, double left, double right) {
+        setTarget(left, right, mode);
+    }
+
+    public void driveInMode(ControlMode mode, double target) {
+        driveInMode(mode, target, target);
+    }
+
+    public void drivePosition(double left, double right) {
+        driveInMode(ControlMode.Position, left, right);
+    }
+
+    public void drivePosition(double target) {
+        drivePosition(target, target);
+    }
+
+    public void driveVbus(double left, double right) {
+        driveInMode(ControlMode.PercentOutput, left, right);
+    }
+
+    public void driveVbus(double target) {
+        driveVbus(target, target);
+    }
+
+    public void driveVelocity(double left, double right) {
+
+        if (left == 0 && right == 0) {
+            leftTalon.set(0);
+            rightTalon.set(0);
+        } else {
+            setTarget(left, right, ControlMode.Velocity);
+        }
+    }
+
+    private AHRS getGyro() {
+        return gyro;
+    }
+
+    public double getGyroAngle() {
+        return getGyro().getAngle();
+    }
+
+    public WPI_TalonSRX getLeftTalon() {
+        return this.leftTalon;
+    }
+
+    public WPI_TalonSRX getRightTalon() {
+        return this.rightTalon;
+    }
+
+    public enum Direction {
+        FORWARD(+1.0), BACKWARD(-1.0), CLOCKWISE(+1.0), COUNTERCLOCKWISE(-1.0);
+        public final double value;
+
+        Direction(double value) {
+            this.value = value;
+        }
+    }
+
+    public enum TeleopDriveModes {
+        TANK_DRIVE, NEED_4_SPEED
+    }
 
 
+    public void driveVelocity(double target) {
+        driveVelocity(target, target);
+    }
 
+    public void driveDistance(double distInches) {
+        resetEncoders();
+        double clicks = distInches * CLICKS_PER_INCH;
+
+        this.driveInMode(ControlMode.Position, -clicks, clicks);
+    }
+
+    public double getLeftVelocity() {
+        return leftTalon.getSensorCollection().getQuadratureVelocity()/NATIVE_PER_ROTATION;
+    }
+
+    public double getRightVelocity() {
+        return rightTalon.getSensorCollection().getQuadratureVelocity()/NATIVE_PER_ROTATION;
+    }
+
+    private double clip(double value, double min, double max) {
+        if (value < min)
+            value = min;
+        if (value > max)
+            value = max;
+        return value;
+    }
+
+    public void setProfile(int slotID) {
+        leftTalon.selectProfileSlot(slotID, 0);
+        rightTalon.selectProfileSlot(slotID, 0);
+    }
+
+    public double inchesToRotations(double inches) {
+        return inches / (WHEEL_DIAMETER * Math.PI);
+    }
 }
