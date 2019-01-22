@@ -135,7 +135,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         if (Math.abs(errorTPOM) > angleTolerance? true: gyro.getRate() > ROBOT_THRESHOLD_DEGREES_PER_SECOND? true: false) {
             long dt = System.nanoTime() - prevTimeTPOM;
             double measurementTPOM = gyro.getAngle();
-            integralTPOM += gyro.getRate() <= ROBOT_MAX_DEGREES_PER_SECOND? errorTPOM * dt : 0;
+            integralTPOM += gyro.getRate() <= ROBOT_MAX_DEGREES_PER_SECOND_INTEGRAL_LIMIT? errorTPOM * dt : 0;
             double derivative = (errorTPOM - prevErrorTPOM) / dt;
             prevErrorTPOM = errorTPOM;
             double velocity = -turnPOMKp * measurementTPOM + turnPOMKi * integralTPOM + turnPOMKd * derivative;
@@ -188,7 +188,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             double speed = direction.value * (-measurement * gyroDrivePOMKP + distanceIntegralMGDPOM * gyroDrivePOMKI);
             speed = clip(speed, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
 
-            double powerAdjustment = direction.value * (gyroCorrectionKP * angularError + angleIntegralMGDPOM * gyroCorrectionKI);
+            double powerAdjustment = gyroCorrectionKP * angularError + angleIntegralMGDPOM * gyroCorrectionKI;
             powerAdjustment = clip(powerAdjustment, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
      
             double leftSpeed = speed + powerAdjustment;
@@ -197,13 +197,9 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             double maxPower = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
 
             if (maxPower > MAX_VELOCITY_NATIVE) {
-                leftSpeed /= maxPower;
-                rightSpeed /= maxPower;
-            }
-
-            leftSpeed = clip(leftSpeed, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
-            rightSpeed = clip(rightSpeed, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
-
+                leftSpeed *= (MAX_VELOCITY_NATIVE/maxPower);
+                rightSpeed *= (MAX_VELOCITY_NATIVE/maxPower);
+            }            
 
             setTarget(leftSpeed, -rightSpeed, ControlMode.Velocity);
             prevTimeMGDPOM = System.nanoTime();
@@ -215,6 +211,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             return true;
         }
     }
+
 
 
     public void moveByGyroDistance(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {

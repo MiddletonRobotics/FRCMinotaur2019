@@ -204,4 +204,8 @@ public class Robot extends IterativeRobot {
 
     }
 
+    public static void winEinstein() {
+
+    }
+
 }

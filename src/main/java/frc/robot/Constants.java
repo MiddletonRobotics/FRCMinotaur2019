@@ -110,7 +110,9 @@ public interface Constants {
 
     int RANGE_VOLTAGE_CONSTANT = 5021;
 
-    double ROBOT_MAX_DEGREES_PER_SECOND = 0.5;
+    double ROBOT_MAX_DEGREES_PER_SECOND_INTEGRAL_LIMIT = 0.5;
+
+    //HEY change this it's too high
     double ROBOT_THRESHOLD_DEGREES_PER_SECOND = 2;
     int ENCODER_PPR = 256;
     int NATIVE_PER_ROTATION = ENCODER_PPR * 4;
