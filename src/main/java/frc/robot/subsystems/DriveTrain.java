@@ -55,10 +55,10 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     public DriveTrain() {
         leftTalon = new WPI_TalonSRX(masterLeftPort);
-        leftSlave = new WPI_TalonSRX(slaveLeftPort);
+        leftSlave = new WPI_TalonSRX(slaveLeftPort1);
 
         rightTalon = new WPI_TalonSRX(masterRightPort);
-        rightSlave = new WPI_TalonSRX(slaveRightPort);
+        rightSlave = new WPI_TalonSRX(slaveRightPort1);
 
         setupSlaves(leftTalon, leftSlave);
         setupSlaves(rightTalon, rightSlave);

@@ -12,9 +12,11 @@ public interface Constants {
 
     //Hardware Ports
     int masterLeftPort = 5;
-    int slaveLeftPort = 6;
+    int slaveLeftPort1 = 6;
+    int slaveLeftPort2 = 7;
     int masterRightPort = 3;
-    int slaveRightPort = 4;
+    int slaveRightPort1 = 4;
+    int slaveRightPort2 = 8;
 
     int liftMotor1Port = 49;
     int liftMotor2Port = 39;
@@ -112,4 +114,93 @@ public interface Constants {
     double WHEEL_DIAMETER = 4.0;
     double CLICKS_PER_INCH = (NATIVE_PER_ROTATION) / (WHEEL_DIAMETER * Math.PI);
     double VOLTS_PER_MM = (ANALOG_OUTPUT_VOLTAGE / RANGE_VOLTAGE_CONSTANT);
+
+
+
+
+
+    //BIG BRAIN STARTS HERE
+
+    /* ROBOT PHYSICAL CONSTANTS */
+
+    // Wheels
+    // double kDriveWheelDiameterInches = 4.875;	//Practice bot calibrated 4.875
+     double kDriveWheelDiameterInches = 5;	//Comp bot measured val
+    // double kDriveWheelDiameterInches = PathAdapter.getAdaptedWheelDiameter();
+     double kTrackWidthInches = 25.5;
+     double kTrackScrubFactor = 1.0; // 0.924 ?
+
+    // Geometry
+     double kCenterToFrontBumperDistance = 18.75;
+     double kCenterToIntakeDistance = 18.75;
+     double kCenterToRearBumperDistance = 18.75;
+     double kCenterToSideBumperDistance = 16.375;
+
+    // Path following constants
+     double kMinLookAhead = 12.0; // inches
+     double kMinLookAheadSpeed = 9.0; // inches per second
+     double kMaxLookAhead = 24.0; // inches
+     double kMaxLookAheadSpeed = 140.0; // inches per second
+     double kDeltaLookAhead = kMaxLookAhead - kMinLookAhead;
+     double kDeltaLookAheadSpeed = kMaxLookAheadSpeed - kMinLookAheadSpeed;
+
+     double kInertiaSteeringGain = 0.0; // angular velocity command is multiplied by this gain *
+    // our speed
+    // in inches per sec
+     double kSegmentCompletionTolerance = 1; // inches
+     double kPathFollowingMaxAccel = 100.0; // inches per second^2
+     double kPathFollowingMaxVel = 140.0; // inches per second
+
+     double kPathFollowingProfileKp = 5.0;   //Used to be 5 when tuning our paths
+     double kPathFollowingProfileKi = 0.03;
+     double kPathFollowingProfileKv = 0.2;
+     double kPathFollowingProfileKffv = 1.0;
+     double kPathFollowingProfileKffa = 0.05;
+     double kPathFollowingGoalPosTolerance = 1;
+     double kPathFollowingGoalVelTolerance = 18.0;
+     double kPathStopSteeringDistance = 9.0;
+     double kMaxTrackerDistance = 18.0;
+     double kMaxGoalTrackAge = 1.0;
+     double kCameraFrameRate = 30.0;
+
+    //Thread prioritization - 5 is default
+     int kRobotThreadPriority = 9;
+     int kLooperThreadPriority = Thread.MAX_PRIORITY;
+     int kCriticalSystemsMonitorThreadPriority = 8;
+     int kConnectionMonitorThreadPriority = 7;
+     int kLEDThreadPriority = Thread.MIN_PRIORITY;
+     int kConsoleReporterThreadPriority = Thread.NORM_PRIORITY;
+     int kDashboardReporterThreadPriority = 6;
+     double kLooperDt = 0.005;
+     double kSensorUnitsPerRotation = 4096.0;
+     double k100msPerMinute = 600.0;
+
+     int kTimeoutMs = 20;
+     int kTimeoutMsFast = 10;
+     int kActionTimeoutS = 2;
+     int kTalonRetryCount = 3;
+
+    /* CONTROL LOOP GAINS */
+
+    // PID gains for drive velocity loop (HIGH GEAR)
+    // Units: setpoint, error, and output are in inches per second.
+    // UNTUNED
+    double kDriveHighGearVelocityKp = 1;
+    double kDriveHighGearVelocityKi = 0.005;
+    double kDriveHighGearVelocityKd = 1.6;
+    double kDriveHighGearVelocityKf = 0.165;
+    int kDriveHighGearVelocityIZone = 0;
+    double kDriveHighGearVelocityRampRate = 0.1;
+    double kDriveHighGearMaxSetpoint = 12.0 * 12.0; // 12 fps
+
+    public static final double kCameraXOffset = -3.3211;
+	public static final double kCameraYOffset = 0.0;
+	public static final double kCameraZOffset = 20.9;
+	public static final double kCameraPitchAngleDegrees = 29.56; // Measured on 4/26
+	public static final double kCameraYawAngleDegrees = 0.0;
+    public static final double kCameraDeadband = 0.0;
+    
+    public static final double kBoilerTargetTopHeight = 88.0;
+	public static final double kBoilerRadius = 7.5;
+
 }
