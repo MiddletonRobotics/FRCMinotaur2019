@@ -35,7 +35,102 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
         configTalon(leftTalon, true);
         configTalon(rightTalon, true);
+        initializeVariables();
     }
+
+
+    private double prevErrorTPOM;
+    private double integralTPOM;
+    private long prevTimeTPOM;
+    private boolean firstRunTPOM = true;
+    public boolean turnProportionalOnMeasurement(double degrees, Direction direction) {
+        if (firstRunTPOM) {
+            initializeVariables();
+            resetGyro();
+            prevTimeTPOM = System.nanoTime();
+            firstRunTPOM = !firstRunTPOM;
+        }
+
+        double errorTPOM = direction.value * degrees - gyro.getAngle();
+        if (Math.abs(errorTPOM) > angleTolerance? true: gyro.getRate() > ROBOT_THRESHOLD_DEGREES_PER_SECOND? true: false) {
+            long dt = System.nanoTime() - prevTimeTPOM;
+            double measurementTPOM = gyro.getAngle();
+            integralTPOM += gyro.getRate() <= ROBOT_MAX_DEGREES_PER_SECOND_INTEGRAL_LIMIT? errorTPOM * dt : 0;
+            double derivative = (errorTPOM - prevErrorTPOM) / dt;
+            prevErrorTPOM = errorTPOM;
+            double velocity = -turnPOMKp * measurementTPOM + turnPOMKi * integralTPOM + turnPOMKd * derivative;
+            velocity = -clip(velocity, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+            setTarget(velocity, velocity, ControlMode.Velocity);
+            prevTimeTPOM = System.nanoTime();
+            return false;
+        } else {
+            stopDrive();
+            return true;
+        }
+
+    }
+
+
+    private double prevErrorMGDPOM;
+    private long prevTimeMGDPOM;
+    private boolean firstRunMGDPOM = true;
+    private double distanceIntegralMGDPOM = 0;
+    private double angleIntegralMGDPOM = 0;
+    public boolean moveGyroDistanceProportionalOnMeasurement(double inches, Direction direction,  double allowableError, double timeKill) {
+        if (firstRunMGDPOM) {
+            initializeVariables();
+            resetGyro();
+            resetEncoders();
+            prevTimeMGDPOM = System.nanoTime();
+            firstRunMGDPOM = !firstRunMGDPOM;
+        }
+
+        int targetClicks = (int) (inches * CLICKS_PER_INCH);
+        int clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
+
+        double inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
+        double angularError = gyro.getAngle();
+
+
+        double time = System.currentTimeMillis();
+        // ADDDDDD MIN SPEED THRESHOLD
+
+        if (Math.abs(inchesRemaining) > distanceTolerance || Math.abs(angularError) > angleTolerance && System.currentTimeMillis() - time < timeKill) {
+
+            long dt = System.nanoTime() - prevTimeMGDPOM;
+
+            double measurement = Math.abs(rightTalon.getSensorCollection().getQuadraturePosition())/CLICKS_PER_INCH;
+
+            distanceIntegralMGDPOM += inchesRemaining * dt;
+            angleIntegralMGDPOM += angularError * dt;
+
+            double speed = direction.value * (-measurement * gyroDrivePOMKP + distanceIntegralMGDPOM * gyroDrivePOMKI);
+            speed = clip(speed, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+
+            double powerAdjustment = gyroCorrectionKP * angularError + angleIntegralMGDPOM * gyroCorrectionKI;
+            powerAdjustment = clip(powerAdjustment, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+
+            double leftSpeed = speed + powerAdjustment;
+            double rightSpeed = speed + powerAdjustment;
+
+            double maxPower = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
+
+            if (maxPower > MAX_VELOCITY_NATIVE) {
+                leftSpeed *= (MAX_VELOCITY_NATIVE/maxPower);
+                rightSpeed *= (MAX_VELOCITY_NATIVE/maxPower);
+            }
+
+            setTarget(leftSpeed, -rightSpeed, ControlMode.Velocity);
+            prevTimeMGDPOM = System.nanoTime();
+
+            return true;
+        } else {
+            stopDrive();
+            return true;
+        }
+    }
+
+
 
     @Deprecated
     public void moveByDistance(double inches, Direction direction, double speed) {
@@ -118,101 +213,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         System.out.println("Completed");
         stopDrive();
     }
-
-
-    private double prevErrorTPOM;
-    private double integralTPOM;
-    private long prevTimeTPOM;
-    private boolean firstRunTPOM = true;
-    public boolean turnProportionalOnMeasurement(double degrees, Direction direction) {
-        if (firstRunTPOM) {
-            resetGyro();
-            prevTimeTPOM = System.nanoTime();
-            firstRunTPOM = !firstRunTPOM;
-        }
- 
-        double errorTPOM = direction.value * degrees - gyro.getAngle();
-        if (Math.abs(errorTPOM) > angleTolerance? true: gyro.getRate() > ROBOT_THRESHOLD_DEGREES_PER_SECOND? true: false) {
-            long dt = System.nanoTime() - prevTimeTPOM;
-            double measurementTPOM = gyro.getAngle();
-            integralTPOM += gyro.getRate() <= ROBOT_MAX_DEGREES_PER_SECOND_INTEGRAL_LIMIT? errorTPOM * dt : 0;
-            double derivative = (errorTPOM - prevErrorTPOM) / dt;
-            prevErrorTPOM = errorTPOM;
-            double velocity = -turnPOMKp * measurementTPOM + turnPOMKi * integralTPOM + turnPOMKd * derivative;
-            velocity = -clip(velocity, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
-            setTarget(velocity, velocity, ControlMode.Velocity);
-            prevTimeTPOM = System.nanoTime();
-            return false;
-        } else {
-            stopDrive();
-            initializeVariables();
-            return true;
-        }
-
-    }
-
-    
-
-    private double prevErrorMGDPOM;
-    private long prevTimeMGDPOM;
-    private boolean firstRunMGDPOM = true;
-    private double distanceIntegralMGDPOM = 0;
-    private double angleIntegralMGDPOM = 0;
-    public boolean moveGyroDistanceProportionalOnMeasurement(double inches, Direction direction,  double allowableError, double timeKill) {
-        if (firstRunMGDPOM) {
-            resetGyro();
-            resetEncoders();            
-            prevTimeMGDPOM = System.nanoTime();
-            firstRunMGDPOM = !firstRunMGDPOM;
-        }
-        
-        int targetClicks = (int) (inches * CLICKS_PER_INCH);
-        int clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
-
-        double inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
-        double angularError = gyro.getAngle();
-
-
-        double time = System.currentTimeMillis();
-    // ADDDDDD MIN SPEED THRESHOLD
-
-        if (Math.abs(inchesRemaining) > distanceTolerance || Math.abs(angularError) > angleTolerance && System.currentTimeMillis() - time < timeKill) {
-            
-            long dt = System.nanoTime() - prevTimeMGDPOM;
-
-            double measurement = Math.abs(rightTalon.getSensorCollection().getQuadraturePosition())/CLICKS_PER_INCH;
-
-            distanceIntegralMGDPOM += inchesRemaining * dt;
-            angleIntegralMGDPOM += angularError * dt;
-
-            double speed = direction.value * (-measurement * gyroDrivePOMKP + distanceIntegralMGDPOM * gyroDrivePOMKI);
-            speed = clip(speed, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
-
-            double powerAdjustment = gyroCorrectionKP * angularError + angleIntegralMGDPOM * gyroCorrectionKI;
-            powerAdjustment = clip(powerAdjustment, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
-     
-            double leftSpeed = speed + powerAdjustment;
-            double rightSpeed = speed + powerAdjustment;
-
-            double maxPower = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
-
-            if (maxPower > MAX_VELOCITY_NATIVE) {
-                leftSpeed *= (MAX_VELOCITY_NATIVE/maxPower);
-                rightSpeed *= (MAX_VELOCITY_NATIVE/maxPower);
-            }            
-
-            setTarget(leftSpeed, -rightSpeed, ControlMode.Velocity);
-            prevTimeMGDPOM = System.nanoTime();
-
-            return true;
-        } else {
-            stopDrive();
-            initializeVariables();
-            return true;
-        }
-    }
-
-
 
     public void moveByGyroDistance(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {
         int targetClicks = (int) (inches * CLICKS_PER_INCH);

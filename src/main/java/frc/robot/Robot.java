@@ -98,7 +98,6 @@ public class Robot extends IterativeRobot {
         Robot.isTeleop = false;
         Robot.isDisabled = true;
         SmartDashboard.putNumber("Disabled Init Ran", 1);
-        driveTrain.initializeVariables();
         driveTrain.stopDrive();
     }
 
