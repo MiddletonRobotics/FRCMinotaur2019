@@ -1,9 +1,10 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -19,9 +20,8 @@ import frc.robot.subsystems.*;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
-public class Robot extends IterativeRobot {
+public class Robot extends TimedRobot {
 
-    public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
     public static OI oi;
     public static CameraServer cs;
     public static Joystick gamepad1;
@@ -29,12 +29,8 @@ public class Robot extends IterativeRobot {
 
     public static DriveTrain driveTrain;
     public static Vision vision;
-    //	public static SpeedShift speedShift;
-//	public static ScalerShift scalerShift;
-//	public static GearGrabber gearGrabber;
-    //	public static Shootaur shootaur;
     public static Lift lift;
-    //	public static MinoRangeSensor rangeSensor;
+
     public static boolean isTeleop = false;
     public static boolean isDisabled = false;
 
