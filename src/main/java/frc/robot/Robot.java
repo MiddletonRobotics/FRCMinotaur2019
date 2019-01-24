@@ -2,10 +2,8 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,7 +20,6 @@ import frc.robot.subsystems.*;
  */
 public class Robot extends TimedRobot {
 
-    public static OI oi;
     public static CameraServer cs;
     public static Joystick gamepad1;
     public static Joystick gamepad2;
@@ -30,11 +27,12 @@ public class Robot extends TimedRobot {
     public static DriveTrain driveTrain;
     public static Vision vision;
     public static Lift lift;
+    public static Arm arm;
+    public static Wrist wrist;
 
     public static boolean isTeleop = false;
     public static boolean isDisabled = false;
 
-    Command autonomousCommand;
     SendableChooser<Auto> chooser = new SendableChooser<>();
 
     /**
@@ -49,37 +47,18 @@ public class Robot extends TimedRobot {
         cs = CameraServer.getInstance();
         cs.startAutomaticCapture();
 
-        /*
-         * SmartDashboard.putNumber("Left PID Constant P",
-         * Constants.kpDriveTrainVbus);
-         * SmartDashboard.putNumber("Left PID Constant I",
-         * Constants.kiDriveTrainVbus);
-         * SmartDashboard.putNumber("Left PID Constant D",
-         * Constants.kdDriveTrainVbus);
-         * SmartDashboard.putNumber("Left PID Constant F",
-         * Constants.kfDriveTrainVbus);
-         *
-         * SmartDashboard.putNumber("Right PID Constant P",
-         * Constants.kpDriveTrainVbus);
-         * SmartDashboard.putNumber("Right PID Constant I",
-         * Constants.kiDriveTrainVbus);
-         * SmartDashboard.putNumber("Right PID Constant D",
-         * Constants.kdDriveTrainVbus);
-         * SmartDashboard.putNumber("right PID Constant F",
-         * Constants.kfDriveTrainVbus);
-         */
-
         driveTrain = new DriveTrain();
         vision = new Vision();
         lift = new Lift();
+        arm = new Arm();
+        wrist = new Wrist();
  
 
-        chooser.addDefault("Do nothing :O", null);
+        chooser.setDefaultOption("Do nothing :O", null);
 
 //        chooser.addObject("uWu", new DoubleSwitchMiddleAutoBoi());
- SmartDashboard.putNumber("Delay MS (C H A N G E T H I S E V E R Y M A T C H)", 0);
+        SmartDashboard.putNumber("Delay MS (C H A N G E T H I S E V E R Y M A T C H)", 0);
         SmartDashboard.putData(chooser);
-//		Robot.speedShift.set(Mode.TORQUE);
 
         Utils.resetRobot();
     }
@@ -144,7 +123,6 @@ public class Robot extends TimedRobot {
         if (a != null) {
             a.loop();
         }
-        System.out.println("gay");
 
     }
 
@@ -173,7 +151,10 @@ public class Robot extends TimedRobot {
 
         driveTrain.teleop(gamepad1);
         lift.teleop(gamepad2);
+        arm.teleop(gamepad1);
+        wrist.teleop(gamepad1);
         vision.teleop(gamepad1);
+
 
 
 
