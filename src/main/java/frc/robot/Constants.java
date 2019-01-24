@@ -21,6 +21,8 @@ public interface Constants {
     int liftMotor3Port = 29;
     int liftMotor4Port = 19;
 
+    int wristTalonPort = -1;
+
     int limitSwitchLiftBottomPort = 0;
     int limitSwitchLiftTopPort = 1;
 

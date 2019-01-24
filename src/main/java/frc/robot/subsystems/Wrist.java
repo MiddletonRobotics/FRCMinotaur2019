@@ -8,7 +8,7 @@ public class Wrist extends Subsystem implements Section, Constants {
 
     @Override
     protected void initDefaultCommand() {
-
+        System.out.println("Minotaur Wrist");
     }
 
     @Override
