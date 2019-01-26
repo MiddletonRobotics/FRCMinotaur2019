@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems;pp
 
 import java.util.Set;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -19,6 +19,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     private final WPI_TalonSRX leftTalon, rightTalon;
     private final WPI_TalonSRX leftSlave, rightSlave;
+    private final WPI_TalonSRX leftSlave2, rightSlave2;
     private AHRS gyro = new AHRS(SPI.Port.kMXP);
 
     private AHRS getGyro() {
@@ -56,12 +57,16 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     public DriveTrain() {
         leftTalon = new WPI_TalonSRX(masterLeftPort);
         leftSlave = new WPI_TalonSRX(slaveLeftPort);
+        leftSlave2 = new WPI_TalonSRX(slaveLeftPort2);
 
         rightTalon = new WPI_TalonSRX(masterRightPort);
         rightSlave = new WPI_TalonSRX(slaveRightPort);
+        rightSlave2 = new WPI_TalonSRX(slaveRightPort2);
 
         setupSlaves(leftTalon, leftSlave);
+        setupSlaves(leftTalon, leftSlave2);
         setupSlaves(rightTalon, rightSlave);
+        setupSlaves(rightTalon, rightSlave2);
 
         configTalon(leftTalon, true);
         configTalon(rightTalon, true);

@@ -13,8 +13,10 @@ public interface Constants {
     //Hardware Ports
     int masterLeftPort = 5;
     int slaveLeftPort = 6;
+    int slaveLeftPort2 = 7;
     int masterRightPort = 3;
     int slaveRightPort = 4;
+    int slaveRightPort2 = 8;
 
     int liftMotor1Port = 49;
     int liftMotor2Port = 39;
