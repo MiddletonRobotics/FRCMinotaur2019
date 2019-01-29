@@ -4,6 +4,7 @@ import java.util.Set;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,8 +19,8 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 public class DriveTrain extends Subsystem implements Constants, Section {
 
     private final WPI_TalonSRX leftTalon, rightTalon;
-    private final WPI_TalonSRX leftSlave, rightSlave;
-    private final WPI_TalonSRX leftSlave2, rightSlave2;
+    private final WPI_VictorSPX leftSlave, rightSlave;
+    private final WPI_VictorSPX leftSlave2, rightSlave2;
     private AHRS gyro = new AHRS(SPI.Port.kMXP);
 
     private AHRS getGyro() {
@@ -56,12 +57,12 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     public DriveTrain() {
         leftTalon = new WPI_TalonSRX(masterLeftPort);
-        leftSlave = new WPI_TalonSRX(slaveLeftPort);
-        leftSlave2 = new WPI_TalonSRX(slaveLeftPort2);
+        leftSlave = new WPI_VictorSPX(slaveLeftPort);
+        leftSlave2 = new WPI_VictorSPX(slaveLeftPort2);
 
         rightTalon = new WPI_TalonSRX(masterRightPort);
-        rightSlave = new WPI_TalonSRX(slaveRightPort);
-        rightSlave2 = new WPI_TalonSRX(slaveRightPort2);
+        rightSlave = new WPI_VictorSPX(slaveRightPort);
+        rightSlave2 = new WPI_VictorSPX(slaveRightPort2);
 
         setupSlaves(leftTalon, leftSlave);
         setupSlaves(leftTalon, leftSlave2);
@@ -82,7 +83,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     }
 
-    private void setupSlaves(WPI_TalonSRX master, WPI_TalonSRX slave) {
+    private void setupSlaves(WPI_TalonSRX master, WPI_VictorSPX slave) {
         slave.set(ControlMode.Follower, master.getDeviceID());
     }
 
@@ -510,7 +511,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     public void teleop(Joystick gamepad) {
         double left_y = deadband(gamepad.getRawAxis(LEFT_Y_AXIS));
         double right_y = deadband(gamepad.getRawAxis(RIGHT_Y_AXIS));
-        double right_x = -deadband(gamepad.getRawAxis(RIGHT_X_AXIS));
+        double right_x = deadband(gamepad.getRawAxis(RIGHT_X_AXIS));
 
 
 
@@ -537,7 +538,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             }
 
             //driveVbus(-leftPower, rightPower);
-            driveVelocity(-leftPower * maxRPM, rightPower * maxRPM);
+            leftTalon.set(-leftPower);
+            rightTalon.set(-rightPower);
             // System.out.println("errL: " + leftTalon.getClosedLoopError(0) + " : errR:" + rightTalon.getClosedLoopError(0) + " : lSpeed: " + leftTalon.getSelectedSensorVelocity(0 ) + " : rSpeed : " + rightTalon.getSelectedSensorVelocity(0));
             /*
              * switch(driveMode) { case TANK_DRIVE: //driveVbus(left_y * 0.8,

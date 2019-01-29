@@ -176,8 +176,7 @@ public class Robot extends IterativeRobot {
         Scheduler.getInstance().run();
 
         driveTrain.teleop(gamepad1);
-        lift.teleop(gamepad2);
-        vision.teleop(gamepad1);
+        
 
 
 
