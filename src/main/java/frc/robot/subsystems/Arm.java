@@ -1,21 +1,75 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.ErrorCode;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.Constants;
+import frc.robot.Utilities.Drivers.CKTalonSRX;
+import frc.robot.Utilities.Drivers.TalonHelper;
 
 public class Arm extends Subsystem implements Section, Constants {
 
-    private WPI_TalonSRX wristTalon;
+    private CKTalonSRX armTalon;
 
-    public WPI_TalonSRX getWristTalon() {
-        return this.wristTalon;
+    public CKTalonSRX getArmTalon() {
+        return this.armTalon;
     }
 
-    public Arm() {
-        wristTalon = new WPI_TalonSRX(wristTalonPort);
+    private static Arm instance = null;
+
+
+    private Arm() {
+        armTalon = new CKTalonSRX(armTalonID, armTalonPDPSlot);
+        init();
+    }
+
+    public static Arm getInstance() {
+        if(instance == null) {
+            instance = new Arm();
+        }
+
+        return instance;
+    }
+
+    private void init() {
+
+        armTalon.setInverted(true);
+        armTalon.setSensorPhase(true);
+        armTalon.setNeutralMode(NeutralMode.Brake);
+
+        armTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+
+        //mIntake2Motor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0) 
+        //armTalon.configRemoteFeedbackFilter(kIntake2MotorId, RemoteSensorSource.TalonSRX_SelectedSensor, 0, 0) 
+        //armTalon.configRemoteFeedbackFilter(0x00, RemoteSensorSource.Off, 1, 0) 
+        //armTalon.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0, 0, 0) 
+
+        armTalon.configContinuousCurrentLimit(kArmMaxContinuousCurrentLimit, 0);
+        armTalon.configPeakCurrentLimit(kArmMaxPeakCurrentLimit, 0);
+        armTalon.configPeakCurrentDuration(kArmMaxPeakCurrentDurationMS, 0);
+
+        armTalon.enableCurrentLimit(true);
+
+        armTalon.configForwardSoftLimitThreshold((int) (kArmSoftMax * kArmEncoderGearRatio * kSensorUnitsPerRotation), kTimeoutMs);
+        armTalon.configReverseSoftLimitThreshold((int) (kArmSoftMin * kArmEncoderGearRatio * kSensorUnitsPerRotation), kTimeoutMs);
+        armTalon.configForwardSoftLimitEnable(true, kTimeoutMs);
+        armTalon.configReverseSoftLimitEnable(true, kTimeoutMs);
+        armTalon.configAllowableClosedloopError(0, kArmAllowedError, kTimeoutMs);
+
+
+        armTalon.selectProfileSlot(kArmNormalRateSlot, 0);
+
+        TalonHelper.setPIDGains(armTalon, kArmNormalRateSlot, kArmKp, kArmKi, kArmKd, kArmKf, kArmRampRate, kArmIZone);
+        TalonHelper.setPIDGains(armTalon, kArmFastRateSlot, kArmKp, kArmKi, kArmKd, kArmKf, kArmRampRate, kArmIZone);
+        TalonHelper.setMotionMagicParams(armTalon, kArmNormalRateSlot, kArmMaxVelocity, kArmMaxAccel);
+        TalonHelper.setMotionMagicParams(armTalon, kArmFastRateSlot, kArmMaxVelocity, kArmMaxAccelDownFast);
+
+
     }
 
     @Override
@@ -30,7 +84,7 @@ public class Arm extends Subsystem implements Section, Constants {
 
     @Override
     public void reset() {
-        wristTalon.set(0);
+        armTalon.set(ControlMode.PercentOutput, 0);
     }
 
     private void configTalon(WPI_TalonSRX talon, boolean reversed) {

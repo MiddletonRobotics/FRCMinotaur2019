@@ -1,48 +1,47 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
 import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 import frc.robot.Constants;
-import frc.robot.Robot;
-import frc.robot.Utils;
 
 public class Lift extends PIDSubsystem implements Section, Constants {
 
-    WPI_TalonSRX liftMotor;
-    WPI_TalonSRX liftv2Motor;
-    WPI_TalonSRX liftv3Motor;
-    WPI_TalonSRX liftv4Motor;
+    private WPI_TalonSRX liftMotor;
+    private WPI_TalonSRX liftv2Motor;
+    private WPI_TalonSRX liftv3Motor;
+    private WPI_TalonSRX liftv4Motor;
+    private Potentiometer potentiometer;
 
-    public Potentiometer potentiometer;
+    private static Lift instance = null;
 
     boolean hasStopped = false;
     DigitalInput topLimitSwitch;
     DigitalInput bottomLimitSwitch;
 
-    public Lift() {
+    private Lift() {
         super(0.05, 0, 0);
-        liftMotor = new WPI_TalonSRX(liftMotor1Port);
-        liftv2Motor = new WPI_TalonSRX(liftMotor2Port);
-        liftv3Motor = new WPI_TalonSRX(liftMotor3Port);
-        liftv4Motor = new WPI_TalonSRX(liftMotor4Port);
+        liftMotor = new WPI_TalonSRX(liftMotor1ID);
+        liftv2Motor = new WPI_TalonSRX(liftMotor2ID);
+        liftv3Motor = new WPI_TalonSRX(liftMotor3ID);
+        liftv4Motor = new WPI_TalonSRX(liftMotor4ID);
         topLimitSwitch = new DigitalInput(limitSwitchLiftBottomPort);
         bottomLimitSwitch = new DigitalInput((limitSwitchLiftTopPort));
         potentiometer = new AnalogPotentiometer(1);
 
-
-        setAbsoluteTolerance(.006);
-        getPIDController
-                ().setContinuous(false);
-        setInputRange(0, 2);
-        setSetpoint(potentiometer.pidGet());
-        getPIDController().enable();
     }
+
+    public static Lift getInstance() {
+        if(instance == null) {
+            instance = new Lift();
+        }
+
+        return instance;
+    }
+
 
     @Override
     protected void initDefaultCommand() {

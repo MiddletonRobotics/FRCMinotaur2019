@@ -2,10 +2,8 @@ package frc.robot.Utilities;
 
 import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
 import edu.wpi.first.wpilibj.SPI;
-import frc.robot.Constants;
 import frc.robot.Utilities.Drivers.CANSpeedControllerBuilder;
 import frc.robot.Utilities.Drivers.CKTalonSRX;
-import frc.robot.Utilities.Drivers.CKVictorSPX;
 import frc.robot.Utilities.Drivers.NavX;
 
 import static frc.robot.Constants.*;
@@ -22,12 +20,12 @@ public class Controllers {
 
     private Controllers() {
 
-        leftDrive1 = CANSpeedControllerBuilder.createFastMasterTalonSRX(masterLeftPort,0);
-        leftDrive2 = CANSpeedControllerBuilder.createPermanentVictorSlaveToTalonSRX(slaveLeftPort1, 1, leftDrive1);
-        leftDrive3 = CANSpeedControllerBuilder.createPermanentVictorSlaveToTalonSRX(slaveLeftPort2, 2, leftDrive1);
-        rightDrive1 = CANSpeedControllerBuilder.createFastMasterTalonSRX(masterRightPort, 3);
-        rightDrive2 = CANSpeedControllerBuilder.createPermanentVictorSlaveToTalonSRX(slaveRightPort1, 4, rightDrive1);
-        rightDrive3 = CANSpeedControllerBuilder.createPermanentVictorSlaveToTalonSRX(slaveRightPort2, 5, rightDrive1);
+        leftDrive1 = CANSpeedControllerBuilder.createFastMasterTalonSRX(leftDrivetrainMasterID,0);
+        leftDrive2 = CANSpeedControllerBuilder.createPermanentVictorSlaveToTalonSRX(leftDrivetrainSlave1ID, 1, leftDrive1);
+        leftDrive3 = CANSpeedControllerBuilder.createPermanentVictorSlaveToTalonSRX(leftDrivetrainSlave2ID, 2, leftDrive1);
+        rightDrive1 = CANSpeedControllerBuilder.createFastMasterTalonSRX(rightDrivetrainMasterID, 3);
+        rightDrive2 = CANSpeedControllerBuilder.createPermanentVictorSlaveToTalonSRX(rightDrivetrainSlave1ID, 4, rightDrive1);
+        rightDrive3 = CANSpeedControllerBuilder.createPermanentVictorSlaveToTalonSRX(rightDrivetrainSlave2ID, 5, rightDrive1);
 
         try {
             navX = new NavX(SPI.Port.kMXP);

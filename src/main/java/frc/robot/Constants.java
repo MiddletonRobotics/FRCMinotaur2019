@@ -11,19 +11,29 @@ import edu.wpi.first.wpilibj.SPI;
 public interface Constants {
 
     //Hardware Ports
-    int masterLeftPort = 5;
-    int slaveLeftPort1 = 6;
-    int slaveLeftPort2 = 7;
-    int masterRightPort = 3;
-    int slaveRightPort1 = 4;
-    int slaveRightPort2 = 8;
+    int leftDrivetrainMasterID = 5;
+    int leftDrivetrainSlave1ID = 6;
+    int leftDrivetrainSlave2ID = 7;
+    int rightDrivetrainMasterID = 3;
+    int rightDrivetrainSlave1ID = 4;
+    int rightDrivetrainSlave2ID = 8;
+    int liftMotor1ID = 49;
+    int liftMotor2ID = 39;
+    int liftMotor3ID = 29;
+    int liftMotor4ID = 19;
+    int armTalonID = -1;
 
-    int liftMotor1Port = 49;
-    int liftMotor2Port = 39;
-    int liftMotor3Port = 29;
-    int liftMotor4Port = 19;
-
-    int wristTalonPort = -1;
+    int leftDrivetrainMasterPDPSlot = 0;
+    int leftDrivetrainSlave1PDPSlot = 0;
+    int leftDrivetrainSlave2PDPSlot = 0;
+    int rightDrivetrainMasterPDPSlot = 0;
+    int rightDrivetrainSlave1PDPSlot = 0;
+    int rightDrivetrainSlave2PDPSlot = 0;
+    int liftMotor1PDPSlot = 0;
+    int liftMotor2PDPSlot = 0;
+    int liftMotor3PDPSlot = 0;
+    int liftMotor4PDPSlot = 0;
+    int armTalonPDPSlot = 0;
 
     int limitSwitchLiftBottomPort = 0;
     int limitSwitchLiftTopPort = 1;
@@ -195,14 +205,53 @@ public interface Constants {
     double kDriveHighGearVelocityRampRate = 0.1;
     double kDriveHighGearMaxSetpoint = 12.0 * 12.0; // 12 fps
 
-    public static final double kCameraXOffset = -3.3211;
-	public static final double kCameraYOffset = 0.0;
-	public static final double kCameraZOffset = 20.9;
-	public static final double kCameraPitchAngleDegrees = 29.56; // Measured on 4/26
-	public static final double kCameraYawAngleDegrees = 0.0;
-    public static final double kCameraDeadband = 0.0;
+    double kCameraXOffset = -3.3211;
+	double kCameraYOffset = 0.0;
+	double kCameraZOffset = 20.9;
+	double kCameraPitchAngleDegrees = 29.56; // Measured on 4/26
+	double kCameraYawAngleDegrees = 0.0;
+    double kCameraDeadband = 0.0;
     
-    public static final double kBoilerTargetTopHeight = 88.0;
-	public static final double kBoilerRadius = 7.5;
+    double kBoilerTargetTopHeight = 88.0;
+	double kBoilerRadius = 7.5;
+
+	int kElevatorUpRateSlot = 0;
+    int kElevatorDownRateSlot = 1;
+    int kArmNormalRateSlot = 0;
+    int kArmFastRateSlot = 1;
+
+    double kArmKp = 0/*6.7*/;
+    double kArmKi = 0;
+    double kArmKd = 0/*11*/;
+    double kArmKf = 0/*1*/;
+    int kArmIZone = 0;
+    double kArmRampRate = 0;
+    int kArmMaxVelocity = 450;
+    int kArmMaxAccel = 200;
+    int kArmMaxAccelDownFast = 350;
+    int kArmAllowedError = (int)(0 * kSensorUnitsPerRotation);
+    double kArmFinalRotationsPerDegree = 0/*kArmArmPulley/kArmMotorPulley/360.0*/;
+    double kArmSoftMin = 0 * kArmFinalRotationsPerDegree;
+    double kArmSoftMax = 175 * kArmFinalRotationsPerDegree;
+    double kArmEncoderGearRatio = 1.0;
+    int kArmMotorPDPBreakerRating = 30;
+    int kArmMaxContinuousCurrentLimit = kArmMotorPDPBreakerRating;
+    int kArmMaxPeakCurrentLimit = kArmMaxContinuousCurrentLimit * 2;
+    int kArmMaxPeakCurrentDurationMS = getMSDurationForBreakerLimit(kArmMaxPeakCurrentLimit, kArmMaxContinuousCurrentLimit);
+
+    double kPDPBreakerModelA = 282.2962;
+    double kPDPBreakerModelB = -6.6305;
+    double kPDPBreakerModelC = 0.5;
+    double kPDPDefaultSafetyFactor = 4.0;
+
+    private static int getMSDurationForBreakerLimit(double peakCurrentInput, double breakerRating) {
+        return getMSDurationForBreakerLimit(peakCurrentInput, breakerRating, kPDPDefaultSafetyFactor);
+    }
+
+    private static int getMSDurationForBreakerLimit(double peakCurrentInput, double breakerRating, double safetyFactor) {
+        return (int)((kPDPBreakerModelA*Math.pow(peakCurrentInput/breakerRating, kPDPBreakerModelB)+kPDPBreakerModelC) * 1000.0 / safetyFactor);
+    }
+
+
 
 }

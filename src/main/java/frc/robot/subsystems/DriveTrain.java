@@ -1,12 +1,10 @@
 package frc.robot.subsystems;
 
-import java.util.Set;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.AutoInterruptedException;
 import frc.robot.Constants;
 import frc.robot.Robot;
@@ -20,6 +18,31 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     private final WPI_TalonSRX leftTalon, rightTalon;
     private final WPI_TalonSRX leftSlave, rightSlave;
     private AHRS gyro = new AHRS(SPI.Port.kMXP);
+
+    private static DriveTrain instance = null;
+
+    private DriveTrain() {
+        leftTalon = new WPI_TalonSRX(leftDrivetrainMasterID);
+        leftSlave = new WPI_TalonSRX(leftDrivetrainSlave1ID);
+
+        rightTalon = new WPI_TalonSRX(rightDrivetrainMasterID);
+        rightSlave = new WPI_TalonSRX(rightDrivetrainSlave1ID);
+
+        setupSlaves(leftTalon, leftSlave);
+        setupSlaves(rightTalon, rightSlave);
+
+        configTalon(leftTalon, true);
+        configTalon(rightTalon, true);
+    }
+
+    public static DriveTrain getInstance() {
+        if (instance == null) {
+            instance = new DriveTrain();
+        }
+
+        return instance;
+    }
+
 
     private AHRS getGyro() {
         return gyro;
@@ -52,20 +75,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     private TeleopDriveModes driveMode = TeleopDriveModes.NEED_4_SPEED;
     private int clicksRemaining;
-
-    public DriveTrain() {
-        leftTalon = new WPI_TalonSRX(masterLeftPort);
-        leftSlave = new WPI_TalonSRX(slaveLeftPort1);
-
-        rightTalon = new WPI_TalonSRX(masterRightPort);
-        rightSlave = new WPI_TalonSRX(slaveRightPort1);
-
-        setupSlaves(leftTalon, leftSlave);
-        setupSlaves(rightTalon, rightSlave);
-
-        configTalon(leftTalon, true);
-        configTalon(rightTalon, true);
-    }
 
     @Override
     public void reset() {

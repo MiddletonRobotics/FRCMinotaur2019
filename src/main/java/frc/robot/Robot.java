@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
     public static Vision vision;
     public static Lift lift;
     public static Arm arm;
-    public static Wrist wrist;
+
 
     public static boolean isTeleop = false;
     public static boolean isDisabled = false;
@@ -47,12 +47,11 @@ public class Robot extends TimedRobot {
         cs = CameraServer.getInstance();
         cs.startAutomaticCapture();
 
-        driveTrain = new DriveTrain();
+        driveTrain = DriveTrain.getInstance();
         vision = new Vision();
-        lift = new Lift();
-        arm = new Arm();
-        wrist = new Wrist();
- 
+        lift = Lift.getInstance();
+        arm = Arm.getInstance();
+
 
         chooser.setDefaultOption("Do nothing :O", null);
 
@@ -152,7 +151,6 @@ public class Robot extends TimedRobot {
         driveTrain.teleop(gamepad1);
         lift.teleop(gamepad2);
         arm.teleop(gamepad1);
-        wrist.teleop(gamepad1);
         vision.teleop(gamepad1);
 
 
