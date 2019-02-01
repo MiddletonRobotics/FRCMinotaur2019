@@ -217,9 +217,19 @@ public interface Constants {
 
 	int kElevatorUpRateSlot = 0;
     int kElevatorDownRateSlot = 1;
+    double kElevatorKp = 0;
+    double kElevatorKi = 0;
+    double kElevatorKd = 0;
+    double kElevatorKf = 0;
+    double kElevatorRampRate = 0;
+    int kElevatorIZone = 0;
+    int kElevatorMaxVelocityUp = 0;
+    int kElevatorMaxAccelUp = 0;
+    int kElevatorMaxVelocityDown = 0;
+    int kElevatorMaxAccelDown = 0;
+
     int kArmNormalRateSlot = 0;
     int kArmFastRateSlot = 1;
-
     double kArmKp = 0/*6.7*/;
     double kArmKi = 0;
     double kArmKd = 0/*11*/;
