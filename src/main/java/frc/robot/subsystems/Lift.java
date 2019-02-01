@@ -1,20 +1,19 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
-import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 import frc.robot.Constants;
 
 public class Lift extends PIDSubsystem implements Section, Constants {
 
-    private WPI_TalonSRX liftMotor;
-    private WPI_TalonSRX liftv2Motor;
-    private WPI_TalonSRX liftv3Motor;
-    private WPI_TalonSRX liftv4Motor;
-    private Potentiometer potentiometer;
+    private WPI_TalonSRX liftMasterMotor;
+    private WPI_VictorSPX liftSlaveMotor1;
+    private WPI_VictorSPX liftSlaveMotor2;
+    private WPI_VictorSPX liftSlaveMotor3;
 
     private static Lift instance = null;
 
@@ -24,13 +23,14 @@ public class Lift extends PIDSubsystem implements Section, Constants {
 
     private Lift() {
         super(0.05, 0, 0);
-        liftMotor = new WPI_TalonSRX(liftMotor1ID);
-        liftv2Motor = new WPI_TalonSRX(liftMotor2ID);
-        liftv3Motor = new WPI_TalonSRX(liftMotor3ID);
-        liftv4Motor = new WPI_TalonSRX(liftMotor4ID);
+        liftMasterMotor = new WPI_TalonSRX(liftMotor1ID);
+        liftSlaveMotor1 = new WPI_VictorSPX(liftMotor2ID);
+        liftSlaveMotor2 = new WPI_VictorSPX(liftMotor3ID);
+        liftSlaveMotor3 = new WPI_VictorSPX(liftMotor4ID);
         topLimitSwitch = new DigitalInput(limitSwitchLiftBottomPort);
         bottomLimitSwitch = new DigitalInput((limitSwitchLiftTopPort));
-        potentiometer = new AnalogPotentiometer(1);
+
+        configTalon(liftMasterMotor, true);
 
     }
 
@@ -40,6 +40,41 @@ public class Lift extends PIDSubsystem implements Section, Constants {
         }
 
         return instance;
+    }
+
+    private void configTalon(WPI_TalonSRX master, boolean reversed) {
+        master.set(0);
+
+        master.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+        master.setSensorPhase(reversed);
+        // master.configClosedloopRamp(0.25, 0);
+        master.configOpenloopRamp(0.25, 0);
+//      masteqr.configNominalOutputForward(NOMINAL_OUTPUT_VOLTAGE, -NOMINAL_OUTPUT_VOLTAGE);
+        //    master.configPeakOutputVoltage(+PEAK_OUTPUT_VOLTAGE, -PEAK_OUTPUT_VOLTAGE);
+
+        //aster.configSen R);
+
+        master.configAllowableClosedloopError(0, 0, 0);
+
+        //  master.setVoltageRampRate(48);
+        master.config_kF(0, kfDriveTrainVel, 0);
+        master.config_kP(0, kpDriveTrainVel, 0);
+        master.config_kI(0, kiDriveTrainVel, 0);
+        master.config_kD(0, kdDriveTrainVel, 0);
+
+        master.config_kF(1, kfDriveTrainPos, 0);
+        master.config_kP(1, kpDriveTrainPos, 0);
+        master.config_kI(1, kiDriveTrainPos, 0);
+        master.config_kD(1, kdDriveTrainPos, 0);
+
+        master.config_kF(2, kfDriveTrainPos2, 0);
+        master.config_kP(2, kpDriveTrainPos2, 0);
+        master.config_kI(2, kiDriveTrainPos2, 0);
+        master.config_kD(2, kdDriveTrainPos2, 0);
+        //aster.setF(kfDriveTrainVbus);
+        //master.setP(kpDriveTrainVbus);
+        //master.setI(kiDriveTrainVbus);.config
+        //     master.setD(kdDriveTrainVbus);
     }
 
 
@@ -74,22 +109,21 @@ public class Lift extends PIDSubsystem implements Section, Constants {
     public void stopLift() {
         if (!hasStopped) {
             getPIDController().enable();
-            setSetpoint(potentiometer.pidGet());
-            liftMotor.set(0);
-            liftv2Motor.set(0);
-            liftv3Motor.set(0);
-            liftv4Motor.set(0);
+            liftMasterMotor.set(0);
+            liftSlaveMotor1.set(0);
+            liftSlaveMotor2.set(0);
+            liftSlaveMotor3.set(0);
             hasStopped = true;
         }
         /*if (!bottomLimitSwitch.get()) {
-            liftMotor.set(0);
-            liftv2Motor.set(0);
-            liftv3Motor.set(0);
-            liftv4Motor.set(0);
+            liftMasterMotor.set(0);
+            liftSlaveMotor1.set(0);
+            liftSlaveMotor2.set(0);
+            liftSlaveMotor3.set(0);
         } else*/
             usePIDOutput(-getPIDController().get());
 
-        //System.out.println("Er" + "ror: " + getPIDController().get() + " : " + liftMotor.get() + " : " + potentiometer.pidGet());
+        //System.out.println("Er" + "ror: " + getPIDController().get() + " : " + liftMasterMotor.get() + " : " + potentiometer.pidGet());
     }
 
     public void autoPID(){
@@ -105,9 +139,9 @@ public class Lift extends PIDSubsystem implements Section, Constants {
 
     @Override
     protected void usePIDOutput(double output) {
-        liftMotor.pidWrite(output);
-        liftv2Motor.pidWrite(-output);
-        liftv3Motor.pidWrite(-output);
-        liftv4Motor.pidWrite(-output);
+        liftMasterMotor.pidWrite(output);
+        liftSlaveMotor1.pidWrite(-output);
+        liftSlaveMotor2.pidWrite(-output);
+        liftSlaveMotor3.pidWrite(-output);
     }
 }

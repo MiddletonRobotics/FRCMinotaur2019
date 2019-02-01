@@ -12,6 +12,7 @@ import frc.robot.Robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import frc.robot.Utilities.Drivers.TalonHelper;
 
 public class DriveTrain extends Subsystem implements Constants, Section {
 
@@ -105,20 +106,13 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         master.configAllowableClosedloopError(0, 0, 0);
 
         //  master.setVoltageRampRate(48);
-        master.config_kF(0, kfDriveTrainVel, 0);
-        master.config_kP(0, kpDriveTrainVel, 0);
-        master.config_kI(0, kiDriveTrainVel, 0);
-        master.config_kD(0, kdDriveTrainVel, 0);
 
-        master.config_kF(1, kfDriveTrainPos, 0);
-        master.config_kP(1, kpDriveTrainPos, 0);
-        master.config_kI(1, kiDriveTrainPos, 0);
-        master.config_kD(1, kdDriveTrainPos, 0);
+        // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+        TalonHelper.setPIDGains(master, 0, kpDriveTrainVel, kiDriveTrainVel, kdDriveTrainVel, kfDriveTrainVel, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+        TalonHelper.setPIDGains(master, 1, kpDriveTrainPos, kiDriveTrainPos, kdDriveTrainPos, kfDriveTrainPos, 0, 0);
+        TalonHelper.setPIDGains(master, 2, kpDriveTrainPos2, kiDriveTrainPos2, kdDriveTrainPos2, kfDriveTrainPos2, 0, 0);
+        // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
 
-        master.config_kF(2, kfDriveTrainPos2, 0);
-        master.config_kP(2, kpDriveTrainPos2, 0);
-        master.config_kI(2, kiDriveTrainPos2, 0);
-        master.config_kD(2, kdDriveTrainPos2, 0);
         //aster.setF(kfDriveTrainVbus);
         //master.setP(kpDriveTrainVbus);
         //master.setI(kiDriveTrainVbus);.config
