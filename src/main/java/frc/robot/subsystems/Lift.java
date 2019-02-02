@@ -1,10 +1,12 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Utilities.Drivers.TalonHelper;
 
@@ -68,6 +70,22 @@ public class Lift implements Section, Constants {
     }
 
 
+
+    public void setElevatorHeightInches(double height) {
+
+
+        //hey dummy test limit switch pls thanks
+        if (!bottomLimitSwitch.get() && height <= elevatorMinHeight) {
+            zeroLift();
+        }
+
+        liftMasterMotor.set(ControlMode.MotionMagic, tmpElevatorHeight * Constants.kSensorUnitsPerRotation * Constants.kElevatorEncoderGearRatio, kElevatorUpRateSlot);
+    }
+
+    public void setElevatorHeightPercent(double percent) {
+        setElevatorHeightInches(elevatorHeightRange*percent/100);
+    }
+
     protected void initDefaultCommand() {
         System.out.println("sent from my iphone");
     }
@@ -90,6 +108,9 @@ public class Lift implements Section, Constants {
     public void reset() {
         hasStopped = false;
         stopLift();
+    }
+
+    public void zeroLift() {
 
     }
 

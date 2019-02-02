@@ -227,6 +227,9 @@ public interface Constants {
     int kElevatorMaxAccelUp = 0;
     int kElevatorMaxVelocityDown = 0;
     int kElevatorMaxAccelDown = 0;
+    double elevatorMaxHeight = 0;
+    double elevatorMinHeight = 0;
+    double elevatorHeightRange = elevatorMaxHeight - elevatorMinHeight;
 
     int kArmNormalRateSlot = 0;
     int kArmFastRateSlot = 1;
