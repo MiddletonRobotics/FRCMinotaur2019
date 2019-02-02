@@ -11,12 +11,12 @@ import edu.wpi.first.wpilibj.SPI;
 public interface Constants {
 
     //Hardware Ports
-    int masterLeftPort = 1;
-    int slaveLeftPort = 11;
-    int slaveLeftPort2 = 12;
-    int masterRightPort = 2;
-    int slaveRightPort = 21;
-    int slaveRightPort2 = 22;
+    int masterLeftPort = 11;
+    int slaveLeftPort = 12;
+    int slaveLeftPort2 = 13;
+    int masterRightPort = 21;
+    int slaveRightPort = 22;
+    int slaveRightPort2 = 23;
 
     int liftMotor1Port = 49;
     int liftMotor2Port = 39;

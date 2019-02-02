@@ -64,10 +64,11 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         rightSlave = new WPI_VictorSPX(slaveRightPort);
         rightSlave2 = new WPI_VictorSPX(slaveRightPort2);
 
-        setupSlaves(leftTalon, leftSlave);
-        setupSlaves(leftTalon, leftSlave2);
-        setupSlaves(rightTalon, rightSlave);
-        setupSlaves(rightTalon, rightSlave2);
+        leftSlave.follow(leftTalon);
+        leftSlave2.follow(leftTalon);
+
+        rightSlave.follow(rightTalon);
+        rightSlave2.follow(rightTalon);
 
         configTalon(leftTalon, true);
         configTalon(rightTalon, true);
