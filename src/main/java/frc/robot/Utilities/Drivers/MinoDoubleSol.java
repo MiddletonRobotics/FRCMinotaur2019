@@ -1,6 +1,6 @@
 package frc.robot.Utilities.Drivers;
 
-import frc.robot.Utilities.Constants;
+import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Utilities.Utils;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;

@@ -6,7 +6,7 @@ import frc.robot.Utilities.Drivers.CANSpeedControllerBuilder;
 import frc.robot.Utilities.Drivers.CKTalonSRX;
 import frc.robot.Utilities.Drivers.NavX;
 
-import static frc.robot.Utilities.Constants.*;
+import static frc.robot.Utilities.Constants.Constants.*;
 
 public class Controllers {
     private static Controllers instance = null;

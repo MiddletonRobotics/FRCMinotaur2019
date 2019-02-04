@@ -1,6 +1,6 @@
 package frc.robot.Utilities.TrajectoryFollowingMotion;
 
-import frc.robot.Utilities.Constants;
+import frc.robot.Utilities.Constants.Constants;
 
 import java.util.Optional;
 

@@ -1,7 +1,7 @@
 package frc.robot.Utilities.Drivers;
 
 import edu.wpi.first.wpilibj.AnalogInput;
-import frc.robot.Utilities.Constants;
+import frc.robot.Utilities.Constants.Constants;
 
 public class MinoRangeSensor extends AnalogInput implements Constants {
 

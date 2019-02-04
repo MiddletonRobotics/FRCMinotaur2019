@@ -1,7 +1,7 @@
 package frc.robot.Utilities.TrajectoryFollowingMotion;
 
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Utilities.Constants;
+import frc.robot.Utilities.Constants.Constants;
 
 import java.util.Iterator;
 import java.util.Map;

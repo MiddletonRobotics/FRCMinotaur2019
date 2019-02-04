@@ -5,7 +5,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import frc.robot.Utilities.Constants;
+import frc.robot.Utilities.Constants.Constants;
 
 public class CKTalonSRX extends TalonSRX {
 	private int pdpChannel;

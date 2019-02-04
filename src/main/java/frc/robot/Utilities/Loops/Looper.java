@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import org.usfirst.frc.team195.robot.Reporters.ConsoleReporter;
-import frc.robot.Utilities.Constants;
+import frc.robot.Utilities.Constants.Constants;
 
 import java.util.ArrayList;
 import java.util.List;

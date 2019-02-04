@@ -4,7 +4,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import frc.robot.Utilities.Constants;
+import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Utilities.Drivers.MinoDoubleSol;
 import frc.robot.Utilities.Section;
 
@@ -55,11 +55,19 @@ public class Intake extends Subsystem implements Section, Constants {
         } else {
             setPercentSpeed(gamepad.getRawAxis(LEFT_T_AXIS));
         }
+
+        if (gamepad.getRawButton(BTN_A)) {
+            rightIntakeSolenoid.toggle();
+            leftIntakeSolenoid.toggle();
+        }
     }
 
     @Override
     public void reset() {
-
+        rightIntakeMotor.set(0);
+        leftIntakeMotor.set(0);
+        rightIntakeSolenoid.set(DoubleSolenoid.Value.kForward);
+        leftIntakeSolenoid.set(DoubleSolenoid.Value.kForward);
     }
 
     public void setPercentSpeed(double speed) {

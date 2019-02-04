@@ -2,7 +2,7 @@ package frc.robot.Utilities.TrajectoryFollowingMotion;
 
 import frc.robot.Utilities.TrajectoryFollowingMotion.GoalTracker.TrackReport;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Utilities.Constants;
+import frc.robot.Utilities.Constants.Constants;
 
 import java.util.ArrayList;
 import java.util.List;

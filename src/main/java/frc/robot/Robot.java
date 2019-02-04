@@ -8,8 +8,8 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import frc.robot.Utilities.Constants;
 import frc.robot.Autonomous.*;
+import frc.robot.Utilities.Constants.Constants;
 import frc.robot.subsystems.*;
 
 /**

@@ -6,9 +6,9 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
-import frc.robot.Utilities.Constants;
+import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Utilities.Drivers.TalonHelper;
-import frc.robot.Utilities.Positions.Elevator;
+import frc.robot.Utilities.Constants.Positions.Elevator;
 import frc.robot.Utilities.Section;
 
 public class Lift implements Section, Constants {

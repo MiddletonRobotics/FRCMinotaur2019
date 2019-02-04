@@ -6,7 +6,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import frc.robot.Utilities.Constants;
+import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Utilities.Drivers.CKTalonSRX;
 import frc.robot.Utilities.Drivers.TalonHelper;
 import frc.robot.Utilities.Section;
