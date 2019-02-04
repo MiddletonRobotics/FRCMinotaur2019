@@ -1,10 +1,8 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -55,8 +53,8 @@ public class Arm extends Subsystem implements Section, Constants {
 
         armTalon.enableCurrentLimit(true);
 
-        armTalon.configForwardSoftLimitThreshold((int) (kArmSoftMax * kArmEncoderGearRatio * kSensorUnitsPerRotation), kTimeoutMs);
-        armTalon.configReverseSoftLimitThreshold((int) (kArmSoftMin * kArmEncoderGearRatio * kSensorUnitsPerRotation), kTimeoutMs);
+        armTalon.configForwardSoftLimitThreshold((int) (kArmSoftMax * kArmEncoderGearRatio * sensorUnitsPerRotationMag), kTimeoutMs);
+        armTalon.configReverseSoftLimitThreshold((int) (kArmSoftMin * kArmEncoderGearRatio * sensorUnitsPerRotationMag), kTimeoutMs);
         armTalon.configForwardSoftLimitEnable(true, kTimeoutMs);
         armTalon.configReverseSoftLimitEnable(true, kTimeoutMs);
         armTalon.configAllowableClosedloopError(0, kArmAllowedError, kTimeoutMs);

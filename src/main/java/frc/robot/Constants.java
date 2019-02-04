@@ -184,7 +184,7 @@ public interface Constants {
      int kConsoleReporterThreadPriority = Thread.NORM_PRIORITY;
      int kDashboardReporterThreadPriority = 6;
      double kLooperDt = 0.005;
-     double kSensorUnitsPerRotation = 4096.0;
+     double sensorUnitsPerRotationMag = 4096.0;
      double k100msPerMinute = 600.0;
 
      int kTimeoutMs = 20;
@@ -230,6 +230,7 @@ public interface Constants {
     double elevatorMaxHeight = 0;
     double elevatorMinHeight = 0;
     double elevatorHeightRange = elevatorMaxHeight - elevatorMinHeight;
+    double kElevatorEncoderGearRatio = 0;
 
     int kArmNormalRateSlot = 0;
     int kArmFastRateSlot = 1;
@@ -242,7 +243,7 @@ public interface Constants {
     int kArmMaxVelocity = 450;
     int kArmMaxAccel = 200;
     int kArmMaxAccelDownFast = 350;
-    int kArmAllowedError = (int)(0 * kSensorUnitsPerRotation);
+    int kArmAllowedError = (int)(0 * sensorUnitsPerRotationMag);
     double kArmFinalRotationsPerDegree = 0/*kArmArmPulley/kArmMotorPulley/360.0*/;
     double kArmSoftMin = 0 * kArmFinalRotationsPerDegree;
     double kArmSoftMax = 175 * kArmFinalRotationsPerDegree;

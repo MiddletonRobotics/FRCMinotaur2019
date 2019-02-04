@@ -260,11 +260,11 @@ public class DriveBaseSubsystem implements CustomSubsystem {
     }
 
     public double getLeftDistanceInches() {
-        return rotationsToInches(mLeftMaster.getSelectedSensorPosition(0)/Constants.kSensorUnitsPerRotation);
+        return rotationsToInches(mLeftMaster.getSelectedSensorPosition(0)/Constants.sensorUnitsPerRotationMag);
     }
 
     public double getRightDistanceInches() {
-        return rotationsToInches(mRightMaster.getSelectedSensorPosition(0)/Constants.kSensorUnitsPerRotation);
+        return rotationsToInches(mRightMaster.getSelectedSensorPosition(0)/Constants.sensorUnitsPerRotationMag);
     }
 
     public double getLeftVelocityInchesPerSec() { return rpmToInchesPerSecond(Util.convertNativeUnitsToRPM(mLeftMaster.getSelectedSensorVelocity(0))); }

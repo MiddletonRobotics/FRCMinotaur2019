@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.AutoInterruptedException;
@@ -17,7 +18,7 @@ import frc.robot.Utilities.Drivers.TalonHelper;
 public class DriveTrain extends Subsystem implements Constants, Section {
 
     private final WPI_TalonSRX leftTalon, rightTalon;
-    private final WPI_TalonSRX leftSlave, rightSlave;
+    private final WPI_VictorSPX leftSlave, rightSlave;
     private AHRS gyro = new AHRS(SPI.Port.kMXP);
 
     private static DriveTrain instance = null;
@@ -87,8 +88,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     }
 
-    private void setupSlaves(WPI_TalonSRX master, WPI_TalonSRX slave) {
-        slave.set(ControlMode.Follower, master.getDeviceID());
+    private void setupSlaves(WPI_TalonSRX master, WPI_VictorSPX slave) {
+        slave.follow(master);
     }
 
     private void configTalon(WPI_TalonSRX master, boolean reversed) {

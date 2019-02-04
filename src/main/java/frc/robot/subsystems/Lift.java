@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -67,9 +68,16 @@ public class Lift implements Section, Constants {
         liftMasterMotor.selectProfileSlot(kElevatorUpRateSlot, 0);
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
 
+        setupSlaves(liftMasterMotor, liftSlaveMotor1);
+        setupSlaves(liftMasterMotor, liftSlaveMotor1);
+        setupSlaves(liftMasterMotor, liftSlaveMotor1);
+        setupSlaves(liftMasterMotor, liftSlaveMotor1);
+
     }
 
-
+    private void setupSlaves(WPI_TalonSRX master, WPI_VictorSPX slave) {
+        slave.follow(master);
+    }
 
     public void setElevatorHeightInches(double height) {
 
@@ -79,7 +87,7 @@ public class Lift implements Section, Constants {
             zeroLift();
         }
 
-        liftMasterMotor.set(ControlMode.MotionMagic, tmpElevatorHeight * Constants.kSensorUnitsPerRotation * Constants.kElevatorEncoderGearRatio, kElevatorUpRateSlot);
+        liftMasterMotor.set(ControlMode.MotionMagic, height * sensorUnitsPerRotationMag * kElevatorEncoderGearRatio);
     }
 
     public void setElevatorHeightPercent(double percent) {
@@ -111,7 +119,36 @@ public class Lift implements Section, Constants {
     }
 
     public void zeroLift() {
+        liftMasterMotor.set(ControlMode.Disabled, 0);
+        int homeElevatorValue = (int)(Constants.kElevatorHome * Constants.kElevatorEncoderGearRatio * Constants.kSensorUnitsPerRotation);
 
+        boolean setSucceeded;
+        int retryCounter = 0;
+
+        do {
+            setSucceeded = true;
+
+            setSucceeded &= mElevatorMotorMaster.setSelectedSensorPosition(homeElevatorValue, 0, Constants.kTimeoutMs) == ErrorCode.OK;
+            setSucceeded &= mElevatorMotorMaster.configReverseSoftLimitEnable(true, Constants.kTimeoutMs) == ErrorCode.OK;
+
+        } while(!setSucceeded && retryCounter++ < Constants.kTalonRetryCount);
+
+        if (retryCounter >= Constants.kTalonRetryCount || !setSucceeded)
+            ConsoleReporter.report("Failed to zero Elevator!!!", MessageLevel.DEFCON1);
+
+        mElevatorMotorMaster.set(ControlMode.MotionMagic, homeElevatorValue);
+        double newPos = ElevatorPosition.TRUE_HOME;
+        newPos += enterRehomingMode ? ElevatorPosition.TENSION_OFFSET : ElevatorPosition.TENSION_OFFSET;
+        setElevatorHeight(newPos);
+
+        if (enterRehomingMode) {
+            elevatorRequestHomingTime = Timer.getFPGATimestamp();
+            setElevatorRequestHoming(true);
+        }
+
+        setElevatorFaulted(false, false);
+
+        return retryCounter < Constants.kTalonRetryCount && setSucceeded;
     }
 
     public void stopLift() {

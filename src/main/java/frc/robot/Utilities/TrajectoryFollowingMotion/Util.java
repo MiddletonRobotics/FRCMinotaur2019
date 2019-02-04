@@ -47,11 +47,11 @@ public class Util {
     }
 
     public static int convertRPMToNativeUnits(double rpm) {
-        return (int)(rpm * Constants.kSensorUnitsPerRotation / Constants.k100msPerMinute);
+        return (int)(rpm * Constants.sensorUnitsPerRotationMag / Constants.k100msPerMinute);
     }
 
     public static int convertNativeUnitsToRPM(double nativeUnits) {
-        return (int)(nativeUnits / Constants.kSensorUnitsPerRotation * Constants.k100msPerMinute);
+        return (int)(nativeUnits / Constants.sensorUnitsPerRotationMag * Constants.k100msPerMinute);
     }
 
 }
