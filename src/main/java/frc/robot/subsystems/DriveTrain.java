@@ -19,16 +19,19 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     private final WPI_TalonSRX leftTalon, rightTalon;
     private final WPI_VictorSPX leftSlave, rightSlave;
+    private final WPI_VictorSPX leftSlave2, rightSlave2;
     private AHRS gyro = new AHRS(SPI.Port.kMXP);
 
     private static DriveTrain instance = null;
 
     private DriveTrain() {
-        leftTalon = new WPI_TalonSRX(leftDrivetrainMasterID);
-        leftSlave = new WPI_TalonSRX(leftDrivetrainSlave1ID);
+        leftTalon = new WPI_TalonSRX(masterLeftPort);
+        leftSlave = new WPI_VictorSPX(slaveLeftPort);
+        leftSlave2 = new WPI_VictorSPX(slaveLeftPort2);
 
-        rightTalon = new WPI_TalonSRX(rightDrivetrainMasterID);
-        rightSlave = new WPI_TalonSRX(rightDrivetrainSlave1ID);
+        rightTalon = new WPI_TalonSRX(masterRightPort);
+        rightSlave = new WPI_VictorSPX(slaveRightPort);
+        rightSlave2 = new WPI_VictorSPX(slaveRightPort2);
 
         setupSlaves(leftTalon, leftSlave);
         setupSlaves(rightTalon, rightSlave);
