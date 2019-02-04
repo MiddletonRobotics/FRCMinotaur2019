@@ -1,6 +1,6 @@
 package frc.robot.Utilities.TrajectoryFollowingMotion;
 
-import frc.robot.Constants;
+import frc.robot.Utilities.Constants;
 
 import java.util.ArrayList;
 import java.util.Comparator;

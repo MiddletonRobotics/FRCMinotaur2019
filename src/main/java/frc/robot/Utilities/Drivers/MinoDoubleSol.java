@@ -1,14 +1,12 @@
-package frc.robot.subsystems;
+package frc.robot.Utilities.Drivers;
 
-import frc.robot.Constants;
-import frc.robot.Utils;
+import frc.robot.Utilities.Constants;
+import frc.robot.Utilities.Utils;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.command.Subsystem;
 
-public abstract class MinoDoubleSol extends Subsystem implements Constants {
+public class MinoDoubleSol implements Constants {
 
 	private final DoubleSolenoid sol;
 	
@@ -33,40 +31,29 @@ public abstract class MinoDoubleSol extends Subsystem implements Constants {
 	public void set(Value value) {
 		if (sol.get() != value && safetyTimeoutCleared()) {
 			sol.set(value);
-			smartDashboard();
 		}
 	}
 	
 	public void toggle() {
 		
 		if(!wasToggled) {
-			new Thread(new Runnable() {
-				public void run() {
-					wasToggled = true;
-					sol.set(sol.get() == Value.kForward ? Value.kReverse : Value.kForward);
-					smartDashboard();
-					Utils.sleep(2000);
-					wasToggled = false;
-				}
+			new Thread( () -> {
+                wasToggled = true;
+                sol.set(sol.get() == Value.kForward ? Value.kReverse : Value.kForward);
+                Utils.sleep(1500);
+                wasToggled = false;
 			}).start();
 		}
 		
-		//if (safetyTimeoutCleared()) {}
 	}
 	
-	public Value getValue() {return sol.get();}
-	
-	public abstract void smartDashboard();
-	
-	public abstract void teleop(Joystick gamepad);
+	public Value getValue() {
+		return sol.get();
+	}
+
 	
 	public void reset() {
 		wasToggled = false;
-	}
-	
-	@Override
-	protected void initDefaultCommand() {
-		System.out.println("Minotaur Double Solenoid");
 	}
 
 }

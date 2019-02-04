@@ -6,14 +6,14 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
-import frc.robot.AutoInterruptedException;
-import frc.robot.Constants;
+import frc.robot.Utilities.Constants;
 import frc.robot.Robot;
 
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.Utilities.Drivers.TalonHelper;
+import frc.robot.Utilities.Section;
 
 public class DriveTrain extends Subsystem implements Constants, Section {
 
@@ -25,16 +25,18 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     private static DriveTrain instance = null;
 
     private DriveTrain() {
-        leftTalon = new WPI_TalonSRX(masterLeftPort);
-        leftSlave = new WPI_VictorSPX(slaveLeftPort);
-        leftSlave2 = new WPI_VictorSPX(slaveLeftPort2);
+        leftTalon = new WPI_TalonSRX(leftDrivetrainMasterID);
+        leftSlave = new WPI_VictorSPX(leftDrivetrainSlave1ID);
+        leftSlave2 = new WPI_VictorSPX(leftDrivetrainSlave2ID);
 
-        rightTalon = new WPI_TalonSRX(masterRightPort);
-        rightSlave = new WPI_VictorSPX(slaveRightPort);
-        rightSlave2 = new WPI_VictorSPX(slaveRightPort2);
+        rightTalon = new WPI_TalonSRX(rightDrivetrainMasterID);
+        rightSlave = new WPI_VictorSPX(rightDrivetrainSlave1ID);
+        rightSlave2 = new WPI_VictorSPX(rightDrivetrainSlave2ID);
 
         setupSlaves(leftTalon, leftSlave);
+        setupSlaves(leftTalon, leftSlave2);
         setupSlaves(rightTalon, rightSlave);
+        setupSlaves(rightTalon, rightSlave2);
 
         configTalon(leftTalon, true);
         configTalon(rightTalon, true);
@@ -79,7 +81,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     private TeleopDriveModes driveMode = TeleopDriveModes.NEED_4_SPEED;
-    private int clicksRemaining;
 
     @Override
     public void reset() {
@@ -279,44 +280,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         stopDrive();
     }
 
-    public void turnP(double degrees, Direction direction, double speed, double allowableError, double killTime) throws AutoInterruptedException {
-        resetGyro();
-
-        double error;
-        double power;
-        double kp = 0.05;
-        double integral = 0;
-        double ki = 0.00003;
-        double prevTime = System.currentTimeMillis();
-
-        double sTime = System.currentTimeMillis();
-
-        int count = 0;
-        System.out.println(gyro.getAngle());
-        do {
-
-            if (Robot.isTeleop || Robot.isDisabled) {
-                throw new AutoInterruptedException();
-            } else {
-                error = direction.value * ((Math.abs(degrees)/*90*/ < gyro.getAngle() ? (gyro.getAngle() - Math.abs(degrees)) : -((Math.abs(degrees)) - gyro.getAngle())));
-                //error = direction.value * degrees - gyro.getAngle();
-                System.out.print(error > 1 ? error + " " : "");
-                integral += error * (System.currentTimeMillis() - prevTime);
-                prevTime = System.currentTimeMillis();
-                power = kp * error + ki * integral;
-                power = clip(power, -speed, +speed);
-                setTarget(power, power, ControlMode.PercentOutput);
-
-                if (Math.abs(error) < allowableError) {
-                    count++;
-                } else {
-                    count = 0;
-                }
-            }
-        } while (count < 500 && System.currentTimeMillis() - sTime < killTime);
-        System.out.println("Completed");
-        stopDrive();
-    }
 
 
     double error;
@@ -511,52 +474,27 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     public void teleop(Joystick gamepad) {
         double left_y = deadband(gamepad.getRawAxis(LEFT_Y_AXIS));
-        double right_y = deadband(gamepad.getRawAxis(RIGHT_Y_AXIS));
         double right_x = -deadband(gamepad.getRawAxis(RIGHT_X_AXIS));
-
-
 
         if (gamepad.getRawButton(BTN_BACK))
             driveMode = TeleopDriveModes.TANK_DRIVE;
         if (gamepad.getRawButton(BTN_START))
             driveMode = TeleopDriveModes.NEED_4_SPEED;
 
-        if (false) {
-            driveVelocity(-left_y, left_y);
-        } else {
-            // this.leftTalon.set(left_y * 500);
-            // this.rightTalon.set(right_y * 500);
-            double leftPower = left_y - right_x;
-            double rightPower = left_y + right_x;
 
-            if (Math.abs(leftPower) > 1) {
-                leftPower /= Math.abs(leftPower);
-                rightPower /= Math.abs(leftPower);
-            }
-            if (Math.abs(rightPower) > 1) {
-                leftPower /= Math.abs(rightPower);
-                rightPower /= Math.abs(rightPower);
-            }
+        double leftPower = left_y - right_x;
+        double rightPower = left_y + right_x;
 
-            //driveVbus(-leftPower, rightPower);
-            driveVelocity(-leftPower * maxRPM, rightPower * maxRPM);
-            // System.out.println("errL: " + leftTalon.getClosedLoopError(0) + " : errR:" + rightTalon.getClosedLoopError(0) + " : lSpeed: " + leftTalon.getSelectedSensorVelocity(0 ) + " : rSpeed : " + rightTalon.getSelectedSensorVelocity(0));
-            /*
-             * switch(driveMode) { case TANK_DRIVE: //driveVbus(left_y * 0.8,
-             * right_y * 0.8); driveVelocity(-1250 * left_y, 1250 * right_y);
-             * break; case NEED_4_SPEED: double leftPower = left_y - right_x;
-             * double rightPower = left_y + right_x;
-             *
-             * if (Math.abs(leftPower) > 1) { leftPower /= Math.abs(leftPower);
-             * rightPower /= Math.abs(leftPower); } if (Math.abs(rightPower) >
-             * 1) { leftPower /= Math.abs(rightPower); rightPower /=
-             * Math.abs(rightPower); }
-             *
-             *
-             *
-             * driveVelocity(1250 * leftPower, 1250 * rightPower); break; }
-             */
+
+        double maxSpeed = Math.max(Math.abs(leftPower), Math.abs(rightPower));
+        if (maxSpeed > 1) {
+            leftPower /= maxSpeed;
+            rightPower /= maxSpeed;
         }
+
+        leftTalon.set(-leftPower);
+        rightTalon.set(-rightPower);
+
     }
 
 
@@ -564,46 +502,5 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     protected void initDefaultCommand() {
         System.out.println("Minotaur DriveTrain");
     }
-
-//     public void turnP(double degrees, Direction direction, double speed, double allowableError, double timeKill, boolean xd) throws AutoInterruptedException {
-//         resetGyro();
-//         double error;
-//         double power;
-//         double kp = 0.04;
-//         double integral = 0;
-//         double ki = 0.00005;
-//         double prevTime = System.currentTimeMillis();
-
-//         double sTime = System.currentTimeMillis();
-
-//         int count = 0;
-//         do {
-
-//             if (Robot.isTeleop || Robot.isDisabled) {
-//                 throw new AutoInterruptedException();
-//             } else {
-//                 error = (direction.value * degrees) - gyro.getAngle();
-// //                error = direction.value * ((Math.abs(degrees)/*90*/ > gyro.getAngle() ? (gyro.getAngle() - Math.abs(degrees)) : -((Math.abs(degrees)) - gyro.getAngle())));
-// //                integral += error * (System.currentTimeMillis() - prevTime);
-// //                prevTime = System.currentTimeMillis();
-//                 power = kp * error/* + ki * integral*/;
-//                 power = clip(power, -speed, +speed);
-//                 setTarget(-power, -power, ControlMode.PercentOutput);
-
-//                 if (Math.abs(error) < allowableError) {
-//                     count++;
-//                 } else {
-//                     //count = 0;
-//                 }
-//             }
-//             System.out.println("turning: " + degrees + ":" + direction.toString() + ":" + power);
-//         } while (count < 500 && System.currentTimeMillis() - sTime < timeKill);
-//         System.out.println("Completed");
-
-//         stopDrive();
-
-//     }
-
-
 
 }

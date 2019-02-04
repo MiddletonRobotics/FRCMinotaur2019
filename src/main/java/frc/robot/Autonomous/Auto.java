@@ -1,8 +1,6 @@
-package frc.robot.commands;
+package frc.robot.Autonomous;
 
-import frc.robot.Utils;
-import frc.robot.subsystems.DriveTrain;
-import frc.robot.Robot;
+import frc.robot.Utilities.Utils;
 
 public abstract class Auto {
 

@@ -125,7 +125,7 @@ public class PathFollower {
     }
 
     /**
-     * Get new velocity commands to follow the path.
+     * Get new velocity Autonomous to follow the path.
      * 
      * @param t
      *            The current timestamp

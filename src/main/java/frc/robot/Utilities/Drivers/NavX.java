@@ -4,9 +4,7 @@ import com.kauailabs.navx.AHRSProtocol.AHRSUpdateBase;
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.ITimestampedDataSubscriber;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Timer;
 //import org.usfirst.frc.team195.robot.Reporters.ConsoleReporter;
-import frc.robot.Constants;
 import frc.robot.Utilities.TrajectoryFollowingMotion.Rotation2d;
 
 /**

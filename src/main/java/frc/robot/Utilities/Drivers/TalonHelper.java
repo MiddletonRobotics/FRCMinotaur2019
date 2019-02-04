@@ -1,9 +1,8 @@
 package frc.robot.Utilities.Drivers;
 
 import com.ctre.phoenix.ErrorCode;
-import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import frc.robot.Constants;
+import frc.robot.Utilities.Constants;
 import frc.robot.Utilities.TrajectoryFollowingMotion.Util;
 
 public class TalonHelper {

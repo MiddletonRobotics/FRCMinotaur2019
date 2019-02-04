@@ -6,7 +6,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
 import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
-import frc.robot.Constants;
+import frc.robot.Utilities.Constants;
 import frc.robot.Utilities.Controllers;
 import frc.robot.Utilities.CustomSubsystem;
 import frc.robot.Utilities.DriveControlState;

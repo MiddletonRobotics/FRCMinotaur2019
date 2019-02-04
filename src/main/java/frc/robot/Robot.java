@@ -8,7 +8,8 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import frc.robot.commands.*;
+import frc.robot.Utilities.Constants;
+import frc.robot.Autonomous.*;
 import frc.robot.subsystems.*;
 
 /**
@@ -28,6 +29,7 @@ public class Robot extends TimedRobot {
     public static Vision vision;
     public static Lift lift;
     public static Arm arm;
+    public static Intake intake;
 
 
     public static boolean isTeleop = false;
@@ -51,6 +53,7 @@ public class Robot extends TimedRobot {
         vision = new Vision();
         lift = Lift.getInstance();
         arm = Arm.getInstance();
+        intake = Intake.getInstance();
 
 
         chooser.setDefaultOption("Do nothing :O", null);
@@ -59,7 +62,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("Delay MS (C H A N G E T H I S E V E R Y M A T C H)", 0);
         SmartDashboard.putData(chooser);
 
-        Utils.resetRobot();
+        resetRobot();
     }
 
     /**
@@ -88,9 +91,9 @@ public class Robot extends TimedRobot {
      * LabVIEW Dashboard, remove all of the chooser code and uncomment the
      * getString code to get the auto name from the text box below the Gyro
      * <p>
-     * You can add additional auto modes by adding additional commands to the
+     * You can add additional auto modes by adding additional Autonomous to the
      * chooser code above (like the commented example) or additional comparisons
-     * to the switch structure below with additional strings & commands.
+     * to the switch structure below with additional strings & Autonomous.
      */
 
     //Hey change this
@@ -134,7 +137,7 @@ public class Robot extends TimedRobot {
             a = null;
         }
         isTeleop = true;
-        Utils.resetRobot();
+        resetRobot();
 
         isToggled = false;
     }
@@ -152,6 +155,7 @@ public class Robot extends TimedRobot {
         lift.teleop(gamepad2);
         arm.teleop(gamepad1);
         vision.teleop(gamepad1);
+        intake.teleop(gamepad1);
 
 
 
@@ -177,4 +181,12 @@ public class Robot extends TimedRobot {
 
     }
 
+    public static void resetRobot() {
+        driveTrain.reset();
+        lift.reset();
+        arm.reset();
+        vision.reset();
+        intake.reset();
+    }
+    
 }

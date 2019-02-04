@@ -9,16 +9,16 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import frc.robot.Constants;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Utilities.Constants;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.Utilities.Section;
 
 /**
  * Add your docs here.
  */
-public class Vision extends Subsystem implements Constants, Section{
+public class Vision extends Subsystem implements Constants, Section {
   private NetworkTable table;
 
 

@@ -1,15 +1,15 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Constants;
+import frc.robot.Utilities.Constants;
 import frc.robot.Utilities.Drivers.TalonHelper;
+import frc.robot.Utilities.Positions.Elevator;
+import frc.robot.Utilities.Section;
 
 public class Lift implements Section, Constants {
 
@@ -32,7 +32,7 @@ public class Lift implements Section, Constants {
         topLimitSwitch = new DigitalInput(limitSwitchLiftBottomPort);
         bottomLimitSwitch = new DigitalInput((limitSwitchLiftTopPort));
 
-        init();
+        configTalon(liftMasterMotor);
 
     }
 
@@ -44,34 +44,34 @@ public class Lift implements Section, Constants {
         return instance;
     }
 
-    private void init() {
-        liftMasterMotor.set(0);
+    private void configTalon(WPI_TalonSRX motor) {
+        motor.set(0);
 
-        liftMasterMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
-        liftMasterMotor.setSensorPhase(true);
+        motor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+        motor.setSensorPhase(true);
         // master.configClosedloopRamp(0.25, 0);
-        liftMasterMotor.configOpenloopRamp(0.25, 0);
+        motor.configOpenloopRamp(0.25, 0);
 //      masteqr.configNominalOutputForward(NOMINAL_OUTPUT_VOLTAGE, -NOMINAL_OUTPUT_VOLTAGE);
         //    master.configPeakOutputVoltage(+PEAK_OUTPUT_VOLTAGE, -PEAK_OUTPUT_VOLTAGE);
 
         //aster.configSen R);
 
-        liftMasterMotor.configAllowableClosedloopError(0, 0, 0);
+        motor.configAllowableClosedloopError(0, 0, 0);
 
 
 
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
-        TalonHelper.setPIDGains(liftMasterMotor, kElevatorUpRateSlot, kElevatorKp, kElevatorKi, kElevatorKd, kElevatorKf, kElevatorRampRate, kElevatorIZone);
-        TalonHelper.setPIDGains(liftMasterMotor, kElevatorDownRateSlot, kElevatorKp, kElevatorKi, kElevatorKd, kElevatorKf, kElevatorRampRate, kElevatorIZone);
-        TalonHelper.setMotionMagicParams(liftMasterMotor, kElevatorUpRateSlot, kElevatorMaxVelocityUp, kElevatorMaxAccelUp);
-        TalonHelper.setMotionMagicParams(liftMasterMotor, kElevatorDownRateSlot, kElevatorMaxVelocityDown, kElevatorMaxAccelDown);
-        liftMasterMotor.selectProfileSlot(kElevatorUpRateSlot, 0);
+        TalonHelper.setPIDGains(motor, kElevatorUpRateSlot, kElevatorKp, kElevatorKi, kElevatorKd, kElevatorKf, kElevatorRampRate, kElevatorIZone);
+        TalonHelper.setPIDGains(motor, kElevatorDownRateSlot, kElevatorKp, kElevatorKi, kElevatorKd, kElevatorKf, kElevatorRampRate, kElevatorIZone);
+        TalonHelper.setMotionMagicParams(motor, kElevatorUpRateSlot, kElevatorMaxVelocityUp, kElevatorMaxAccelUp);
+        TalonHelper.setMotionMagicParams(motor, kElevatorDownRateSlot, kElevatorMaxVelocityDown, kElevatorMaxAccelDown);
+        motor.selectProfileSlot(kElevatorUpRateSlot, 0);
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
 
-        setupSlaves(liftMasterMotor, liftSlaveMotor1);
-        setupSlaves(liftMasterMotor, liftSlaveMotor1);
-        setupSlaves(liftMasterMotor, liftSlaveMotor1);
-        setupSlaves(liftMasterMotor, liftSlaveMotor1);
+        setupSlaves(motor, liftSlaveMotor1);
+        setupSlaves(motor, liftSlaveMotor1);
+        setupSlaves(motor, liftSlaveMotor1);
+        setupSlaves(motor, liftSlaveMotor1);
 
     }
 
@@ -119,36 +119,15 @@ public class Lift implements Section, Constants {
     }
 
     public void zeroLift() {
+
         liftMasterMotor.set(ControlMode.Disabled, 0);
-        int homeElevatorValue = (int)(Constants.kElevatorHome * Constants.kElevatorEncoderGearRatio * Constants.kSensorUnitsPerRotation);
+        int homeElevatorValue = (int)(Elevator.elevatorHomePosition * kElevatorEncoderGearRatio * sensorUnitsPerRotationMag);
 
-        boolean setSucceeded;
-        int retryCounter = 0;
+        liftMasterMotor.setSelectedSensorPosition(homeElevatorValue, 0, Constants.kTimeoutMs);
+        liftMasterMotor.configReverseSoftLimitEnable(true, Constants.kTimeoutMs);
 
-        do {
-            setSucceeded = true;
+        liftMasterMotor.set(ControlMode.MotionMagic, homeElevatorValue);
 
-            setSucceeded &= mElevatorMotorMaster.setSelectedSensorPosition(homeElevatorValue, 0, Constants.kTimeoutMs) == ErrorCode.OK;
-            setSucceeded &= mElevatorMotorMaster.configReverseSoftLimitEnable(true, Constants.kTimeoutMs) == ErrorCode.OK;
-
-        } while(!setSucceeded && retryCounter++ < Constants.kTalonRetryCount);
-
-        if (retryCounter >= Constants.kTalonRetryCount || !setSucceeded)
-            ConsoleReporter.report("Failed to zero Elevator!!!", MessageLevel.DEFCON1);
-
-        mElevatorMotorMaster.set(ControlMode.MotionMagic, homeElevatorValue);
-        double newPos = ElevatorPosition.TRUE_HOME;
-        newPos += enterRehomingMode ? ElevatorPosition.TENSION_OFFSET : ElevatorPosition.TENSION_OFFSET;
-        setElevatorHeight(newPos);
-
-        if (enterRehomingMode) {
-            elevatorRequestHomingTime = Timer.getFPGATimestamp();
-            setElevatorRequestHoming(true);
-        }
-
-        setElevatorFaulted(false, false);
-
-        return retryCounter < Constants.kTalonRetryCount && setSucceeded;
     }
 
     public void stopLift() {

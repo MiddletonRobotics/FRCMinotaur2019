@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.Utilities;
 
 import edu.wpi.first.wpilibj.SPI;
 
@@ -11,17 +11,24 @@ import edu.wpi.first.wpilibj.SPI;
 public interface Constants {
 
     //Hardware Ports
-    int leftDrivetrainMasterID = 5;
-    int leftDrivetrainSlave1ID = 6;
-    int leftDrivetrainSlave2ID = 7;
-    int rightDrivetrainMasterID = 3;
-    int rightDrivetrainSlave1ID = 4;
-    int rightDrivetrainSlave2ID = 8;
+    int leftDrivetrainMasterID = 11;
+    int leftDrivetrainSlave1ID = 12;
+    int leftDrivetrainSlave2ID = 13;
+    int rightDrivetrainMasterID = 21;
+    int rightDrivetrainSlave1ID = 22;
+    int rightDrivetrainSlave2ID = 23;
     int liftMotor1ID = 49;
     int liftMotor2ID = 39;
     int liftMotor3ID = 29;
     int liftMotor4ID = 19;
     int armTalonID = -1;
+    int intakeMotorRightID = -1;
+    int intakeMotorLeftID = -1;
+
+    int rightIntakeSolenoidForwardChannel = -1;
+    int rightIntakeSolenoidReverseChannel = -1;
+    int leftIntakeSolenoidForwardChannel = -1;
+    int leftIntakeSolenoidReverseChannel = -1;
 
     int leftDrivetrainMasterPDPSlot = 0;
     int leftDrivetrainSlave1PDPSlot = 0;
@@ -257,6 +264,8 @@ public interface Constants {
     double kPDPBreakerModelB = -6.6305;
     double kPDPBreakerModelC = 0.5;
     double kPDPDefaultSafetyFactor = 4.0;
+
+
 
     private static int getMSDurationForBreakerLimit(double peakCurrentInput, double breakerRating) {
         return getMSDurationForBreakerLimit(peakCurrentInput, breakerRating, kPDPDefaultSafetyFactor);
