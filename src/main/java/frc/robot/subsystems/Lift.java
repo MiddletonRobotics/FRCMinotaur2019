@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Utilities.Drivers.TalonHelper;
-import frc.robot.Utilities.Constants.Positions.Elevator;
+import frc.robot.Utilities.Constants.Positions.LiftPositions;
 import frc.robot.Utilities.Section;
 
 public class Lift implements Section, Constants {
@@ -20,7 +20,6 @@ public class Lift implements Section, Constants {
 
     private static Lift instance = null;
 
-    boolean hasStopped = false;
     DigitalInput topLimitSwitch;
     DigitalInput bottomLimitSwitch;
 
@@ -30,7 +29,7 @@ public class Lift implements Section, Constants {
         liftSlaveMotor2 = new WPI_VictorSPX(liftMotor3ID);
         liftSlaveMotor3 = new WPI_VictorSPX(liftMotor4ID);
         topLimitSwitch = new DigitalInput(limitSwitchLiftBottomPort);
-        bottomLimitSwitch = new DigitalInput((limitSwitchLiftTopPort));
+        bottomLimitSwitch = new DigitalInput(limitSwitchLiftTopPort);
 
         configTalon(liftMasterMotor);
 
@@ -61,11 +60,11 @@ public class Lift implements Section, Constants {
 
 
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
-        TalonHelper.setPIDGains(motor, kElevatorUpRateSlot, kElevatorKp, kElevatorKi, kElevatorKd, kElevatorKf, kElevatorRampRate, kElevatorIZone);
-        TalonHelper.setPIDGains(motor, kElevatorDownRateSlot, kElevatorKp, kElevatorKi, kElevatorKd, kElevatorKf, kElevatorRampRate, kElevatorIZone);
-        TalonHelper.setMotionMagicParams(motor, kElevatorUpRateSlot, kElevatorMaxVelocityUp, kElevatorMaxAccelUp);
-        TalonHelper.setMotionMagicParams(motor, kElevatorDownRateSlot, kElevatorMaxVelocityDown, kElevatorMaxAccelDown);
-        motor.selectProfileSlot(kElevatorUpRateSlot, 0);
+        TalonHelper.setPIDGains(motor, kLiftUpRateSlot, kLiftKp, kLiftKi, kLiftKd, kLiftKf, kLiftRampRate, kLiftIZone);
+        TalonHelper.setPIDGains(motor, kLiftDownRateSlot, kLiftKp, kLiftKi, kLiftKd, kLiftKf, kLiftRampRate, kLiftIZone);
+        TalonHelper.setMotionMagicParams(motor, kLiftUpRateSlot, kLiftMaxVelocityUp, kLiftMaxAccelUp);
+        TalonHelper.setMotionMagicParams(motor, kLiftDownRateSlot, kLiftMaxVelocityDown, kLiftMaxAccelDown);
+        motor.selectProfileSlot(kLiftUpRateSlot, 0);
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
 
         setupSlaves(motor, liftSlaveMotor1);
@@ -79,34 +78,42 @@ public class Lift implements Section, Constants {
         slave.follow(master);
     }
 
-    public void setElevatorHeightInches(double height) {
+    public void setLiftHeightRotations(double height) {
 
 
         //hey dummy test limit switch pls thanks
-        if (!bottomLimitSwitch.get() && height <= elevatorMinHeight) {
+/*        if (!bottomLimitSwitch.get() && height <= LiftPositions.liftMinHeight) {
             zeroLift();
-        }
+        }*/
 
-        liftMasterMotor.set(ControlMode.MotionMagic, height * sensorUnitsPerRotationMag * kElevatorEncoderGearRatio);
+        height = height < LiftPositions.liftMinHeight ? LiftPositions.liftMinHeight : height > LiftPositions.liftMaxHeight ? LiftPositions.liftMaxHeight : height;
+        liftMasterMotor.set(ControlMode.MotionMagic, getSensorPositionFromHeight(height));
     }
 
-    public void setElevatorHeightPercent(double percent) {
-        setElevatorHeightInches(elevatorHeightRange*percent/100);
+    public void setLiftHeightPercent(double percent) {
+        setLiftHeightRotations(LiftPositions.liftHeightRange*percent/100);
     }
 
-    protected void initDefaultCommand() {
+    public void initDefaultCommand() {
         System.out.println("sent from my iphone");
     }
+
+    public void setLiftSpeedPercent(double speed) {
+        liftMasterMotor.set(speed);
+    }
+
+    public void setLiftSpeedSpeed(double speed) {
+        liftMasterMotor.set(ControlMode.Velocity, speed);
+    }
+
 
     @Override
     public void teleop(Joystick gamepad) {
 
-        if (gamepad.getRawButton(BTN_LB)/* && bottomLimitSwitch.get()*/) {
-            usePIDOutput(.35);
-            hasStopped = false;
-        } else if (gamepad.getRawButton(BTN_RB) /*&& topLimitSwitch.get()*/ /*&& Robot.lift.potentiometer.pidGet() > Utils.iPhoneMath(.97)*/) {
-            usePIDOutput(-0.75);
-            hasStopped = false;
+        if (gamepad.getRawButton(BTN_LB) && liftMasterMotor.getSensorCollection().getQuadraturePosition() > getSensorPositionFromHeight(LiftPositions.liftMinHeight) /* && bottomLimitSwitch.get()*/) { //hey dummy test limit switch pls thanks
+            setLiftSpeedPercent(0.5);
+        } else if (gamepad.getRawButton(BTN_RB) && liftMasterMotor.getSensorCollection().getQuadraturePosition() < getSensorPositionFromHeight(LiftPositions.liftMaxHeight) /*&& topLimitSwitch.get()*/ /*&& Robot.lift.potentiometer.pidGet() > Utils.iPhoneMath(.97)*/) {
+            setLiftSpeedPercent(-0.5);
         } else {
             stopLift();
         }
@@ -114,30 +121,28 @@ public class Lift implements Section, Constants {
 
     @Override
     public void reset() {
-        hasStopped = false;
+        zeroLift();
         stopLift();
     }
 
     public void zeroLift() {
 
         liftMasterMotor.set(ControlMode.Disabled, 0);
-        int homeElevatorValue = (int)(Elevator.elevatorHomePosition * kElevatorEncoderGearRatio * sensorUnitsPerRotationMag);
+        int homeLiftValue = (int)(LiftPositions.liftHomePosition * kLiftEncoderGearRatio * sensorUnitsPerRotationMag);
 
-        liftMasterMotor.setSelectedSensorPosition(homeElevatorValue, 0, Constants.kTimeoutMs);
+        liftMasterMotor.setSelectedSensorPosition(homeLiftValue, 0, Constants.kTimeoutMs);
         liftMasterMotor.configReverseSoftLimitEnable(true, Constants.kTimeoutMs);
 
-        liftMasterMotor.set(ControlMode.MotionMagic, homeElevatorValue);
+        liftMasterMotor.set(ControlMode.MotionMagic, homeLiftValue);
 
     }
 
     public void stopLift() {
-        if (!hasStopped) {
             liftMasterMotor.set(0);
             liftSlaveMotor1.set(0);
             liftSlaveMotor2.set(0);
             liftSlaveMotor3.set(0);
-            hasStopped = true;
-        }
+
         /*if (!bottomLimitSwitch.get()) {
             liftMasterMotor.set(0);
             liftSlaveMotor1.set(0);
@@ -148,14 +153,8 @@ public class Lift implements Section, Constants {
         //System.out.println("Er" + "ror: " + getPIDController().get() + " : " + liftMasterMotor.get() + " : " + potentiometer.pidGet());
     }
 
-
-
-
-
-    protected void usePIDOutput(double output) {
-        liftMasterMotor.pidWrite(output);
-        liftSlaveMotor1.pidWrite(-output);
-        liftSlaveMotor2.pidWrite(-output);
-        liftSlaveMotor3.pidWrite(-output);
+    public double getSensorPositionFromHeight(double height) {
+        return height * sensorUnitsPerRotationMag * kLiftEncoderGearRatio;
     }
+
 }

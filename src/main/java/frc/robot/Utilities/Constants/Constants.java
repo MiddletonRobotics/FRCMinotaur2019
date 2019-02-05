@@ -193,22 +193,19 @@ public interface Constants extends GamepadButtons {
     double kBoilerTargetTopHeight = 88.0;
 	double kBoilerRadius = 7.5;
 
-	int kElevatorUpRateSlot = 0;
-    int kElevatorDownRateSlot = 1;
-    double kElevatorKp = 0;
-    double kElevatorKi = 0;
-    double kElevatorKd = 0;
-    double kElevatorKf = 0;
-    double kElevatorRampRate = 0;
-    int kElevatorIZone = 0;
-    int kElevatorMaxVelocityUp = 0;
-    int kElevatorMaxAccelUp = 0;
-    int kElevatorMaxVelocityDown = 0;
-    int kElevatorMaxAccelDown = 0;
-    double elevatorMaxHeight = 0;
-    double elevatorMinHeight = 0;
-    double elevatorHeightRange = elevatorMaxHeight - elevatorMinHeight;
-    double kElevatorEncoderGearRatio = 0;
+	int kLiftUpRateSlot = 0;
+    int kLiftDownRateSlot = 1;
+    double kLiftKp = 0;
+    double kLiftKi = 0;
+    double kLiftKd = 0;
+    double kLiftKf = 0;
+    double kLiftRampRate = 0;
+    int kLiftIZone = 0;
+    int kLiftMaxVelocityUp = 0;
+    int kLiftMaxAccelUp = 0;
+    int kLiftMaxVelocityDown = 0;
+    int kLiftMaxAccelDown = 0;
+    double kLiftEncoderGearRatio = 0;
 
     int kArmNormalRateSlot = 0;
     int kArmFastRateSlot = 1;
