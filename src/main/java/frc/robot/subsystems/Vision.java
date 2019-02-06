@@ -13,6 +13,7 @@ import frc.robot.Utilities.Constants.Constants;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.Utilities.Section;
 
 /**
@@ -33,7 +34,7 @@ public class Vision extends Subsystem implements Constants, Section {
   }
 
   @Override
-  public void teleop(Joystick gamepad) {
+  public void teleop(MinoGamepad gamepad) {
     NetworkTableEntry tx = table.getEntry("tx");
     double x = tx.getDouble(0.0);
     System.out.println(x);

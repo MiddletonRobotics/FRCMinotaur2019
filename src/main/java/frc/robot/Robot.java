@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Autonomous.*;
 import frc.robot.Utilities.Constants.Constants;
+import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.subsystems.*;
 
 /**
@@ -22,8 +23,8 @@ import frc.robot.subsystems.*;
 public class Robot extends TimedRobot {
 
     public static CameraServer cs;
-    public static Joystick gamepad1;
-    public static Joystick gamepad2;
+    public static MinoGamepad gamepad1;
+    public static MinoGamepad gamepad2;
 
     public static DriveTrain driveTrain;
     public static Vision vision;
@@ -44,8 +45,8 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         
-        gamepad1 = new Joystick(Constants.gamepad1Port);
-        gamepad2 = new Joystick(Constants.gamepad2Port);
+        gamepad1 = new MinoGamepad(Constants.gamepad1Port);
+        gamepad2 = new MinoGamepad(Constants.gamepad2Port);
         cs = CameraServer.getInstance();
         cs.startAutomaticCapture();
 

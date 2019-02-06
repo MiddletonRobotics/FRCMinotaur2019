@@ -12,6 +12,7 @@ import frc.robot.Robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.Utilities.Drivers.TalonHelper;
 import frc.robot.Utilities.Section;
 
@@ -472,7 +473,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         return Math.abs(input) < 0.15 ? 0.0 : input;
     }
 
-    public void teleop(Joystick gamepad) {
+    public void teleop(MinoGamepad gamepad) {
         double left_y = deadband(gamepad.getRawAxis(LEFT_Y_AXIS));
         double right_x = -deadband(gamepad.getRawAxis(RIGHT_X_AXIS));
 

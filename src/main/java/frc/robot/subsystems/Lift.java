@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.Utilities.Constants.Constants;
+import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.Utilities.Drivers.TalonHelper;
 import frc.robot.Utilities.Constants.Positions.LiftPositions;
 import frc.robot.Utilities.Section;
@@ -78,41 +79,19 @@ public class Lift implements Section, Constants {
         slave.follow(master);
     }
 
-    public void setLiftHeightRotations(double height) {
 
-
-        //hey dummy test limit switch pls thanks
-/*        if (!bottomLimitSwitch.get() && height <= LiftPositions.liftMinHeight) {
-            zeroLift();
-        }*/
-
-        height = height < LiftPositions.liftMinHeight ? LiftPositions.liftMinHeight : height > LiftPositions.liftMaxHeight ? LiftPositions.liftMaxHeight : height;
-        liftMasterMotor.set(ControlMode.MotionMagic, getSensorPositionFromHeight(height));
-    }
-
-    public void setLiftHeightPercent(double percent) {
-        setLiftHeightRotations(LiftPositions.liftHeightRange*percent/100);
-    }
 
     public void initDefaultCommand() {
         System.out.println("sent from my iphone");
     }
 
-    public void setLiftSpeedPercent(double speed) {
-        liftMasterMotor.set(speed);
-    }
-
-    public void setLiftSpeedSpeed(double speed) {
-        liftMasterMotor.set(ControlMode.Velocity, speed);
-    }
-
 
     @Override
-    public void teleop(Joystick gamepad) {
+    public void teleop(MinoGamepad gamepad) {
 
-        if (gamepad.getRawButton(BTN_LB) && liftMasterMotor.getSensorCollection().getQuadraturePosition() > getSensorPositionFromHeight(LiftPositions.liftMinHeight) /* && bottomLimitSwitch.get()*/) { //hey dummy test limit switch pls thanks
+        if (gamepad.getRawButton(BTN_LB) && isLiftHeigherThanMax()/* && bottomLimitSwitch.get()*/) { //hey dummy test limit switch pls thanks
             setLiftSpeedPercent(0.5);
-        } else if (gamepad.getRawButton(BTN_RB) && liftMasterMotor.getSensorCollection().getQuadraturePosition() < getSensorPositionFromHeight(LiftPositions.liftMaxHeight) /*&& topLimitSwitch.get()*/ /*&& Robot.lift.potentiometer.pidGet() > Utils.iPhoneMath(.97)*/) {
+        } else if (gamepad.getRawButton(BTN_RB) && isLiftLowerThanMin() /*&& topLimitSwitch.get()*/ /*&& Robot.lift.potentiometer.pidGet() > Utils.iPhoneMath(.97)*/) {
             setLiftSpeedPercent(-0.5);
         } else {
             stopLift();
@@ -153,8 +132,58 @@ public class Lift implements Section, Constants {
         //System.out.println("Er" + "ror: " + getPIDController().get() + " : " + liftMasterMotor.get() + " : " + potentiometer.pidGet());
     }
 
-    public double getSensorPositionFromHeight(double height) {
-        return height * sensorUnitsPerRotationMag * kLiftEncoderGearRatio;
+    public void setLiftHeightInches(double heightInches) {
+        //hey dummy test limit switch pls thanks
+/*        if (!bottomLimitSwitch.get() && height <= LiftPositions.liftMinHeight) {
+            zeroLift();
+        }*/
+
+        double heightSensorUnits = inchesToSensorUnits(heightInches);
+        setLiftHeightSensorUnits(clipHeightSensorUnits(heightSensorUnits));
     }
 
+    public void setLiftSpeedPercent(double speed) {
+        liftMasterMotor.set(speed);
+    }
+
+    public void setLiftSpeed(double speed) {
+        liftMasterMotor.set(ControlMode.Velocity, speed);
+    }
+
+    public void setLiftHeightSensorUnits(double sensorUnits) {
+        //hey dummy test limit switch pls thanks
+/*        if (!bottomLimitSwitch.get() && height <= LiftPositions.liftMinHeight) {
+            zeroLift();
+        }*/
+
+        liftMasterMotor.set(ControlMode.MotionMagic, sensorUnits);
+    }
+
+    public double inchesToSensorUnits(double inches) {
+        return ((inches - liftHeightToGround)/(Math.PI * liftSprocketDiameter))*sensorUnitsPerRotationMag;
+    }
+
+    public double getHeightSensorUnitsFromPercent (double percent) {
+        return LiftPositions.liftHeightRange*percent + LiftPositions.liftMinHeight;
+    }
+
+    public boolean isGreaterThanMaxSensorUnits(double height) {
+        return height > LiftPositions.liftMaxHeight;
+    }
+
+    public boolean isLessThanMinSensorUnits(double height) {
+        return height < LiftPositions.liftMinHeight;
+    }
+
+    public boolean isLiftLowerThanMin() {
+       return liftMasterMotor.getSensorCollection().getQuadraturePosition() < LiftPositions.liftMinHeight;
+    }
+
+    public boolean isLiftHeigherThanMax() {
+        return liftMasterMotor.getSensorCollection().getQuadraturePosition() > LiftPositions.liftMaxHeight;
+    }
+
+    public double clipHeightSensorUnits(double heightSensorUnits) {
+        return Math.min(LiftPositions.liftMaxHeight, Math.max(LiftPositions.liftMinHeight, heightSensorUnits));
+    }
 }

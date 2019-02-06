@@ -1,10 +1,10 @@
 package frc.robot.Utilities;
 
-import edu.wpi.first.wpilibj.Joystick;
+import frc.robot.Utilities.Drivers.MinoGamepad;
 
 public interface Section {
 	
-	void teleop(Joystick gamepad);
+	void teleop(MinoGamepad gamepad);
 	void reset();
 
 }

@@ -206,6 +206,8 @@ public interface Constants extends GamepadButtons {
     int kLiftMaxVelocityDown = 0;
     int kLiftMaxAccelDown = 0;
     double kLiftEncoderGearRatio = 0;
+    double liftSprocketDiameter = 0;
+    double liftHeightToGround = 0;
 
     int kArmNormalRateSlot = 0;
     int kArmFastRateSlot = 1;
@@ -227,6 +229,7 @@ public interface Constants extends GamepadButtons {
     int kArmMaxContinuousCurrentLimit = kArmMotorPDPBreakerRating;
     int kArmMaxPeakCurrentLimit = kArmMaxContinuousCurrentLimit * 2;
     int kArmMaxPeakCurrentDurationMS = getMSDurationForBreakerLimit(kArmMaxPeakCurrentLimit, kArmMaxContinuousCurrentLimit);
+    double armDegreeOffset = 0;
 
     double kPDPBreakerModelA = 282.2962;
     double kPDPBreakerModelB = -6.6305;
