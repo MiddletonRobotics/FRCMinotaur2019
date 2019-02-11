@@ -51,16 +51,15 @@ public class Robot extends TimedRobot {
         cs.startAutomaticCapture();
 
         driveTrain = DriveTrain.getInstance();
-        vision = new Vision();
+/*        vision = new Vision();
         lift = Lift.getInstance();
         arm = Arm.getInstance();
-        intake = Intake.getInstance();
+        intake = Intake.getInstance();*/
 
 
         chooser.setDefaultOption("Do nothing :O", null);
-
-//        chooser.addObject("uWu", new DoubleSwitchMiddleAutoBoi());
-        SmartDashboard.putNumber("Delay MS (C H A N G E T H I S E V E R Y M A T C H)", 0);
+        //chooser.addOption("TURN TEST", new TurnTest());
+        //SmartDashboard.putNumber("Delay MS (C H A N G E T H I S E V E R Y M A T C H)", 0);
         SmartDashboard.putData(chooser);
 
         resetRobot();
@@ -97,8 +96,7 @@ public class Robot extends TimedRobot {
      * to the switch structure below with additional strings & Autonomous.
      */
 
-    //Hey change this
-    private Auto a = new TurnTest();
+    private Auto a;
 
 
     @Override
@@ -106,8 +104,7 @@ public class Robot extends TimedRobot {
         Robot.isDisabled = false;
         SmartDashboard.putNumber("Disabled Init Ran", 0);
 
-        //EY bruh fix this
-        //a = chooser.getSelected();
+        a = chooser.getSelected();
 
         if (a != null) {
             a.auto();
@@ -153,12 +150,10 @@ public class Robot extends TimedRobot {
         Scheduler.getInstance().run();
 
         driveTrain.teleop(gamepad1);
-        lift.teleop(gamepad2);
+/*        lift.teleop(gamepad2);
         arm.teleop(gamepad1);
         vision.teleop(gamepad1);
-        intake.teleop(gamepad1);
-
-
+        intake.teleop(gamepad1);*/
 
 
         //SmartDashboard.putNumber("Potentiometer:", lift.potentiometer.pidGet());
@@ -189,5 +184,4 @@ public class Robot extends TimedRobot {
         vision.reset();
         intake.reset();
     }
-    
 }
