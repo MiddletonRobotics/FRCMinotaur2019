@@ -19,15 +19,19 @@ public class StateMachineRunner {
     }
 
     public void runStateMachine() {
-        switch (states.get(currState)) {
-            case turn90Clockwise:
-                if (Robot.driveTrain.turnProportionalOnMeasurement(90, DriveTrain.Direction.CLOCKWISE, 1)) {
-                    nextState();
-                }
-                break;
-            default:
-                System.out.println("Auto done");
-                break;
+        if (states != null) {
+            switch (states.get(currState)) {
+                case turn90Clockwise:
+                    if (Robot.driveTrain.turnProportionalOnMeasurement(90, DriveTrain.Direction.CLOCKWISE, 1)) {
+                        nextState();
+                    }
+                    break;
+                default:
+                    System.out.println("Auto done");
+                    break;
+            }
+        } else {
+            System.out.println("States not initialized");
         }
     }
 
