@@ -25,10 +25,10 @@ public interface Constants extends GamepadButtons {
     int intakeMotorRightID = -1;
     int intakeMotorLeftID = -1;
 
-    int rightIntakeSolenoidForwardChannel = -1;
-    int rightIntakeSolenoidReverseChannel = -1;
-    int leftIntakeSolenoidForwardChannel = -1;
-    int leftIntakeSolenoidReverseChannel = -1;
+    int rightIntakeSolenoidForwardChannel = 0;
+    int rightIntakeSolenoidReverseChannel = 0;
+    int leftIntakeSolenoidForwardChannel = 0;
+    int leftIntakeSolenoidReverseChannel = 0;
 
     int leftDrivetrainMasterPDPSlot = 0;
     int leftDrivetrainSlave1PDPSlot = 0;
@@ -58,9 +58,9 @@ public interface Constants extends GamepadButtons {
 
     double LIFT_DISTANCE = LIFT_TOP - LIFT_BOTTOM;
 
-    double kfDriveTrainVel = .687;
-    double kpDriveTrainVel = 0.0842;
-    double kiDriveTrainVel = 0.0;
+    double kfDriveTrainVel = /*6.87*/.1;
+    double kpDriveTrainVel = /*8.42*/.1;
+    double kiDriveTrainVel = 0.001;
     double kdDriveTrainVel = 0;
 
     double kfDriveTrainPos = 0.05;
@@ -91,7 +91,7 @@ public interface Constants extends GamepadButtons {
 
     double angleTolerance = 0.5;
 
-    int maxRPM = 1250;
+    int maxNativeVelocity = 2700;
 
     float NOMINAL_OUTPUT_VOLTAGE = 0.0f;
     float PEAK_OUTPUT_VOLTAGE = 12.0f;

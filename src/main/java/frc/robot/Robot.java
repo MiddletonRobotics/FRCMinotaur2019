@@ -27,10 +27,10 @@ public class Robot extends TimedRobot {
     public static MinoGamepad gamepad2;
 
     public static DriveTrain driveTrain;
-    public static Vision vision;
+/*    public static Vision vision;
     public static Lift lift;
     public static Arm arm;
-    public static Intake intake;
+    //public static Intake intake;*/
 
 
     public static boolean isTeleop = false;
@@ -51,10 +51,10 @@ public class Robot extends TimedRobot {
         cs.startAutomaticCapture();
 
         driveTrain = DriveTrain.getInstance();
-        vision = new Vision();
+/*        vision = new Vision();
         lift = Lift.getInstance();
         arm = Arm.getInstance();
-        intake = Intake.getInstance();
+        //intake = Intake.getInstance();*/
 
 
         chooser.setDefaultOption("Do nothing :O", null);
@@ -150,10 +150,10 @@ public class Robot extends TimedRobot {
         Scheduler.getInstance().run();
 
         driveTrain.teleop(gamepad1);
-        lift.teleop(gamepad2);
+/*        lift.teleop(gamepad2);
         arm.teleop(gamepad1);
         vision.teleop(gamepad1);
-        intake.teleop(gamepad1);
+        //intake.teleop(gamepad1);*/
 
 
         //SmartDashboard.putNumber("Potentiometer:", lift.potentiometer.pidGet());
@@ -179,9 +179,9 @@ public class Robot extends TimedRobot {
 
     public static void resetRobot() {
         driveTrain.reset();
-        lift.reset();
+ /*       lift.reset();
         arm.reset();
         vision.reset();
-        intake.reset();
+        //.reset();intake*/
     }
 }

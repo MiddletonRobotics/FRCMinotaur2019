@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Robot;
 
@@ -100,7 +101,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     private void configTalon(WPI_TalonSRX master, boolean reversed) {
         master.set(0);
 
-        master.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+        master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
         master.setSensorPhase(reversed);
         // master.configClosedloopRamp(0.25, 0);
         master.configOpenloopRamp(0.25, 0);
@@ -115,8 +116,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
         TalonHelper.setPIDGains(master, 0, kpDriveTrainVel, kiDriveTrainVel, kdDriveTrainVel, kfDriveTrainVel, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
-        TalonHelper.setPIDGains(master, 1, kpDriveTrainPos, kiDriveTrainPos, kdDriveTrainPos, kfDriveTrainPos, 0, 0);
-        TalonHelper.setPIDGains(master, 2, kpDriveTrainPos2, kiDriveTrainPos2, kdDriveTrainPos2, kfDriveTrainPos2, 0, 0);
+        /*TalonHelper.setPIDGains(master, 1, kpDriveTrainPos, kiDriveTrainPos, kdDriveTrainPos, kfDriveTrainPos, 0, 0);
+        TalonHelper.setPIDGains(master, 2, kpDriveTrainPos2, kiDriveTrainPos2, kdDriveTrainPos2, kfDriveTrainPos2, 0, 0);*/
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
 
         //aster.setF(kfDriveTrainVbus);
@@ -474,8 +475,10 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public void teleop(MinoGamepad gamepad) {
+        System.out.println("right: " + rightTalon.getSensorCollection().getQuadratureVelocity());
+        System.out.println("left: " + leftTalon.getSensorCollection().getQuadratureVelocity());
         double left_y = deadband(gamepad.getRawAxis(LEFT_Y_AXIS));
-        double right_x = -deadband(gamepad.getRawAxis(RIGHT_X_AXIS));
+        double right_x = deadband(gamepad.getRawAxis(RIGHT_X_AXIS));
 
         if (gamepad.getRawButton(BTN_BACK))
             driveMode = TeleopDriveModes.TANK_DRIVE;
@@ -493,8 +496,13 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             rightPower /= maxSpeed;
         }
 
-        leftTalon.set(-leftPower);
-        rightTalon.set(-rightPower);
+        if (gamepad.a()) {
+            leftTalon.set(ControlMode.Velocity, /*-maxNativeVelocity*leftPower*/500);
+            rightTalon.set(ControlMode.Velocity, /*maxNativeVelocity*rightPower*/-500);
+        } else {
+            leftTalon.set(ControlMode.Velocity, -maxNativeVelocity*leftPower);
+            rightTalon.set(ControlMode.Velocity, maxNativeVelocity*rightPower);
+        }
 
     }
 
