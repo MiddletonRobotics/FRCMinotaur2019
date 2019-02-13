@@ -93,8 +93,8 @@ public interface Constants extends GamepadButtons {
     double gyroCorrectionKP = 0.05;
     double gyroCorrectionKI = 0;
 
-
-    double angleTolerance = 0.5;
+    double angleTolerance = 0.05;
+    double distanceTolerance = 0.5;
 
     int maxNativeVelocity = 2700;
 
@@ -104,8 +104,9 @@ public interface Constants extends GamepadButtons {
 
     int RANGE_VOLTAGE_CONSTANT = 5021;
 
-    int ENCODER_PPR = 256;
-    int NATIVE_PER_ROTATION = ENCODER_PPR * 4;
+    double ROBOT_MAX_DEGREES_PER_SECOND_INTEGRAL_LIMIT = 0.5;
+    double ROBOT_THRESHOLD_DEGREES_PER_SECOND = 2;
+    int NATIVE_PER_ROTATION = 4096;
     double WHEEL_DIAMETER = 4.0;
     double CLICKS_PER_INCH = (NATIVE_PER_ROTATION) / (WHEEL_DIAMETER * Math.PI);
     double VOLTS_PER_MM = (ANALOG_OUTPUT_VOLTAGE / RANGE_VOLTAGE_CONSTANT);

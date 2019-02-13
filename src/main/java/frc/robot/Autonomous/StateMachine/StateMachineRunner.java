@@ -22,12 +22,12 @@ public class StateMachineRunner {
         if (states != null) {
             switch (states.get(currState)) {
                 case turn90Clockwise:
-                    if (Robot.driveTrain.turnProportionalOnMeasurement(90, DriveTrain.Direction.CLOCKWISE, 1)) {
+                    if (Robot.driveTrain.turnPOM(90, DriveTrain.Direction.CLOCKWISE)) {
                         nextState();
                     }
                     break;
                 case drive50Inches:
-
+                    if(Robot.driveTrain.moveGyroDistancePOM(50, DriveTrain.Direction.FORWARD, 1, 0))
                     break;
                 default:
                     System.out.println("Auto done");

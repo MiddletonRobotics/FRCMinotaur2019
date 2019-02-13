@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 public class TurnTest extends Auto {
 
-    private ArrayList<AutoStates> statesList = (ArrayList) Arrays.asList(AutoStates.turn90Clockwise, AutoStates.turn90Clockwise);
+    private ArrayList<AutoStates> statesList = (ArrayList) Arrays.asList(AutoStates.drive50Inches/*, AutoStates.turn90Clockwise*/);
 
     public void auto() {
         stateMachine.setStates(statesList);

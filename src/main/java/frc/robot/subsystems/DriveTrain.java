@@ -288,7 +288,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     private double integralTPOM;
     private long prevTimeTPOM;
     private boolean firstRunTPOM = true;
-    public boolean turnProportionalOnMeasurement(double degrees, Direction direction) {
+    public boolean turnPOM(double degrees, Direction direction) {
         if (firstRunTPOM) {
             initializeVariables();
             resetGyro();
@@ -304,7 +304,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             double derivative = (errorTPOM - prevErrorTPOM) / dt;
             prevErrorTPOM = errorTPOM;
             double velocity = -turnPOMKp * measurementTPOM + turnPOMKi * integralTPOM + turnPOMKd * derivative;
-            velocity = -clip(velocity, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+            velocity = -clip(velocity, -maxNativeVelocity, maxNativeVelocity);
             setTarget(velocity, velocity, ControlMode.Velocity);
             prevTimeTPOM = System.nanoTime();
             return false;
@@ -339,7 +339,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         double time = System.currentTimeMillis();
         // ADDDDDD MIN SPEED THRESHOLD
 
-        if (Math.abs(inchesRemaining) > distanceTolerance || Math.abs(angularError) > angleTolerance && System.currentTimeMillis() - time < timeKill) {
+        if (Math.abs(inchesRemaining) > distanceTolerance || Math.abs(angularError) > angleTolerance /*&& System.currentTimeMillis() - time < timeKill*/) {
 
             long dt = System.nanoTime() - prevTimeMGDPOM;
 
@@ -349,19 +349,19 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             angleIntegralMGDPOM += angularError * dt;
 
             double speed = direction.value * (-measurement * gyroDrivePOMKP + distanceIntegralMGDPOM * gyroDrivePOMKI);
-            speed = clip(speed, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+            speed = clip(speed, -maxNativeVelocity, maxNativeVelocity);
 
             double powerAdjustment = gyroCorrectionKP * angularError + angleIntegralMGDPOM * gyroCorrectionKI;
-            powerAdjustment = clip(powerAdjustment, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+            powerAdjustment = clip(powerAdjustment, -maxNativeVelocity, maxNativeVelocity);
 
             double leftSpeed = speed + powerAdjustment;
             double rightSpeed = speed + powerAdjustment;
 
             double maxPower = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
 
-            if (maxPower > MAX_VELOCITY_NATIVE) {
-                leftSpeed *= (MAX_VELOCITY_NATIVE/maxPower);
-                rightSpeed *= (MAX_VELOCITY_NATIVE/maxPower);
+            if (maxPower > maxNativeVelocity) {
+                leftSpeed *= (maxNativeVelocity/maxPower);
+                rightSpeed *= (maxNativeVelocity/maxPower);
             }
 
             setTarget(leftSpeed, -rightSpeed, ControlMode.Velocity);
@@ -466,16 +466,13 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         stopDrive();
     }
 
-
-
-
     public double deadband(double input) {
         return Math.abs(input) < 0.15 ? 0.0 : input;
     }
 
     public void teleop(MinoGamepad gamepad) {
-        //System.out.println("right: " + rightTalon.getSensorCollection().getQuadratureVelocity());
-        //System.out.println("left: " + leftTalon.getSensorCollection().getQuadratureVelocity());
+        System.out.println("right: " + rightTalon.getSensorCollection().getQuadratureVelocity());
+        System.out.println("left: " + leftTalon.getSensorCollection().getQuadratureVelocity());
         double left_y = deadband(gamepad.getRawAxis(LEFT_Y_AXIS));
         double right_x = deadband(gamepad.getRawAxis(RIGHT_X_AXIS));
 
@@ -523,6 +520,10 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         // integral = 0;
         // prevTime = 0;
         // firstRun = true;
+    }
+
+    public double nativeVelocityToRPM(double nativeVelocity) {
+        return (nativeVelocity/NATIVE_PER_ROTATION)*10*60;
     }
 
     @Override
