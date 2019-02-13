@@ -290,14 +290,14 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     long prevTime;
     public boolean turnProportionalOnMeasurement(double degrees, Direction direction, double speed) {
         resetGyro();
- 
+
         error = direction.value * degrees - gyro.getAngle();
         measurement = gyro.getAngle();
         prevError = error;
         integral = 0;
         prevTime = System.nanoTime();
- 
- 
+
+
         if (Math.abs(error) > angleTolerance) {
             long dt = System.nanoTime() - prevTime;
             error = direction.value * degrees - gyro.getAngle();
