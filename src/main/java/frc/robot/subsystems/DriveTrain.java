@@ -47,6 +47,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         /*TalonHelper.setPIDGains(master, 1, kpDriveTrainPos, kiDriveTrainPos, kdDriveTrainPos, kfDriveTrainPos, 0, 0);
         TalonHelper.setPIDGains(master, 2, kpDriveTrainPos2, kiDriveTrainPos2, kdDriveTrainPos2, kfDriveTrainPos2, 0, 0);*/
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+        initializeVariables();
     }
 
     public static DriveTrain getInstance() {
@@ -283,33 +284,29 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
 
 
-    double error;
-    double measurement;
-    double prevError;
-    double integral;
-    long prevTime;
-    public boolean turnProportionalOnMeasurement(double degrees, Direction direction, double speed) {
-        resetGyro();
+    private double prevErrorTPOM;
+    private double integralTPOM;
+    private long prevTimeTPOM;
+    private boolean firstRunTPOM = true;
+    public boolean turnProportionalOnMeasurement(double degrees, Direction direction) {
+        if (firstRunTPOM) {
+            initializeVariables();
+            resetGyro();
+            prevTimeTPOM = System.nanoTime();
+            firstRunTPOM = !firstRunTPOM;
+        }
 
-        error = direction.value * degrees - gyro.getAngle();
-        measurement = gyro.getAngle();
-        prevError = error;
-        integral = 0;
-        prevTime = System.nanoTime();
-
-
-        if (Math.abs(error) > angleTolerance) {
-            long dt = System.nanoTime() - prevTime;
-            error = direction.value * degrees - gyro.getAngle();
-            measurement = gyro.getAngle();
-            integral = turnPOMIDamper * integral + error * dt;
-            double derivative = (error - prevError) / dt;
-            prevError = error;
-            double power = -turnPOMKp * measurement + turnPOMKi * integral + turnPOMKd * derivative;
-            power = clip(power, -speed, +speed);
-            System.out.println(power);
-            setTarget(-power, -power, ControlMode.Velocity);
-            prevTime = System.nanoTime();
+        double errorTPOM = direction.value * degrees - gyro.getAngle();
+        if (Math.abs(errorTPOM) > angleTolerance? true: gyro.getRate() > ROBOT_THRESHOLD_DEGREES_PER_SECOND? true: false) {
+            long dt = System.nanoTime() - prevTimeTPOM;
+            double measurementTPOM = gyro.getAngle();
+            integralTPOM += gyro.getRate() <= ROBOT_MAX_DEGREES_PER_SECOND_INTEGRAL_LIMIT? errorTPOM * dt : 0;
+            double derivative = (errorTPOM - prevErrorTPOM) / dt;
+            prevErrorTPOM = errorTPOM;
+            double velocity = -turnPOMKp * measurementTPOM + turnPOMKi * integralTPOM + turnPOMKd * derivative;
+            velocity = -clip(velocity, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
+            setTarget(velocity, velocity, ControlMode.Velocity);
+            prevTimeTPOM = System.nanoTime();
             return false;
         } else {
             stopDrive();
@@ -318,59 +315,65 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     }
 
-    public void moveGyroDistanceProportionalOnMeasurement(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {
-        resetGyro();
-        resetEncoders();
-        
+    private double prevErrorMGDPOM;
+    private long prevTimeMGDPOM;
+    private boolean firstRunMGDPOM = true;
+    private double distanceIntegralMGDPOM = 0;
+    private double angleIntegralMGDPOM = 0;
+    public boolean moveGyroDistancePOM(double inches, Direction direction,  double allowableError, double timeKill) {
+        if (firstRunMGDPOM) {
+            initializeVariables();
+            resetGyro();
+            resetEncoders();
+            prevTimeMGDPOM = System.nanoTime();
+            firstRunMGDPOM = !firstRunMGDPOM;
+        }
+
         int targetClicks = (int) (inches * CLICKS_PER_INCH);
-        int clicksRemaining;
-        double distanceIntegral = 0;
-        double angleIntegral = 0;
-        long prevTime = System.nanoTime();
+        int clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
 
-        double prevAngle = 0;
-        double leftPower;
-        double rightPower;
-        double inchesRemaining;
-        double angularError;
+        double inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
+        double angularError = gyro.getAngle();
 
 
-        //int count = 0;
         double time = System.currentTimeMillis();
-        do {
+        // ADDDDDD MIN SPEED THRESHOLD
 
-            long dt = System.nanoTime() - prevTime;
-            prevTime = System.nanoTime();
+        if (Math.abs(inchesRemaining) > distanceTolerance || Math.abs(angularError) > angleTolerance && System.currentTimeMillis() - time < timeKill) {
 
-            clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
-            inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
+            long dt = System.nanoTime() - prevTimeMGDPOM;
 
             double measurement = Math.abs(rightTalon.getSensorCollection().getQuadraturePosition())/CLICKS_PER_INCH;
-            angularError = gyro.getAngle();
 
-            distanceIntegral += inchesRemaining * dt;
-            angleIntegral += angularError * dt;
+            distanceIntegralMGDPOM += inchesRemaining * dt;
+            angleIntegralMGDPOM += angularError * dt;
 
-            double power = speed * direction.value * (-measurement * gyroDrivePOMKP + distanceIntegral * gyroDrivePOMKI);
-            power = clip(power, -speed, speed);
+            double speed = direction.value * (-measurement * gyroDrivePOMKP + distanceIntegralMGDPOM * gyroDrivePOMKI);
+            speed = clip(speed, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
 
-            double powerAdjustment = direction.value * (gyroCorrectionKP * angularError + angleIntegral * gyroCorrectionKI);
-            powerAdjustment = clip(powerAdjustment, -1.0, +1.0);
+            double powerAdjustment = gyroCorrectionKP * angularError + angleIntegralMGDPOM * gyroCorrectionKI;
+            powerAdjustment = clip(powerAdjustment, -MAX_VELOCITY_NATIVE, MAX_VELOCITY_NATIVE);
 
-            leftPower = direction == Direction.BACKWARD ?  - powerAdjustment : power + powerAdjustment;
-            rightPower = direction == Direction.BACKWARD ? power + powerAdjustment : power - powerAdjustment;
+            double leftSpeed = speed + powerAdjustment;
+            double rightSpeed = speed + powerAdjustment;
 
-            double maxPower = Math.max(Math.abs(leftPower), Math.abs(rightPower));
-            if (maxPower > 1.0) {
-                leftPower /= maxPower;
-                rightPower /= maxPower;
+            double maxPower = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
+
+            if (maxPower > MAX_VELOCITY_NATIVE) {
+                leftSpeed *= (MAX_VELOCITY_NATIVE/maxPower);
+                rightSpeed *= (MAX_VELOCITY_NATIVE/maxPower);
             }
 
-            setTarget(-900 * leftPower, 900 * rightPower, ControlMode.Velocity);
+            setTarget(leftSpeed, -rightSpeed, ControlMode.Velocity);
+            prevTimeMGDPOM = System.nanoTime();
 
-        } while (inchesRemaining > 3 || angularError > 2 && System.currentTimeMillis() - time < timeKill);
-        stopDrive();
+            return true;
+        } else {
+            stopDrive();
+            return true;
+        }
     }
+
 
 
     public void moveByGyroDistance(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {
@@ -502,6 +505,25 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     }
 
+
+
+    public void initializeVariables() {
+        prevErrorTPOM = 0;
+        integralTPOM = 0;
+        prevTimeTPOM = 0;
+        firstRunTPOM = true;
+
+        prevErrorMGDPOM = 0;
+        prevTimeMGDPOM = 0;
+        firstRunMGDPOM = true;
+        distanceIntegralMGDPOM = 0;
+        angleIntegralMGDPOM = 0;
+
+        // prevError = 0;
+        // integral = 0;
+        // prevTime = 0;
+        // firstRun = true;
+    }
 
     @Override
     protected void initDefaultCommand() {
