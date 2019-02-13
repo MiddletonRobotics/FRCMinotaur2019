@@ -26,6 +26,9 @@ public class StateMachineRunner {
                         nextState();
                     }
                     break;
+                case drive50Inches:
+
+                    break;
                 default:
                     System.out.println("Auto done");
                     break;

@@ -6,12 +6,10 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Robot;
 
 
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.Utilities.Drivers.TalonHelper;
@@ -42,6 +40,13 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
         configTalon(leftTalon, true);
         configTalon(rightTalon, true);
+
+        // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+        TalonHelper.setPIDGains(leftTalon, 0, kpLeftDriveVel, kiLeftDriveVel, kdLeftDriveVel, kfLeftDriveVel, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+        TalonHelper.setPIDGains(rightTalon, 0, kpRightDriveVel, kiRightDriveVel, kdRightDriveVel, kfRightDriveVel, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+        /*TalonHelper.setPIDGains(master, 1, kpDriveTrainPos, kiDriveTrainPos, kdDriveTrainPos, kfDriveTrainPos, 0, 0);
+        TalonHelper.setPIDGains(master, 2, kpDriveTrainPos2, kiDriveTrainPos2, kdDriveTrainPos2, kfDriveTrainPos2, 0, 0);*/
+        // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
     }
 
     public static DriveTrain getInstance() {
@@ -113,12 +118,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         master.configAllowableClosedloopError(0, 0, 0);
 
         //  master.setVoltageRampRate(48);
-
-        // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
-        TalonHelper.setPIDGains(master, 0, kpDriveTrainVel, kiDriveTrainVel, kdDriveTrainVel, kfDriveTrainVel, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
-        /*TalonHelper.setPIDGains(master, 1, kpDriveTrainPos, kiDriveTrainPos, kdDriveTrainPos, kfDriveTrainPos, 0, 0);
-        TalonHelper.setPIDGains(master, 2, kpDriveTrainPos2, kiDriveTrainPos2, kdDriveTrainPos2, kfDriveTrainPos2, 0, 0);*/
-        // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
 
         //aster.setF(kfDriveTrainVbus);
         //master.setP(kpDriveTrainVbus);
@@ -319,6 +318,61 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     }
 
+    public void moveGyroDistanceProportionalOnMeasurement(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {
+        resetGyro();
+        resetEncoders();
+        
+        int targetClicks = (int) (inches * CLICKS_PER_INCH);
+        int clicksRemaining;
+        double distanceIntegral = 0;
+        double angleIntegral = 0;
+        long prevTime = System.nanoTime();
+
+        double prevAngle = 0;
+        double leftPower;
+        double rightPower;
+        double inchesRemaining;
+        double angularError;
+
+
+        //int count = 0;
+        double time = System.currentTimeMillis();
+        do {
+
+            long dt = System.nanoTime() - prevTime;
+            prevTime = System.nanoTime();
+
+            clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
+            inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
+
+            double measurement = Math.abs(rightTalon.getSensorCollection().getQuadraturePosition())/CLICKS_PER_INCH;
+            angularError = gyro.getAngle();
+
+            distanceIntegral += inchesRemaining * dt;
+            angleIntegral += angularError * dt;
+
+            double power = speed * direction.value * (-measurement * gyroDrivePOMKP + distanceIntegral * gyroDrivePOMKI);
+            power = clip(power, -speed, speed);
+
+            double powerAdjustment = direction.value * (gyroCorrectionKP * angularError + angleIntegral * gyroCorrectionKI);
+            powerAdjustment = clip(powerAdjustment, -1.0, +1.0);
+
+            leftPower = direction == Direction.BACKWARD ?  - powerAdjustment : power + powerAdjustment;
+            rightPower = direction == Direction.BACKWARD ? power + powerAdjustment : power - powerAdjustment;
+
+            double maxPower = Math.max(Math.abs(leftPower), Math.abs(rightPower));
+            if (maxPower > 1.0) {
+                leftPower /= maxPower;
+                rightPower /= maxPower;
+            }
+
+            setTarget(-900 * leftPower, 900 * rightPower, ControlMode.Velocity);
+
+        } while (inchesRemaining > 3 || angularError > 2 && System.currentTimeMillis() - time < timeKill);
+        stopDrive();
+    }
+
+
     public void moveByGyroDistance(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {
         int targetClicks = (int) (inches * CLICKS_PER_INCH);
         int clicksRemaining;
@@ -410,64 +464,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
 
-    public void moveGyroDistanceProportionalOnMeasurement(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {
-        resetGyro();
-        resetEncoders();
-        
-        int targetClicks = (int) (inches * CLICKS_PER_INCH);
-        int clicksRemaining;
-        double distanceIntegral = 0;
-        double angleIntegral = 0;
-        long prevTime = System.nanoTime();
-
-        double prevAngle = 0;
-        double leftPower;
-        double rightPower;
-        double inchesRemaining;
-        double angularError;
-
-
-        //int count = 0;
-        double time = System.currentTimeMillis();
-        do {
-            
-            if (Robot.isDisabled || Robot.isTeleop) {
-                //throw new Exception();
-                break;
-            }
-
-            long dt = System.nanoTime() - prevTime;
-            prevTime = System.nanoTime();
-
-            clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
-            inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
-
-            double measurement = Math.abs(rightTalon.getSensorCollection().getQuadraturePosition())/CLICKS_PER_INCH;
-            angularError = gyro.getAngle();
-
-            distanceIntegral += inchesRemaining * dt;
-            angleIntegral += angularError * dt;
-
-            double power = speed * direction.value * (-measurement * gyroDrivePOMKP + distanceIntegral * gyroDrivePOMKI);
-            power = clip(power, -speed, speed);
-
-            double powerAdjustment = direction.value * (gyroCorrectionKP * angularError + angleIntegral * gyroCorrectionKI);
-            powerAdjustment = clip(powerAdjustment, -1.0, +1.0);
-
-            leftPower = direction == Direction.BACKWARD ?  - powerAdjustment : power + powerAdjustment;
-            rightPower = direction == Direction.BACKWARD ? power + powerAdjustment : power - powerAdjustment;
-
-            double maxPower = Math.max(Math.abs(leftPower), Math.abs(rightPower));
-            if (maxPower > 1.0) {
-                leftPower /= maxPower;
-                rightPower /= maxPower;
-            }
-
-            setTarget(-900 * leftPower, 900 * rightPower, ControlMode.Velocity);
-
-        } while (inchesRemaining > 3 || angularError > 2 && System.currentTimeMillis() - time < timeKill);
-        stopDrive();
-    }
 
 
     public double deadband(double input) {
@@ -475,8 +471,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public void teleop(MinoGamepad gamepad) {
-        System.out.println("right: " + rightTalon.getSensorCollection().getQuadratureVelocity());
-        System.out.println("left: " + leftTalon.getSensorCollection().getQuadratureVelocity());
+        //System.out.println("right: " + rightTalon.getSensorCollection().getQuadratureVelocity());
+        //System.out.println("left: " + leftTalon.getSensorCollection().getQuadratureVelocity());
         double left_y = deadband(gamepad.getRawAxis(LEFT_Y_AXIS));
         double right_x = deadband(gamepad.getRawAxis(RIGHT_X_AXIS));
 
@@ -497,11 +493,11 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         }
 
         if (gamepad.a()) {
-            leftTalon.set(ControlMode.Velocity, /*-maxNativeVelocity*leftPower*/500);
-            rightTalon.set(ControlMode.Velocity, /*maxNativeVelocity*rightPower*/-500);
+            leftTalon.set(ControlMode.Velocity, /*-maxNativeVelocity*leftPower*/1000);
+            rightTalon.set(ControlMode.Velocity, /*maxNativeVelocity*rightPower*/-1000);
         } else {
-            leftTalon.set(ControlMode.Velocity, -maxNativeVelocity*leftPower);
-            rightTalon.set(ControlMode.Velocity, maxNativeVelocity*rightPower);
+            leftTalon.set(ControlMode.PercentOutput, -maxNativeVelocity*leftPower);
+            rightTalon.set(ControlMode.PercentOutput, maxNativeVelocity*rightPower);
         }
 
     }
