@@ -47,7 +47,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         /*TalonHelper.setPIDGains(master, 1, kpDriveTrainPos, kiDriveTrainPos, kdDriveTrainPos, kfDriveTrainPos, 0, 0);
         TalonHelper.setPIDGains(master, 2, kpDriveTrainPos2, kiDriveTrainPos2, kdDriveTrainPos2, kfDriveTrainPos2, 0, 0);*/
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
-        initializeVariables();
+        reset();
     }
 
     public static DriveTrain getInstance() {
@@ -97,7 +97,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         resetEncoders();
         resetGyro();
         setProfile(0);
-
+        initializeVariables();
     }
 
     private void setupSlaves(WPI_TalonSRX master, WPI_VictorSPX slave) {
@@ -290,13 +290,13 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     private boolean firstRunTPOM = true;
     public boolean turnPOM(double degrees, Direction direction) {
         if (firstRunTPOM) {
-            initializeVariables();
-            resetGyro();
+            reset();
             prevTimeTPOM = System.nanoTime();
             firstRunTPOM = !firstRunTPOM;
         }
 
         double errorTPOM = direction.value * degrees - gyro.getAngle();
+        System.out.println(errorTPOM);
         if (Math.abs(errorTPOM) > angleTolerance? true: gyro.getRate() > ROBOT_THRESHOLD_DEGREES_PER_SECOND? true: false) {
             long dt = System.nanoTime() - prevTimeTPOM;
             double measurementTPOM = gyro.getAngle();
@@ -315,6 +315,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     }
 
+
+    //ADD INTEGRAL WINDUP PRTECTION
     private double prevErrorMGDPOM;
     private long prevTimeMGDPOM;
     private boolean firstRunMGDPOM = true;
@@ -322,9 +324,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     private double angleIntegralMGDPOM = 0;
     public boolean moveGyroDistancePOM(double inches, Direction direction,  double allowableError, double timeKill) {
         if (firstRunMGDPOM) {
-            initializeVariables();
-            resetGyro();
-            resetEncoders();
+            reset();
             prevTimeMGDPOM = System.nanoTime();
             firstRunMGDPOM = !firstRunMGDPOM;
         }
@@ -338,7 +338,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
         double time = System.currentTimeMillis();
         // ADDDDDD MIN SPEED THRESHOLD
-
+        System.out.println(inchesRemaining);
         if (Math.abs(inchesRemaining) > distanceTolerance || Math.abs(angularError) > angleTolerance /*&& System.currentTimeMillis() - time < timeKill*/) {
 
             long dt = System.nanoTime() - prevTimeMGDPOM;

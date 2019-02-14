@@ -3,18 +3,18 @@ package frc.robot.Autonomous.StateMachine;
 import frc.robot.Robot;
 import frc.robot.subsystems.DriveTrain;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class StateMachineRunner {
 
-    ArrayList<AutoStates> states;
+    List<AutoStates> states;
     public int currState = 0;
 
     public StateMachineRunner() {
 
     }
 
-    public StateMachineRunner(ArrayList states) {
+    public StateMachineRunner(List states) {
         this.states = states;
     }
 
@@ -27,7 +27,7 @@ public class StateMachineRunner {
                     }
                     break;
                 case drive50Inches:
-                    if(Robot.driveTrain.moveGyroDistancePOM(50, DriveTrain.Direction.FORWARD, 1, 0))
+                    if(Robot.driveTrain.moveGyroDistancePOM(10, DriveTrain.Direction.FORWARD, 1, 0))
                     break;
                 default:
                     System.out.println("Auto done");
@@ -38,7 +38,7 @@ public class StateMachineRunner {
         }
     }
 
-    public void setStates (ArrayList states) {
+    public void setStates (List states) {
         this.states = states;
     }
 

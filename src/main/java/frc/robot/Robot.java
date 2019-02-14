@@ -74,13 +74,13 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         Robot.isTeleop = false;
         Robot.isDisabled = true;
-        SmartDashboard.putNumber("Disabled Init Ran", 1);
+        //SmartDashboard.putNumber("Disabled Init Ran", 1);
     }
 
     @Override
     public void disabledPeriodic() {
         Robot.isDisabled = true;
-        SmartDashboard.putNumber("Disabled Init Ran", 2);
+        //SmartDashboard.putNumber("Disabled Init Ran", 2);
         Scheduler.getInstance().run();
     }
 
@@ -102,7 +102,8 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         Robot.isDisabled = false;
-        SmartDashboard.putNumber("Disabled Init Ran", 0);
+        //SmartDashboard.putNumber("Disabled Init Ran", 0);
+        resetRobot();
 
         a = chooser.getSelected();
 

@@ -1,14 +1,13 @@
-
 package frc.robot.Autonomous;
-import java.util.ArrayList;
 
 import frc.robot.Autonomous.StateMachine.AutoStates;
 import frc.robot.Robot;
 import java.util.Arrays;
+import java.util.List;
 
 public class TurnTest extends Auto {
 
-    private ArrayList<AutoStates> statesList = (ArrayList) Arrays.asList(AutoStates.drive50Inches/*, AutoStates.turn90Clockwise*/);
+    private List<AutoStates> statesList =  Arrays.asList(AutoStates.drive50Inches/*, AutoStates.turn90Clockwise*/);
 
     public void auto() {
         stateMachine.setStates(statesList);
