@@ -52,7 +52,6 @@ public interface Constants extends GamepadButtons {
     int gamepad1Port = 0;
     int gamepad2Port = 1;
 
-
     double LIFT_TOP = 0.0106;
     double LIFT_BOTTOM = .615;
 
@@ -88,7 +87,7 @@ public interface Constants extends GamepadButtons {
     double turnPOMKd = 0.0;
     double turnPOMIDamper = 1.0;
 
-    double gyroDrivePOMKP = 100;
+    double gyroDrivePOMKP = 110;
     double gyroDrivePOMKI = 0.00000017;
     double gyroCorrectionKP = 0;
     double gyroCorrectionKI = 0;

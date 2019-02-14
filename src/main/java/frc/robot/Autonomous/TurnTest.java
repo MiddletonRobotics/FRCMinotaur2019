@@ -7,7 +7,7 @@ import java.util.List;
 
 public class TurnTest extends Auto {
 
-    private List<AutoStates> statesList =  Arrays.asList(AutoStates.drive50Inches/*, AutoStates.turn90Clockwise*/);
+    private List<AutoStates> statesList =  Arrays.asList(AutoStates.drive50Inches, AutoStates.drive50Inches, AutoStates.drive50Inches);
 
     public void auto() {
         stateMachine.setStates(statesList);
@@ -15,6 +15,7 @@ public class TurnTest extends Auto {
 
     public void loop() {
         stateMachine.runStateMachine();
+        //System.out.println(Robot.driveTrain.getLeftTalon().getSensorCollection().getQuadraturePosition());
     }
 
     public void stop() {

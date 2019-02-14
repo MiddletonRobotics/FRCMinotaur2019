@@ -47,8 +47,10 @@ public class Robot extends TimedRobot {
         
         gamepad1 = new MinoGamepad(Constants.gamepad1Port);
         gamepad2 = new MinoGamepad(Constants.gamepad2Port);
-        cs = CameraServer.getInstance();
-        cs.startAutomaticCapture();
+        /*cs = CameraServer.getInstance();
+        cs.startAutomaticCapture();*/
+        //READD THIS DUMMY
+
 
         driveTrain = DriveTrain.getInstance();
 /*        vision = new Vision();
@@ -74,6 +76,7 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         Robot.isTeleop = false;
         Robot.isDisabled = true;
+        resetRobot();
         //SmartDashboard.putNumber("Disabled Init Ran", 1);
     }
 
@@ -82,6 +85,7 @@ public class Robot extends TimedRobot {
         Robot.isDisabled = true;
         //SmartDashboard.putNumber("Disabled Init Ran", 2);
         Scheduler.getInstance().run();
+        resetRobot();
     }
 
     /**

@@ -92,8 +92,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     @Override
     public void reset() {
-        leftTalon.set(0);
-        rightTalon.set(0);
+        stopDrive();
         resetEncoders();
         resetGyro();
         setProfile(0);
@@ -290,7 +289,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     private boolean firstRunTPOM = true;
     public boolean turnPOM(double degrees, Direction direction) {
         if (firstRunTPOM) {
-            reset();
+            resetEncoders();
+            resetGyro();
             prevTimeTPOM = System.nanoTime();
             firstRunTPOM = !firstRunTPOM;
         }
@@ -324,9 +324,10 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     private double angleIntegralMGDPOM = 0;
     public boolean moveGyroDistancePOM(double inches, Direction direction,  double allowableError, double timeKill) {
         if (firstRunMGDPOM) {
-            reset();
+            resetEncoders();
+            resetGyro();
             prevTimeMGDPOM = System.nanoTime();
-            firstRunMGDPOM = !firstRunMGDPOM;
+            firstRunMGDPOM = false;
         }
 
         int targetClicks = (int) (inches * CLICKS_PER_INCH);
@@ -367,9 +368,10 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             setTarget(leftSpeed, -rightSpeed, ControlMode.Velocity);
             prevTimeMGDPOM = System.nanoTime();
 
-            return true;
+            return false;
         } else {
             stopDrive();
+            reset();
             return true;
         }
     }

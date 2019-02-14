@@ -8,18 +8,19 @@ import java.util.List;
 public class StateMachineRunner {
 
     List<AutoStates> states;
-    public int currState = 0;
+    public int currState;
 
     public StateMachineRunner() {
-
+        currState = 0;
     }
 
     public StateMachineRunner(List states) {
         this.states = states;
+        currState = 0;
     }
 
     public void runStateMachine() {
-        if (states != null) {
+        if (states != null && currState < states.size()) {
             switch (states.get(currState)) {
                 case turn90Clockwise:
                     if (Robot.driveTrain.turnPOM(90, DriveTrain.Direction.CLOCKWISE)) {
@@ -27,19 +28,19 @@ public class StateMachineRunner {
                     }
                     break;
                 case drive50Inches:
-                    if(Robot.driveTrain.moveGyroDistancePOM(10, DriveTrain.Direction.FORWARD, 1, 0))
-                    break;
-                default:
-                    System.out.println("Auto done");
+                    if(Robot.driveTrain.moveGyroDistancePOM(10, DriveTrain.Direction.FORWARD, 1, 0)) {
+                        nextState();
+                    }
                     break;
             }
         } else {
-            System.out.println("States not initialized");
+            System.out.println("States finished or not initialized");
         }
     }
 
     public void setStates (List states) {
         this.states = states;
+        currState = 0;
     }
 
     public void nextState() {
