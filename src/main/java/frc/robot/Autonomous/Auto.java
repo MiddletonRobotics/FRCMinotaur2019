@@ -8,7 +8,7 @@ public abstract class Auto {
 	public Thread thread;
 	public Object threadLock;
 	public int delay;
-	public StateMachineRunner stateMachine = new StateMachineRunner();
+	public StateMachineRunner stateMachine = new StateMachineRunner(200);
 
 	public Auto() {}
 

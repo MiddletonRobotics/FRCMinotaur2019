@@ -17,18 +17,16 @@ public interface Constants extends GamepadButtons {
     int rightDrivetrainMasterID = 21;
     int rightDrivetrainSlave1ID = 22;
     int rightDrivetrainSlave2ID = 23;
-    int liftMotor1ID = 49;
-    int liftMotor2ID = 39;
-    int liftMotor3ID = 29;
-    int liftMotor4ID = 19;
+    int liftMasterID = 31;
+    int liftSlave1ID = 32;
+    int liftSlave2ID = 33;
+    int liftSlave3ID = 34;
     int armTalonID = -1;
     int intakeMotorRightID = -1;
     int intakeMotorLeftID = -1;
 
-    int rightIntakeSolenoidForwardChannel = 0;
-    int rightIntakeSolenoidReverseChannel = 0;
-    int leftIntakeSolenoidForwardChannel = 0;
-    int leftIntakeSolenoidReverseChannel = 0;
+    int intakeSolenoidForwardChannel = 0;
+    int intakeSolenoidReverseChannel = 1;
 
     int leftDrivetrainMasterPDPSlot = 0;
     int leftDrivetrainSlave1PDPSlot = 0;
@@ -88,7 +86,7 @@ public interface Constants extends GamepadButtons {
     double turnPOMIDamper = 1.0;
 
     double gyroDrivePOMKP = 110;
-    double gyroDrivePOMKI = 0.00000017;
+    double gyroDrivePOMKI = 0.00000015;
     double gyroCorrectionKP = 0;
     double gyroCorrectionKI = 0;
 

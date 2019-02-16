@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.Util;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.Utilities.Drivers.TalonHelper;
 import frc.robot.Utilities.Section;
+import frc.robot.Utilities.Utils;
 
 public class DriveTrain extends Subsystem implements Constants, Section {
 
@@ -47,7 +49,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         /*TalonHelper.setPIDGains(master, 1, kpDriveTrainPos, kiDriveTrainPos, kdDriveTrainPos, kfDriveTrainPos, 0, 0);
         TalonHelper.setPIDGains(master, 2, kpDriveTrainPos2, kiDriveTrainPos2, kdDriveTrainPos2, kfDriveTrainPos2, 0, 0);*/
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
-        reset();
+        resetFull();
     }
 
     public static DriveTrain getInstance() {
@@ -92,6 +94,11 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     @Override
     public void reset() {
+        stopDrive();
+        setProfile(0);
+        initializeVariables();
+    }
+    public void resetFull() {
         stopDrive();
         resetEncoders();
         resetGyro();
@@ -150,7 +157,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         stopDrive();
         leftTalon.getSensorCollection().setQuadraturePosition(0, 10);
         rightTalon.getSensorCollection().setQuadraturePosition(0, 10);
-
     }
 
     public void resetGyro() {
@@ -323,12 +329,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     private double distanceIntegralMGDPOM = 0;
     private double angleIntegralMGDPOM = 0;
     public boolean moveGyroDistancePOM(double inches, Direction direction,  double allowableError, double timeKill) {
-        if (firstRunMGDPOM) {
-            resetEncoders();
-            resetGyro();
-            prevTimeMGDPOM = System.nanoTime();
-            firstRunMGDPOM = false;
-        }
+
 
         int targetClicks = (int) (inches * CLICKS_PER_INCH);
         int clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
@@ -340,6 +341,16 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         double time = System.currentTimeMillis();
         // ADDDDDD MIN SPEED THRESHOLD
         System.out.println(inchesRemaining);
+
+        if (firstRunMGDPOM) {
+            resetEncoders();
+            resetGyro();
+            prevTimeMGDPOM = System.nanoTime();
+            firstRunMGDPOM = false;
+            //System.out.println((Math.abs(inchesRemaining) > distanceTolerance) ? "Okay" : "OH GOD OH FUCK");
+        }
+
+
         if (Math.abs(inchesRemaining) > distanceTolerance || Math.abs(angularError) > angleTolerance /*&& System.currentTimeMillis() - time < timeKill*/) {
 
             long dt = System.nanoTime() - prevTimeMGDPOM;
@@ -371,7 +382,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             return false;
         } else {
             stopDrive();
-            reset();
+            resetFull();
             return true;
         }
     }
@@ -473,8 +484,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public void teleop(MinoGamepad gamepad) {
-        System.out.println("right: " + rightTalon.getSensorCollection().getQuadratureVelocity());
-        System.out.println("left: " + leftTalon.getSensorCollection().getQuadratureVelocity());
         double left_y = deadband(gamepad.getRawAxis(LEFT_Y_AXIS));
         double right_x = deadband(gamepad.getRawAxis(RIGHT_X_AXIS));
 

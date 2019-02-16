@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.Utilities.Drivers.TalonHelper;
@@ -25,10 +24,10 @@ public class Lift implements Section, Constants {
     DigitalInput bottomLimitSwitch;
 
     private Lift() {
-        liftMasterMotor = new WPI_TalonSRX(liftMotor1ID);
-        liftSlaveMotor1 = new WPI_VictorSPX(liftMotor2ID);
-        liftSlaveMotor2 = new WPI_VictorSPX(liftMotor3ID);
-        liftSlaveMotor3 = new WPI_VictorSPX(liftMotor4ID);
+        liftMasterMotor = new WPI_TalonSRX(liftMasterID);
+        liftSlaveMotor1 = new WPI_VictorSPX(liftSlave1ID);
+        liftSlaveMotor2 = new WPI_VictorSPX(liftSlave2ID);
+        liftSlaveMotor3 = new WPI_VictorSPX(liftSlave3ID);
         topLimitSwitch = new DigitalInput(limitSwitchLiftBottomPort);
         bottomLimitSwitch = new DigitalInput(limitSwitchLiftTopPort);
 

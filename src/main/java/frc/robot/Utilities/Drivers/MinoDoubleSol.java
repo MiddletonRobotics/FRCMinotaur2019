@@ -11,8 +11,8 @@ public class MinoDoubleSol implements Constants {
 	private final DoubleSolenoid sol;
 	
 	private long prevToggleTime;
-	
 	private boolean wasToggled;
+	private int delay = 500;
 	
 	public MinoDoubleSol(int forwardChannel, int reverseChannel) {
 		sol = new DoubleSolenoid(forwardChannel, reverseChannel);
@@ -40,7 +40,7 @@ public class MinoDoubleSol implements Constants {
 			new Thread( () -> {
                 wasToggled = true;
                 sol.set(sol.get() == Value.kForward ? Value.kReverse : Value.kForward);
-                Utils.sleep(1500);
+                Utils.sleep(delay);
                 wasToggled = false;
 			}).start();
 		}
