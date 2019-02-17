@@ -56,11 +56,11 @@ public interface Constants extends GamepadButtons {
     double LIFT_DISTANCE = LIFT_TOP - LIFT_BOTTOM;
 
     double kfLeftDriveVel = 0.33;
-    double kpLeftDriveVel = 0.012;
+    double kpLeftDriveVel = 0.01;
     double kiLeftDriveVel = 0;
     double kdLeftDriveVel = 0;
 
-    double kfRightDriveVel = 0.33;
+    double kfRightDriveVel = 0.36;
     double kpRightDriveVel = 0.01;
     double kiRightDriveVel = 0;
     double kdRightDriveVel = 0;

@@ -267,13 +267,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         stopDrive();
     }
 
-    public double inchesToRotations(double inches) {
-        return inches / (WHEEL_DIAMETER * Math.PI);
-    }
-
-
-    public static boolean robotStop = false;
-
     public void turnPID(double degrees, Direction direction, double speed) {
         resetGyro();
 
@@ -488,6 +481,14 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         stopDrive();
     }
 
+    public void goToPos(double pos) {
+        setProfile(1);
+        Utils.sleep(20);
+        double posNative = inchesToNative(pos);
+        leftTalon.set(ControlMode.MotionMagic, posNative);
+        rightTalon.set(ControlMode.MotionMagic, posNative);
+    }
+
     public double deadband(double input) {
         return Math.abs(input) < 0.1 ? 0.0 : input;
     }
@@ -561,6 +562,19 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     public double nativeVelocityToRPM(double nativeVelocity) {
         return (nativeVelocity/NATIVE_PER_ROTATION)*10*60;
     }
+    public double nativeToRotations(double nativeUnits) {
+        return (nativeUnits/NATIVE_PER_ROTATION);
+    }
+    public double nativeToInches(double nativeUnits) {
+        return nativeToRotations(nativeUnits)*(WHEEL_DIAMETER * Math.PI);
+    }
+    public double inchesToNative(double inches) {
+        return NATIVE_PER_ROTATION*(inchesToRotations(inches));
+    }
+    public double inchesToRotations(double inches) {
+        return inches / (WHEEL_DIAMETER * Math.PI);
+    }
+
 
     @Override
     protected void initDefaultCommand() {
