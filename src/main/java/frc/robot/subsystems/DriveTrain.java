@@ -26,6 +26,15 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     private static DriveTrain instance = null;
 
+    public double kfLeft = Constants.kfLeftDriveVel;
+    public double kpLeft = Constants.kpLeftDriveVel;
+    public double kiLeft = Constants.kiLeftDriveVel;
+    public double kdLeft = Constants.kdLeftDriveVel;
+    public double kfRight = Constants.kfRightDriveVel;
+    public double kpRight = Constants.kpRightDriveVel;
+    public double kiRight = Constants.kiRightDriveVel;
+    public double kdRight = Constants.kdRightDriveVel;
+
     private DriveTrain() {
         leftTalon = new WPI_TalonSRX(leftDrivetrainMasterID);
         leftSlave = new WPI_VictorSPX(leftDrivetrainSlave1ID);
@@ -480,10 +489,12 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public double deadband(double input) {
-        return Math.abs(input) < 0.15 ? 0.0 : input;
+        return Math.abs(input) < 0.1 ? 0.0 : input;
     }
 
     public void teleop(MinoGamepad gamepad) {
+        System.out.println("diff: " + (leftTalon.getSensorCollection().getQuadratureVelocity() + rightTalon.getSensorCollection().getQuadratureVelocity()));
+        //System.out.println("right: "  + rightTalon.getSensorCollection().getQuadratureVelocity());
         double left_y = deadband(gamepad.getRawAxis(LEFT_Y_AXIS));
         double right_x = deadband(gamepad.getRawAxis(RIGHT_X_AXIS));
 
@@ -507,8 +518,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             leftTalon.set(ControlMode.Velocity, /*-maxNativeVelocity*leftPower*/1000);
             rightTalon.set(ControlMode.Velocity, /*maxNativeVelocity*rightPower*/-1000);
         } else {
-            leftTalon.set(ControlMode.PercentOutput, -maxNativeVelocity*leftPower);
-            rightTalon.set(ControlMode.PercentOutput, maxNativeVelocity*rightPower);
+            leftTalon.set(ControlMode.Velocity, -maxNativeVelocity*leftPower);
+            rightTalon.set(ControlMode.Velocity, maxNativeVelocity*rightPower);
         }
 
     }
@@ -527,10 +538,24 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         distanceIntegralMGDPOM = 0;
         angleIntegralMGDPOM = 0;
 
+        kfLeft = Constants.kfLeftDriveVel;
+        kpLeft = Constants.kpLeftDriveVel;
+        kiLeft = Constants.kiLeftDriveVel;
+        kdLeft = Constants.kdLeftDriveVel;
+        kfRight = Constants.kfRightDriveVel;
+        kpRight = Constants.kpRightDriveVel;
+        kiRight = Constants.kiRightDriveVel;
+        kdRight = Constants.kdRightDriveVel;
+
         // prevError = 0;
         // integral = 0;
         // prevTime = 0;
         // firstRun = true;
+    }
+
+    public void setPIDGains() {
+        TalonHelper.setPIDGains(leftTalon, 0, kpLeft, kiLeft, kdLeft, kfLeft, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+        TalonHelper.setPIDGains(rightTalon, 0, kpRight, kiRight, kdRight, kfRight, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
     }
 
     public double nativeVelocityToRPM(double nativeVelocity) {
