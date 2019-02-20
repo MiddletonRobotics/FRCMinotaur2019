@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -11,20 +12,19 @@ import frc.robot.Utilities.Section;
 
 public class Intake extends Subsystem implements Section, Constants {
 
-    private WPI_VictorSPX leftIntakeMotor;
-    private WPI_VictorSPX rightIntakeMotor;
+    private WPI_TalonSRX rightIntakeMaster;
+    private WPI_VictorSPX leftIntakeSlave;
     private MinoDoubleSol intakeSolenoid;
 
 
     private static Intake instance = null;
 
     private Intake() {
-        leftIntakeMotor = new WPI_VictorSPX(intakeMotorRightID);
-        rightIntakeMotor = new WPI_VictorSPX(intakeMotorLeftID);
+        rightIntakeMaster = new WPI_TalonSRX(intakeMasterRightID);
+        leftIntakeSlave = new WPI_VictorSPX(intakeSlaveLeftID);
         intakeSolenoid = new MinoDoubleSol(intakeSolenoidForwardChannel, intakeSolenoidReverseChannel);
 
-        configTalon(leftIntakeMotor);
-        configTalon(rightIntakeMotor);
+        configTalons();
 
         closeIntake();
     }
@@ -37,9 +37,11 @@ public class Intake extends Subsystem implements Section, Constants {
         return instance;
     }
 
-    private void configTalon(WPI_VictorSPX motor) {
-        motor.set(0);
-        motor.configOpenloopRamp(0.25, 0);
+    private void configTalons() {
+        rightIntakeMaster.set(0);
+        leftIntakeSlave.set(0);
+        rightIntakeMaster.configOpenloopRamp(0.25, 0);
+        leftIntakeSlave.configOpenloopRamp(0.25, 0);
     }
 
     @Override
@@ -76,13 +78,13 @@ public class Intake extends Subsystem implements Section, Constants {
 
     @Override
     public void reset() {
-        rightIntakeMotor.set(0);
-        leftIntakeMotor.set(0);
+        rightIntakeMaster.set(0);
+        leftIntakeSlave.set(0);
         closeIntake();
     }
 
     public void setPercentSpeed(double speed) {
-        rightIntakeMotor.set(speed);
-        rightIntakeMotor.set(-speed);
+        rightIntakeMaster.set(speed);
+        rightIntakeMaster.set(-speed);
     }
 }

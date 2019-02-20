@@ -21,9 +21,9 @@ public interface Constants extends GamepadButtons {
     int liftSlave1ID = 32;
     int liftSlave2ID = 33;
     int liftSlave3ID = 34;
-    int armTalonID = -1;
-    int intakeMotorRightID = -1;
-    int intakeMotorLeftID = -1;
+    int armTalonID = 41;
+    int intakeMasterRightID = 51;
+    int intakeSlaveLeftID = 52;
 
     int intakeSolenoidForwardChannel = 0;
     int intakeSolenoidReverseChannel = 1;
