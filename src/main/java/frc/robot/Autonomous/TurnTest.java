@@ -19,7 +19,7 @@ public class TurnTest extends Auto {
     }
 
     public void stop() {
-        Robot.driveTrain.stopDrive();
+        //Robot.driveTrain.stopDrive();
     }
 
 }

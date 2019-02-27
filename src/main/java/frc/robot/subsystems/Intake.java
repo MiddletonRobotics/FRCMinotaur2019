@@ -40,8 +40,8 @@ public class Intake extends Subsystem implements Section, Constants {
     private void configTalons() {
         rightIntakeMaster.set(0);
         leftIntakeSlave.set(0);
-        rightIntakeMaster.configOpenloopRamp(0.25, 0);
-        leftIntakeSlave.configOpenloopRamp(0.25, 0);
+        rightIntakeMaster.configOpenloopRamp(0, 0);
+        leftIntakeSlave.configOpenloopRamp(0, 0);
     }
 
     @Override
@@ -85,6 +85,6 @@ public class Intake extends Subsystem implements Section, Constants {
 
     public void setPercentSpeed(double speed) {
         rightIntakeMaster.set(speed);
-        rightIntakeMaster.set(-speed);
+        leftIntakeSlave.set(-speed);
     }
 }

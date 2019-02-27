@@ -26,10 +26,10 @@ public class Robot extends TimedRobot {
     public static MinoGamepad gamepad1;
     public static MinoGamepad gamepad2;
 
-    public static DriveTrain driveTrain;
-/*    public static Vision vision;
-    public static Lift lift;
-    public static Arm arm;*/
+    //public static DriveTrain driveTrain;
+//    public static Vision vision;
+//    public static Lift lift;
+    public static Arm arm;
     public static Intake intake;
 
 
@@ -52,10 +52,10 @@ public class Robot extends TimedRobot {
         //READD THIS DUMMY
 
 
-        driveTrain = DriveTrain.getInstance();
-/*        vision = new Vision();
-        lift = Lift.getInstance();
-        arm = Arm.getInstance();*/
+        //driveTrain = DriveTrain.getInstance();
+//        vision = new Vision();
+//        lift = Lift.getInstance();
+        arm = Arm.getInstance();
         intake = Intake.getInstance();
 
 
@@ -142,7 +142,7 @@ public class Robot extends TimedRobot {
         isTeleop = true;
         resetRobot();
 
-        SmartDashboard.putNumber("kfLeft", driveTrain.kfLeft);
+       /* SmartDashboard.putNumber("kfLeft", driveTrain.kfLeft);
         SmartDashboard.putNumber("kpLeft", driveTrain.kpLeft);
         SmartDashboard.putNumber("kiLeft", driveTrain.kiLeft);
         SmartDashboard.putNumber("kdLeft", driveTrain.kdLeft);
@@ -150,7 +150,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("kfRight", driveTrain.kfRight);
         SmartDashboard.putNumber("kpRight", driveTrain.kpRight);
         SmartDashboard.putNumber("kiRight", driveTrain.kiRight);
-        SmartDashboard.putNumber("kdRight", driveTrain.kdRight);
+        SmartDashboard.putNumber("kdRight", driveTrain.kdRight);*/
 
         isToggled = false;
     }
@@ -165,7 +165,7 @@ public class Robot extends TimedRobot {
 
         Scheduler.getInstance().run();
 
-        driveTrain.teleop(gamepad1);
+       /* driveTrain.teleop(gamepad1);
         SmartDashboard.putNumber("left drive speed", driveTrain.getLeftTalon().getSensorCollection().getQuadratureVelocity());
         SmartDashboard.putNumber("right drive speed", driveTrain.getRightTalon().getSensorCollection().getQuadratureVelocity());
 
@@ -179,11 +179,11 @@ public class Robot extends TimedRobot {
         driveTrain.kiRight = SmartDashboard.getNumber("kiRight", 0);
         driveTrain.kdRight = SmartDashboard.getNumber("kdRight", 0);
 
-        driveTrain.setPIDGains();
+        driveTrain.setPIDGains();*/
 
-        /*        lift.teleop(gamepad2);
+//        lift.teleop(gamepad2);
+//        vision.teleop(gamepad1);
         arm.teleop(gamepad1);
-        vision.teleop(gamepad1);*/
         intake.teleop(gamepad1);
 
 
@@ -208,10 +208,10 @@ public class Robot extends TimedRobot {
     }
 
     public static void resetRobot() {
-        driveTrain.reset();
- /*       lift.reset();
+        //reset();
+        //lift.reset();
         arm.reset();
-        vision.reset();*/
+        //vision.reset();
         intake.reset();
     }
 }

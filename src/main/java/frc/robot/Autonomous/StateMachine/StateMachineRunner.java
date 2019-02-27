@@ -24,7 +24,7 @@ public class StateMachineRunner {
     }
 
     public void runStateMachine() {
-        if (states != null && currState < states.size() && delayDone()) {
+        /*if (states != null && currState < states.size() && delayDone()) {
             switch (states.get(currState)) {
                 case turn90Clockwise:
                     if (Robot.driveTrain.turnPOM(90, DriveTrain.Direction.CLOCKWISE)) {
@@ -39,7 +39,7 @@ public class StateMachineRunner {
             }
         } else {
             //System.out.println("States finished or not initialized");
-        }
+        }*/
     }
 
     public void setStates (List states) {
