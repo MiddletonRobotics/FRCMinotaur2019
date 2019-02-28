@@ -43,16 +43,26 @@ public class Arm extends Subsystem implements Section, Constants {
 
     @Override
     public void teleop(MinoGamepad gamepad) {
+/*
+        if (!armMotor.getSensorCollection().isFwdLimitSwitchClosed()) {
+            resetEncoders();
+        }*/
 
-        System.out.println(gamepad.leftBumper());
-        //System.out.println(armMotor.getSensorCollection().getQuadraturePosition());
-        if (gamepad.rightBumper()) {
-            armMotor.set(0.25);
+        if (gamepad.y()) {
+            armMotor.setSelectedSensorPosition(ArmPositions.armDiscPosition, 0, Constants.kTimeoutMs);
+
+            armMotor.set(ControlMode.MotionMagic, ArmPositions.armDiscPosition);
+        }
+
+        //System.out.println(gamepad.leftBumper());
+        //System.out.println(/*armMotor.getSensorCollection().getQuadraturePosition()*/armMotor.getMotorOutputPercent());
+/*        if (gamepad.rightBumper()) {
+            armMotor.set(0.3);
         } else if (gamepad.leftBumper()) {
-            armMotor.set(-0.25);
+            armMotor.set(-0.6);
         } else {
             armMotor.set(0);
-        }
+        }*/
     }
 
     private void zeroArm() {
@@ -86,8 +96,14 @@ public class Arm extends Subsystem implements Section, Constants {
 
     //despite making up 13% of the population
 
+    public void resetEncoders() {
+
+        armMotor.getSensorCollection().setQuadraturePosition(0, 0);
+    }
+
     @Override
     public void reset() {
+        resetEncoders();
         armMotor.set(ControlMode.PercentOutput, 0);
     }
 
@@ -95,8 +111,19 @@ public class Arm extends Subsystem implements Section, Constants {
         talon.setInverted(true);
         //talon.setSensorPhase(true);
         talon.setNeutralMode(NeutralMode.Brake);
-/*
         talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+
+        TalonHelper.setPIDGains(talon, kArmNormalRateSlot, kArmKp, kArmKi, kArmKd, kArmKf, kArmRampRate, kArmIZone);
+        TalonHelper.setMotionMagicParams(talon, kArmNormalRateSlot, kArmMaxVelocity, kArmMaxAccel);
+/*
+        TalonHelper.setMotionMagicParams(talon, kArmFastRateSlot, kArmMaxVelocity, kArmMaxAccelDownFast);
+*/
+        talon.selectProfileSlot(kArmNormalRateSlot, 0);
+
+        armMotor.setSelectedSensorPosition(0, 0, 0);
+
+
+/*
         talon.configContinuousCurrentLimit(kArmMaxContinuousCurrentLimit, 0);
         talon.configPeakCurrentLimit(kArmMaxPeakCurrentLimit, 0);
         talon.configPeakCurrentDuration(kArmMaxPeakCurrentDurationMS, 0);

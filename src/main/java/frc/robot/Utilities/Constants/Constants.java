@@ -214,13 +214,13 @@ public interface Constants extends GamepadButtons {
 
     int kArmNormalRateSlot = 0;
     int kArmFastRateSlot = 1;
-    double kArmKp = 0/*6.7*/;
+    double kArmKp = 0.01/*6.7*/;
     double kArmKi = 0;
     double kArmKd = 0/*11*/;
-    double kArmKf = 0/*1*/;
+    double kArmKf = .1/*1*/;
     int kArmIZone = 0;
     double kArmRampRate = 0;
-    int kArmMaxVelocity = 450;
+    int kArmMaxVelocity = 300;
     int kArmMaxAccel = 200;
     int kArmMaxAccelDownFast = 350;
     int kArmAllowedError = (int)(0 * sensorUnitsPerRotationMag);

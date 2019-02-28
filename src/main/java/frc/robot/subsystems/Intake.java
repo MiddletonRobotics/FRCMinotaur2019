@@ -58,7 +58,6 @@ public class Intake extends Subsystem implements Section, Constants {
         }
 
         if (gamepad.getRawButton(BTN_X)) {
-            System.out.println("ooga");
             toggleIntake();
         }
     }

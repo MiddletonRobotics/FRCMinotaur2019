@@ -30,7 +30,7 @@ public class Robot extends TimedRobot {
 //    public static Vision vision;
 //    public static Lift lift;
     public static Arm arm;
-    public static Intake intake;
+    //public static Intake intake;
 
 
     public static boolean isTeleop = false;
@@ -56,7 +56,7 @@ public class Robot extends TimedRobot {
 //        vision = new Vision();
 //        lift = Lift.getInstance();
         arm = Arm.getInstance();
-        intake = Intake.getInstance();
+        //intake = Intake.getInstance();
 
 
         chooser.setDefaultOption("Do nothing :O", null);
@@ -184,7 +184,7 @@ public class Robot extends TimedRobot {
 //        lift.teleop(gamepad2);
 //        vision.teleop(gamepad1);
         arm.teleop(gamepad1);
-        intake.teleop(gamepad1);
+        //intake.teleop(gamepad1);
 
 
         //SmartDashboard.putNumber("Potentiometer:", lift.potentiometer.pidGet());
@@ -212,6 +212,6 @@ public class Robot extends TimedRobot {
         //lift.reset();
         arm.reset();
         //vision.reset();
-        intake.reset();
+        //intake.reset();
     }
 }
