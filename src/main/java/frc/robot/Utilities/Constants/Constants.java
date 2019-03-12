@@ -173,6 +173,10 @@ public interface Constants extends GamepadButtons {
      int kActionTimeoutS = 2;
      int kTalonRetryCount = 3;
 
+    int CONTROL_FRAME_PERIOD_MS = 10;
+    int STATUS_FRAME_GENERAL_1_MS = 10;
+    int STATUS_FRAME_FEEDBACK0_2_MS = 20;
+
     /* CONTROL LOOP GAINS */
 
     // PID gains for drive velocity loop (HIGH GEAR)
@@ -198,7 +202,7 @@ public interface Constants extends GamepadButtons {
 
 	int kLiftUpRateSlot = 0;
     int kLiftDownRateSlot = 1;
-    double kLiftKp = 0;
+    double kLiftKp = 0.0001;
     double kLiftKi = 0;
     double kLiftKd = 0;
     double kLiftKf = 0;
@@ -214,10 +218,10 @@ public interface Constants extends GamepadButtons {
 
     int kArmNormalRateSlot = 0;
     int kArmFastRateSlot = 1;
-    double kArmKp = 0.01/*6.7*/;
+    double kArmKp = 0.0006/*0.5*//*6.7*/;
     double kArmKi = 0;
     double kArmKd = 0/*11*/;
-    double kArmKf = .1/*1*/;
+    double kArmKf = 0.055/*1*/;
     int kArmIZone = 0;
     double kArmRampRate = 0;
     int kArmMaxVelocity = 300;
@@ -232,7 +236,8 @@ public interface Constants extends GamepadButtons {
     int kArmMaxContinuousCurrentLimit = kArmMotorPDPBreakerRating;
     int kArmMaxPeakCurrentLimit = kArmMaxContinuousCurrentLimit * 2;
     int kArmMaxPeakCurrentDurationMS = getMSDurationForBreakerLimit(kArmMaxPeakCurrentLimit, kArmMaxContinuousCurrentLimit);
-    double armDegreeOffset = 0;
+    double armDegreeOffset = 100;
+    double armZeroStallCurrent = 0;
 
     double kPDPBreakerModelA = 282.2962;
     double kPDPBreakerModelB = -6.6305;

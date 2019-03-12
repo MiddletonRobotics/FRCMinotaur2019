@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.Util;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
@@ -117,21 +118,23 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     private void setupSlaves(WPI_TalonSRX master, WPI_VictorSPX slave) {
         slave.follow(master);
+        slave.setNeutralMode(NeutralMode.Coast);
     }
 
     private void configTalon(WPI_TalonSRX master, boolean reversed) {
         master.set(0);
 
-        master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+        master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, kTimeoutMs);
         master.setSensorPhase(reversed);
         // master.configClosedloopRamp(0.25, 0);
-        master.configOpenloopRamp(0.25, 0);
+        master.configOpenloopRamp(0.25, kTimeoutMs);
 //      masteqr.configNominalOutputForward(NOMINAL_OUTPUT_VOLTAGE, -NOMINAL_OUTPUT_VOLTAGE);
         //    master.configPeakOutputVoltage(+PEAK_OUTPUT_VOLTAGE, -PEAK_OUTPUT_VOLTAGE);
 
         //aster.configSen R);
 
-        master.configAllowableClosedloopError(0, 0, 0);
+        master.configAllowableClosedloopError(0, 0, kTimeoutMs);
+        master.setNeutralMode(NeutralMode.Coast);
 
         //  master.setVoltageRampRate(48);
 
@@ -164,8 +167,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     public void resetEncoders() {
         stopDrive();
-        leftTalon.getSensorCollection().setQuadraturePosition(0, 10);
-        rightTalon.getSensorCollection().setQuadraturePosition(0, 10);
+        leftTalon.getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
+        rightTalon.getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
     }
 
     public void resetGyro() {
@@ -515,7 +518,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             rightPower /= maxSpeed;
         }
 
-        if (gamepad.a()) {
+        if (/*gamepad.a()*/false ) {
             leftTalon.set(ControlMode.Velocity, /*-maxNativeVelocity*leftPower*/1000);
             rightTalon.set(ControlMode.Velocity, /*maxNativeVelocity*rightPower*/-1000);
         } else {

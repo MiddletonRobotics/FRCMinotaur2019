@@ -7,24 +7,33 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.command.PIDSubsystem;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Utilities.Constants.Positions.ArmPositions;
+import frc.robot.Utilities.Constants.Positions.LiftPositions;
 import frc.robot.Utilities.Drivers.CKTalonSRX;
 import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.Utilities.Drivers.TalonHelper;
 import frc.robot.Utilities.Section;
 
-public class Arm extends Subsystem implements Section, Constants {
+public class Arm extends PIDSubsystem implements Section, Constants {
 
     private WPI_TalonSRX armMotor;
 
     private static Arm instance = null;
-
+    private boolean manual = true;
+    private boolean armDown = false;
+    private boolean aPrev = false;
 
     private Arm() {
+        super(kArmKp,kArmKi,kArmKd);
         armMotor = new WPI_TalonSRX(armTalonID);
         configTalon(armMotor);
+        getPIDController().setContinuous(false);
+        setSetpoint(armMotor.getSensorCollection().getQuadraturePosition());
+        getPIDController().enable();
     }
 
     public static Arm getInstance() {
@@ -48,21 +57,68 @@ public class Arm extends Subsystem implements Section, Constants {
             resetEncoders();
         }*/
 
-        if (gamepad.y()) {
-            armMotor.setSelectedSensorPosition(ArmPositions.armDiscPosition, 0, Constants.kTimeoutMs);
-
-            armMotor.set(ControlMode.MotionMagic, ArmPositions.armDiscPosition);
+        if (gamepad.getRawButton(BTN_A)) {
+            if (!aPrev) {
+                armDown = !armDown;
+            }
         }
 
-        //System.out.println(gamepad.leftBumper());
+        aPrev = gamepad.getRawButton(BTN_A);
+
+        if (gamepad.rightBumper()) {
+            getPIDController().disable();
+            armMotor.set(0.6);
+            manual = true;
+        } else if (gamepad.leftBumper()) {
+            getPIDController().disable();
+            armMotor.set(-0.3);
+            manual = true;
+        } else if (gamepad.a() && armDown) {
+            getPIDController().enable();
+/*          armMotor.setSelectedSensorPosition(ArmPositions.armDiscPosition, 0, Constants.kTimeoutMs);
+            armMotor.set(ControlMode.MotionMagic, ArmPositions.armDiscPosition);*/
+            setSetpoint(ArmPositions.armDiscPosition);
+            usePIDOutput(getPIDController().get());
+            manual = false;
+        } else if (gamepad.a() && !armDown) {
+            getPIDController().enable();
+/*          armMotor.setSelectedSensorPosition(ArmPositions.armDiscPosition, 0, Constants.kTimeoutMs);
+            armMotor.set(ControlMode.MotionMagic, ArmPositions.armDiscPosition);*/
+            setSetpoint(ArmPositions.armUpPosition);
+            usePIDOutput(getPIDController().get());
+            manual = false;
+        } /*else if (gamepad.y()) {
+            getPIDController().enable();
+            setSetpoint(ArmPositions.armUpPosition);
+            usePIDOutput((getPIDController().get()));
+            manual = false;
+        } */else {
+            stop();
+        }
+
+/*
+        System.out.println(armMotor.getSensorCollection().getQuadraturePosition());
+*/
         //System.out.println(/*armMotor.getSensorCollection().getQuadraturePosition()*/armMotor.getMotorOutputPercent());
 /*        if (gamepad.rightBumper()) {
-            armMotor.set(0.3);
+            armMotor.set(0.6);
         } else if (gamepad.leftBumper()) {
-            armMotor.set(-0.6);
+            armMotor.set(-0.3);
         } else {
-            armMotor.set(0);
+            armMotor.set(0.055);
         }*/
+    }
+
+    private void stop() {
+        if (manual) {
+            setSetpoint(armMotor.getSensorCollection().getQuadraturePosition());
+        }
+/*
+        getPIDController().setF(Math.cos(getRotationAngle())*kArmKf);
+*/
+        getPIDController().enable();
+        usePIDOutput(getPIDController().get());
+
     }
 
     private void zeroArm() {
@@ -99,6 +155,7 @@ public class Arm extends Subsystem implements Section, Constants {
     public void resetEncoders() {
 
         armMotor.getSensorCollection().setQuadraturePosition(0, 0);
+        /*armMotor.getSensorCollection().setPulseWidthPosition(0, 0);*/
     }
 
     @Override
@@ -111,7 +168,7 @@ public class Arm extends Subsystem implements Section, Constants {
         talon.setInverted(true);
         //talon.setSensorPhase(true);
         talon.setNeutralMode(NeutralMode.Brake);
-        talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+        talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
 
         TalonHelper.setPIDGains(talon, kArmNormalRateSlot, kArmKp, kArmKi, kArmKd, kArmKf, kArmRampRate, kArmIZone);
         TalonHelper.setMotionMagicParams(talon, kArmNormalRateSlot, kArmMaxVelocity, kArmMaxAccel);
@@ -121,6 +178,8 @@ public class Arm extends Subsystem implements Section, Constants {
         talon.selectProfileSlot(kArmNormalRateSlot, 0);
 
         armMotor.setSelectedSensorPosition(0, 0, 0);
+
+        armMotor.setControlFramePeriod(10, kTimeoutMs);
 
 
 /*
@@ -145,5 +204,19 @@ public class Arm extends Subsystem implements Section, Constants {
         TalonHelper.setMotionMagicParams(talon, kArmFastRateSlot, kArmMaxVelocity, kArmMaxAccelDownFast);*/
 
 
+    }
+
+    public double getRotationAngle() {
+        return armDegreeOffset*(Math.PI/180) - 2*Math.PI*armMotor.getSensorCollection().getQuadraturePosition()/(2*sensorUnitsPerRotationMag);
+    }
+
+    @Override
+    protected double returnPIDInput() {
+        return armMotor.getSensorCollection().getQuadraturePosition();
+    }
+
+    @Override
+    protected void usePIDOutput(double output) {
+        armMotor.pidWrite(-output);
     }
 }

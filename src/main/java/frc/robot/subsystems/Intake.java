@@ -14,7 +14,7 @@ public class Intake extends Subsystem implements Section, Constants {
 
     private WPI_TalonSRX rightIntakeMaster;
     private WPI_VictorSPX leftIntakeSlave;
-    private MinoDoubleSol intakeSolenoid;
+    public MinoDoubleSol intakeSolenoid;
 
 
     private static Intake instance = null;
@@ -51,15 +51,20 @@ public class Intake extends Subsystem implements Section, Constants {
 
     @Override
     public void teleop(MinoGamepad gamepad) {
-        if(gamepad.getRawAxis(RIGHT_T_AXIS) > 0) {
-            setPercentSpeed(gamepad.getRawAxis(RIGHT_T_AXIS));
+
+
+        if(gamepad.leftTrigger() > 0.2) {
+            setPercentSpeed(intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ? -0.3 : 1); //OUT
+        } else if (gamepad.rightTrigger() > 0.2){
+            setPercentSpeed(intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ? 0.3 : -0.7); //IN
         } else {
-            setPercentSpeed(-gamepad.getRawAxis(LEFT_T_AXIS));
+            setPercentSpeed(0);
         }
 
         if (gamepad.getRawButton(BTN_X)) {
             toggleIntake();
         }
+
     }
 
 

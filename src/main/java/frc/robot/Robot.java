@@ -26,11 +26,12 @@ public class Robot extends TimedRobot {
     public static MinoGamepad gamepad1;
     public static MinoGamepad gamepad2;
 
-    //public static DriveTrain driveTrain;
+    public static DriveTrain driveTrain;
 //    public static Vision vision;
 //    public static Lift lift;
+    public static LiftPID liftPID;
     public static Arm arm;
-    //public static Intake intake;
+    public static Intake intake;
 
 
     public static boolean isTeleop = false;
@@ -47,20 +48,22 @@ public class Robot extends TimedRobot {
         
         gamepad1 = new MinoGamepad(Constants.gamepad1Port);
         gamepad2 = new MinoGamepad(Constants.gamepad2Port);
-        /*cs = CameraServer.getInstance();
-        cs.startAutomaticCapture();*/
+        cs = CameraServer.getInstance();
+        cs.startAutomaticCapture();
         //READD THIS DUMMY
 
 
-        //driveTrain = DriveTrain.getInstance();
+        driveTrain = DriveTrain.getInstance();
 //        vision = new Vision();
 //        lift = Lift.getInstance();
+        liftPID = LiftPID.getInstance();
         arm = Arm.getInstance();
-        //intake = Intake.getInstance();
+        intake = Intake.getInstance();
 
 
         chooser.setDefaultOption("Do nothing :O", null);
         chooser.addOption("TURN TEST", new TurnTest());
+        chooser.addOption("Teleop", new Teleop());
         //SmartDashboard.putNumber("Delay MS (C H A N G E T H I S E V E R Y M A T C H)", 0);
         SmartDashboard.putData(chooser);
 
@@ -165,7 +168,8 @@ public class Robot extends TimedRobot {
 
         Scheduler.getInstance().run();
 
-       /* driveTrain.teleop(gamepad1);
+       driveTrain.teleop(gamepad1);
+       /*
         SmartDashboard.putNumber("left drive speed", driveTrain.getLeftTalon().getSensorCollection().getQuadratureVelocity());
         SmartDashboard.putNumber("right drive speed", driveTrain.getRightTalon().getSensorCollection().getQuadratureVelocity());
 
@@ -181,10 +185,11 @@ public class Robot extends TimedRobot {
 
         driveTrain.setPIDGains();*/
 
-//        lift.teleop(gamepad2);
+//        lift.teleop(gamepad1);
+        liftPID.teleop(gamepad1);
 //        vision.teleop(gamepad1);
         arm.teleop(gamepad1);
-        //intake.teleop(gamepad1);
+        intake.teleop(gamepad1);
 
 
         //SmartDashboard.putNumber("Potentiometer:", lift.potentiometer.pidGet());
@@ -209,9 +214,11 @@ public class Robot extends TimedRobot {
 
     public static void resetRobot() {
         //reset();
-        //lift.reset();
+        driveTrain.resetFull();
+//        lift.reset();
+        liftPID.reset();
         arm.reset();
         //vision.reset();
-        //intake.reset();
+        intake.reset();
     }
 }
