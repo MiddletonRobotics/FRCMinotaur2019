@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         Robot.isTeleop = false;
         Robot.isDisabled = true;
-        resetRobot();
+        /*resetRobot();*/
         //SmartDashboard.putNumber("Disabled Init Ran", 1);
     }
 
@@ -89,7 +89,6 @@ public class Robot extends TimedRobot {
         //SmartDashboard.putNumber("Disabled Init Ran", 2);
         Scheduler.getInstance().run();
         /*resetRobot();*/
-        System.out.println(liftPID.getPosition());
     }
 
     /**
@@ -133,6 +132,7 @@ public class Robot extends TimedRobot {
             a.loop();
         }
 
+
     }
 
     @Override
@@ -144,7 +144,7 @@ public class Robot extends TimedRobot {
             a = null;
         }
         isTeleop = true;
-        resetRobot();
+        /*resetRobot();*/
 
        /* SmartDashboard.putNumber("kfLeft", driveTrain.kfLeft);
         SmartDashboard.putNumber("kpLeft", driveTrain.kpLeft);
@@ -170,6 +170,9 @@ public class Robot extends TimedRobot {
         Scheduler.getInstance().run();
 
        driveTrain.teleop(gamepad1);
+
+        SmartDashboard.putNumber("Lift Error: ", liftPID.getPIDController().getError());
+
        /*
         SmartDashboard.putNumber("left drive speed", driveTrain.getLeftTalon().getSensorCollection().getQuadratureVelocity());
         SmartDashboard.putNumber("right drive speed", driveTrain.getRightMaster().getSensorCollection().getQuadratureVelocity());
