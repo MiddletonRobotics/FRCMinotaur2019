@@ -1,19 +1,14 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
-import edu.wpi.first.wpilibj.command.Subsystem;
+import frc.robot.Robot;
 import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Utilities.Constants.Positions.ArmPositions;
-import frc.robot.Utilities.Constants.Positions.LiftPositions;
-import frc.robot.Utilities.Drivers.CKTalonSRX;
 import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.Utilities.Drivers.TalonHelper;
 import frc.robot.Utilities.Section;
@@ -84,7 +79,14 @@ public class Arm extends PIDSubsystem implements Section, Constants {
             getPIDController().enable();
 /*          armMotor.setSelectedSensorPosition(ArmPositions.armDiscPosition, 0, Constants.kTimeoutMs);
             armMotor.set(ControlMode.MotionMagic, ArmPositions.armDiscPosition);*/
-            setSetpoint(ArmPositions.armUpPosition);
+            setSetpoint(Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kReverse && !Robot.liftPID.getManual() ? ArmPositions.armCargoShipPosition : ArmPositions.armUpPosition);
+            usePIDOutput(getPIDController().get());
+            manual = false;
+        } else if (gamepad.dpadLeft() && Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kReverse) {
+            getPIDController().enable();
+/*          armMotor.setSelectedSensorPosition(ArmPositions.armDiscPosition, 0, Constants.kTimeoutMs);
+            armMotor.set(ControlMode.MotionMagic, ArmPositions.armDiscPosition);*/
+            setSetpoint(ArmPositions.armCargoPickupPosition);
             usePIDOutput(getPIDController().get());
             manual = false;
         } /*else if (gamepad.y()) {
@@ -96,9 +98,8 @@ public class Arm extends PIDSubsystem implements Section, Constants {
             stop();
         }
 
-/*
         System.out.println(armMotor.getSensorCollection().getQuadraturePosition());
-*/
+
         //System.out.println(/*armMotor.getSensorCollection().getQuadraturePosition()*/armMotor.getMotorOutputPercent());
 /*        if (gamepad.rightBumper()) {
             armMotor.set(0.6);

@@ -153,7 +153,7 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
             manual = false;
         } else if (gamepad.dpadUp()) {
             getPIDController().enable();
-            setSetpoint(Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ?  LiftPositions.liftThirdHeight : LiftPositions.liftBallCargoHeight);
+            setSetpoint(Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ?  LiftPositions.liftThirdHeight : LiftPositions.liftRocketThirdHeight);
             usePIDOutput((getPIDController().get()));
             manual = false;
         } else {
@@ -162,7 +162,9 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
         }
 
 
+/*
         System.out.println(getPosition());
+*/
 
 /*
         System.out.println("Input: " + gamepad.);
@@ -215,6 +217,10 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
         getPIDController().enable();
         usePIDOutput(getPIDController().get());
 
+    }
+
+    public boolean getManual() {
+        return manual;
     }
     @Override
     public void reset() {
@@ -285,7 +291,7 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
     }*/
 
     public void setLiftSpeedPercent(double speed) {
-        speed = speed < 0 && !limitSwitch.get() ? 0 : (speed < -.3 ? (getPosition() > LiftPositions.liftSlowHeight? -0.3: speed) : speed);
+        speed = speed < 0 && !limitSwitch.get() ? 0 : (speed < -.15 ? (getPosition() > LiftPositions.liftSlowHeight? -0.15: speed) : speed);
 /*
         speed = getPosition() < LiftPositions.liftMaxHeight ? (speed > 0 ? 0: speed) : speed;
 */
