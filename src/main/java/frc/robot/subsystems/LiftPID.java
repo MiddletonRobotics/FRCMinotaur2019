@@ -117,6 +117,7 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
     @Override
     public void teleop(MinoGamepad gamepad) {
 
+
 /*
         System.out.println(liftMasterMotor.getSensorCollection().getQuadraturePosition());
 */
@@ -124,11 +125,11 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
 
         if (gamepad.y()) {
             getPIDController().disable();
-            setLiftSpeedPercent(0.6);
+            setLiftSpeedPercent(1);
             manual = true;
         } else if (gamepad.b()) {
             getPIDController().disable();
-            setLiftSpeedPercent(-0.6);
+            setLiftSpeedPercent(-1);
             manual = true;
         } /*else if (gamepad.dpadRight()) {
             getPIDController().enable();
@@ -161,7 +162,7 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
         }
 
 
-        System.out.println(getSetpoint());
+        System.out.println(getPosition());
 
 /*
         System.out.println("Input: " + gamepad.);
@@ -247,6 +248,15 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
         }).start();
     }
 
+    @Override
+    protected double returnPIDInput() {
+        return liftMasterMotor.getSensorCollection().getQuadraturePosition();
+    }
+
+    @Override
+    protected void usePIDOutput(double output) {
+        setLiftSpeedPercent(-output);
+    }
 
     public void stopLift() {
             liftMasterMotor.set(0);
@@ -264,21 +274,26 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
         //System.out.println("Er" + "ror: " + getPIDController().get() + " : " + liftMasterMotor.get() + " : " + potentiometer.pidGet());
     }
 
-    public void setLiftHeightInches(double heightInches) {
+   /* public void setLiftHeightInches(double heightInches) {
         //hey dummy test limit switch pls thanks
-/*        if (!bottomLimitSwitch.get() && height <= LiftPositions.liftMinHeight) {
+*//*        if (!bottomLimitSwitch.get() && height <= LiftPositions.liftMinHeight) {
             zeroLift();
-        }*/
+        }*//*
 
         double heightSensorUnits = inchesToSensorUnits(heightInches);
         setLiftHeightSensorUnits(clipHeightSensorUnits(heightSensorUnits));
-    }
+    }*/
 
     public void setLiftSpeedPercent(double speed) {
         speed = speed < 0 && !limitSwitch.get() ? 0 : (speed < -.3 ? (getPosition() > LiftPositions.liftSlowHeight? -0.3: speed) : speed);
 /*
         speed = getPosition() < LiftPositions.liftMaxHeight ? (speed > 0 ? 0: speed) : speed;
 */
+
+/*        if (this.getPosition() <= LiftPositions.liftSecondHeight - 100 && speed > 0) {
+            speed = 0;
+        }*/
+
         liftMasterMotor.set(ControlMode.PercentOutput, speed);
         liftSlaveMotor1.set(ControlMode.PercentOutput, speed);
         liftSlaveMotor2.set(ControlMode.PercentOutput, speed);
@@ -288,12 +303,15 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
 /*    public void setLiftSpeed(double speed) {
         liftMasterMotor.set(ControlMode.Velocity, speed);
     }*/
+/*
 
     public void setLiftHeightSensorUnits(double sensorUnits) {
         //hey dummy test limit switch pls thanks
+*/
 /*        if (!bottomLimitSwitch.get() && height <= LiftPositions.liftMinHeight) {
             zeroLift();
-        }*/
+        }*//*
+
 
         liftMasterMotor.set(ControlMode.MotionMagic, sensorUnits);
     }
@@ -325,14 +343,7 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
     public double clipHeightSensorUnits(double heightSensorUnits) {
         return Math.min(LiftPositions.liftMaxHeight, Math.max(LiftPositions.liftMinHeight, heightSensorUnits));
     }
+*/
 
-    @Override
-    protected double returnPIDInput() {
-        return liftMasterMotor.getSensorCollection().getQuadraturePosition();
-    }
 
-    @Override
-    protected void usePIDOutput(double output) {
-        setLiftSpeedPercent(-output);
-    }
 }

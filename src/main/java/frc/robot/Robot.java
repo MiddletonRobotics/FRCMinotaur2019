@@ -88,7 +88,8 @@ public class Robot extends TimedRobot {
         Robot.isDisabled = true;
         //SmartDashboard.putNumber("Disabled Init Ran", 2);
         Scheduler.getInstance().run();
-        resetRobot();
+        /*resetRobot();*/
+        System.out.println(liftPID.getPosition());
     }
 
     /**
