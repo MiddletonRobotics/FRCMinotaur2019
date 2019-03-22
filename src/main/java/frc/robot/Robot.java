@@ -171,7 +171,7 @@ public class Robot extends TimedRobot {
        driveTrain.teleop(gamepad1);
        /*
         SmartDashboard.putNumber("left drive speed", driveTrain.getLeftTalon().getSensorCollection().getQuadratureVelocity());
-        SmartDashboard.putNumber("right drive speed", driveTrain.getRightTalon().getSensorCollection().getQuadratureVelocity());
+        SmartDashboard.putNumber("right drive speed", driveTrain.getRightMaster().getSensorCollection().getQuadratureVelocity());
 
         driveTrain.kfLeft = SmartDashboard.getNumber("kfLeft", 0);
         driveTrain.kpLeft = SmartDashboard.getNumber("kpLeft", 0);
@@ -195,13 +195,13 @@ public class Robot extends TimedRobot {
         //SmartDashboard.putNumber("Potentiometer:", lift.potentiometer.pidGet());
 //		SmartDashboard.putNumber("Distance form egeg", rangeSensor.getDistance());
        /* SmartDashboard.putNumber("Left motor", driveTrain.getLeftTalon().get());
-        SmartDashboard.putNumber("Right motor", driveTrain.getRightTalon().get());
+        SmartDashboard.putNumber("Right motor", driveTrain.getRightMaster().get());
 
         SmartDashboard.putNumber("GyroAngle", driveTrain.getGyroAngle());
         SmartDashboard.putNumber("L RPM", driveTrain.getLeftTalon().getSelectedSensorVelocity(0) >= SmartDashboard.getNumber("L RPM", 0) ? driveTrain.getLeftTalon().getSelectedSensorVelocity(0) : SmartDashboard.getNumber("L RPM", 0));
-        SmartDashboard.putNumber("R RPM", driveTrain.getRightTalon().getSelectedSensorVelocity(0) >= SmartDashboard.getNumber("R RPM", 0) ? driveTrain.getRightTalon().getSelectedSensorVelocity(0) : SmartDashboard.getNumber("R RPM", 0));
+        SmartDashboard.putNumber("R RPM", driveTrain.getRightMaster().getSelectedSensorVelocity(0) >= SmartDashboard.getNumber("R RPM", 0) ? driveTrain.getRightMaster().getSelectedSensorVelocity(0) : SmartDashboard.getNumber("R RPM", 0));
         SmartDashboard.putNumber("LCurrent", driveTrain.getLeftTalon().getOutputCurrent());
-        SmartDashboard.putNumber("RCurrent", driveTrain.getRightTalon().getOutputCurrent());*/
+        SmartDashboard.putNumber("RCurrent", driveTrain.getRightMaster().getOutputCurrent());*/
 
     }
 

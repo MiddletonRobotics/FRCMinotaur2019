@@ -18,7 +18,7 @@ public class Lift implements Section, Constants {
     private WPI_TalonSRX liftMasterMotor;
     private WPI_VictorSPX liftSlaveMotor1;
     private WPI_VictorSPX liftSlaveMotor2;
-    private WPI_TalonSRX liftSlaveMotor3;
+    private WPI_VictorSPX liftSlaveMotor3;
 
     private static Lift instance = null;
 
@@ -29,7 +29,7 @@ public class Lift implements Section, Constants {
         liftMasterMotor = new WPI_TalonSRX(liftMasterID);
         liftSlaveMotor1 = new WPI_VictorSPX(liftSlave1ID);
         liftSlaveMotor2 = new WPI_VictorSPX(liftSlave2ID);
-        liftSlaveMotor3 = new WPI_TalonSRX(liftSlave3ID);
+        liftSlaveMotor3 = new WPI_VictorSPX(liftSlave3ID);
         /*topLimitSwitch = new DigitalInput(limitSwitchLiftBottomPort);
         bottomLimitSwitch = new DigitalInput(limitSwitchLiftTopPort);*/
 
@@ -73,7 +73,7 @@ public class Lift implements Section, Constants {
 
         setupSlaves(motor, liftSlaveMotor1);
         setupSlaves(motor, liftSlaveMotor2);
-        liftSlaveMotor3.follow(liftMasterMotor);
+        setupSlaves(motor, liftSlaveMotor3);
 
         motor.configForwardSoftLimitEnable(false, kTimeoutMs);
         motor.configReverseSoftLimitEnable(false, kTimeoutMs);

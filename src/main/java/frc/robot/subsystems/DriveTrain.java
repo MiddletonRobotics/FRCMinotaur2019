@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.Util;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -20,7 +19,7 @@ import frc.robot.Utilities.Utils;
 
 public class DriveTrain extends Subsystem implements Constants, Section {
 
-    private final WPI_TalonSRX leftTalon, rightTalon;
+    private final WPI_TalonSRX leftMaster, rightMaster;
     private final WPI_VictorSPX leftSlave, rightSlave;
     private final WPI_VictorSPX leftSlave2, rightSlave2;
     private AHRS gyro = new AHRS(SPI.Port.kMXP);
@@ -37,25 +36,25 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     public double kdRight = Constants.kdRightDriveVel;
 
     private DriveTrain() {
-        leftTalon = new WPI_TalonSRX(leftDrivetrainMasterID);
+        leftMaster = new WPI_TalonSRX(leftDrivetrainMasterID);
         leftSlave = new WPI_VictorSPX(leftDrivetrainSlave1ID);
         leftSlave2 = new WPI_VictorSPX(leftDrivetrainSlave2ID);
 
-        rightTalon = new WPI_TalonSRX(rightDrivetrainMasterID);
+        rightMaster = new WPI_TalonSRX(rightDrivetrainMasterID);
         rightSlave = new WPI_VictorSPX(rightDrivetrainSlave1ID);
         rightSlave2 = new WPI_VictorSPX(rightDrivetrainSlave2ID);
 
-        setupSlaves(leftTalon, leftSlave);
-        setupSlaves(leftTalon, leftSlave2);
-        setupSlaves(rightTalon, rightSlave);
-        setupSlaves(rightTalon, rightSlave2);
+        setupSlaves(leftMaster, leftSlave);
+        setupSlaves(leftMaster, leftSlave2);
+        setupSlaves(rightMaster, rightSlave);
+        setupSlaves(rightMaster, rightSlave2);
 
-        configTalon(leftTalon, true);
-        configTalon(rightTalon, true);
+        configTalon(leftMaster, true);
+        configTalon(rightMaster, true);
 
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
-        TalonHelper.setPIDGains(leftTalon, 0, kpLeftDriveVel, kiLeftDriveVel, kdLeftDriveVel, kfLeftDriveVel, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
-        TalonHelper.setPIDGains(rightTalon, 0, kpRightDriveVel, kiRightDriveVel, kdRightDriveVel, kfRightDriveVel, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+        TalonHelper.setPIDGains(leftMaster, 0, kpLeftDriveVel, kiLeftDriveVel, kdLeftDriveVel, kfLeftDriveVel, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+        TalonHelper.setPIDGains(rightMaster, 0, kpRightDriveVel, kiRightDriveVel, kdRightDriveVel, kfRightDriveVel, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
         /*TalonHelper.setPIDGains(master, 1, kpDriveTrainPos, kiDriveTrainPos, kdDriveTrainPos, kfDriveTrainPos, 0, 0);
         TalonHelper.setPIDGains(master, 2, kpDriveTrainPos2, kiDriveTrainPos2, kdDriveTrainPos2, kfDriveTrainPos2, 0, 0);*/
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
@@ -80,11 +79,11 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public WPI_TalonSRX getLeftTalon() {
-        return this.leftTalon;
+        return this.leftMaster;
     }
 
-    public WPI_TalonSRX getRightTalon() {
-        return this.rightTalon;
+    public WPI_TalonSRX getRightMaster() {
+        return this.rightMaster;
     }
 
     public enum Direction {
@@ -145,11 +144,11 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public void setLeftTarget(double target, ControlMode controlMode) {
-        leftTalon.set(controlMode, target);
+        leftMaster.set(controlMode, target);
     }
 
     public void setRightTarget(double target, ControlMode controlMode) {
-        rightTalon.set(controlMode, target);
+        rightMaster.set(controlMode, target);
     }
 
     public void setTarget(double left, double right, ControlMode controlMode) {
@@ -167,8 +166,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
     public void resetEncoders() {
         stopDrive();
-        leftTalon.getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
-        rightTalon.getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
+        leftMaster.getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
+        rightMaster.getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
     }
 
     public void resetGyro() {
@@ -207,8 +206,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     public void driveVelocity(double left, double right) {
 
         if (left == 0 && right == 0) {
-            leftTalon.set(0);
-            rightTalon.set(0);
+            leftMaster.set(0);
+            rightMaster.set(0);
         } else {
             setTarget(left, right, ControlMode.Velocity);
         }
@@ -229,11 +228,11 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public double getLeftVelocity() {
-        return leftTalon.getSensorCollection().getQuadratureVelocity()/NATIVE_PER_ROTATION;
+        return leftMaster.getSensorCollection().getQuadratureVelocity()/NATIVE_PER_ROTATION;
     }
 
     public double getRightVelocity() {
-        return rightTalon.getSensorCollection().getQuadratureVelocity()/NATIVE_PER_ROTATION;
+        return rightMaster.getSensorCollection().getQuadratureVelocity()/NATIVE_PER_ROTATION;
     }
 
     private double clip(double value, double min, double max) {
@@ -245,8 +244,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public void setProfile(int slotID) {
-        leftTalon.selectProfileSlot(slotID, 0);
-        rightTalon.selectProfileSlot(slotID, 0);
+        leftMaster.selectProfileSlot(slotID, 0);
+        rightMaster.selectProfileSlot(slotID, 0);
     }
 
     @Deprecated
@@ -260,7 +259,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         double p_gain = 0.3;
 
         do {
-            clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
+            clicksRemaining = targetClicks - Math.abs(rightMaster.getSensorCollection().getQuadraturePosition());
             inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
             power = direction.value * speed * inchesRemaining * p_gain;
             setTarget(power, ControlMode.Position);
@@ -337,7 +336,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
 
         int targetClicks = (int) (inches * CLICKS_PER_INCH);
-        int clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
+        int clicksRemaining = targetClicks - Math.abs(rightMaster.getSensorCollection().getQuadraturePosition());
 
         double inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
         double angularError = gyro.getAngle();
@@ -360,7 +359,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
             long dt = System.nanoTime() - prevTimeMGDPOM;
 
-            double measurement = Math.abs(rightTalon.getSensorCollection().getQuadraturePosition())/CLICKS_PER_INCH;
+            double measurement = Math.abs(rightMaster.getSensorCollection().getQuadraturePosition())/CLICKS_PER_INCH;
 
             distanceIntegralMGDPOM += inchesRemaining * dt;
             angleIntegralMGDPOM += angularError * dt;
@@ -432,7 +431,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
                 break;
             }
 
-            clicksRemaining = targetClicks - Math.abs(rightTalon.getSensorCollection().getQuadraturePosition());
+            clicksRemaining = targetClicks - Math.abs(rightMaster.getSensorCollection().getQuadraturePosition());
             inchesRemaining = clicksRemaining / CLICKS_PER_INCH;
 
             dt = System.nanoTime() - prevTime;
@@ -488,8 +487,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         setProfile(1);
         Utils.sleep(20);
         double posNative = inchesToNative(pos);
-        leftTalon.set(ControlMode.MotionMagic, posNative);
-        rightTalon.set(ControlMode.MotionMagic, posNative);
+        leftMaster.set(ControlMode.MotionMagic, posNative);
+        rightMaster.set(ControlMode.MotionMagic, posNative);
     }
 
     public double deadband(double input) {
@@ -497,8 +496,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public void teleop(MinoGamepad gamepad) {
-        //System.out.println("diff: " + (leftTalon.getSensorCollection().getQuadratureVelocity() + rightTalon.getSensorCollection().getQuadratureVelocity()));
-        //System.out.println("right: "  + rightTalon.getSensorCollection().getQuadratureVelocity());
+        //System.out.println("diff: " + (leftTalon.getSensorCollection().getQuadratureVelocity() + rightMaster.getSensorCollection().getQuadratureVelocity()));
+        //System.out.println("right: "  + rightMaster.getSensorCollection().getQuadratureVelocity());
         double left_y = deadband(gamepad.getRawAxis(LEFT_Y_AXIS));
         double right_x = deadband(gamepad.getRawAxis(RIGHT_X_AXIS));
 
@@ -508,8 +507,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             driveMode = TeleopDriveModes.NEED_4_SPEED;
 
 
-        double leftPower = left_y - right_x;
-        double rightPower = left_y + right_x;
+        double leftPower = left_y + right_x;
+        double rightPower = left_y - right_x;
 
 
         double maxSpeed = Math.max(Math.abs(leftPower), Math.abs(rightPower));
@@ -519,13 +518,18 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         }
 
         if (/*gamepad.a()*/false ) {
-            leftTalon.set(ControlMode.Velocity, /*-maxNativeVelocity*leftPower*/1000);
-            rightTalon.set(ControlMode.Velocity, /*maxNativeVelocity*rightPower*/-1000);
+            leftMaster.set(ControlMode.Velocity, /*-maxNativeVelocity*leftPower*/1000);
+            rightMaster.set(ControlMode.Velocity, /*maxNativeVelocity*rightPower*/-1000);
         } else {
-            leftTalon.set(ControlMode.Velocity, -maxNativeVelocity*leftPower);
-            rightTalon.set(ControlMode.Velocity, maxNativeVelocity*rightPower);
+/*            leftMaster.set(ControlMode.Velocity, -maxNativeVelocity*leftPower);
+            rightMaster.set(ControlMode.Velocity, maxNativeVelocity*rightPower);*/
+
+            leftMaster.set(ControlMode.PercentOutput, leftPower);
+            rightMaster.set(ControlMode.PercentOutput, -rightPower);
         }
 
+/*        System.out.println("Left: " + leftMaster.getSensorCollection().getQuadraturePosition());
+        System.out.println("Right: " + rightMaster.getSensorCollection().getQuadraturePosition());*/
     }
 
 
@@ -558,8 +562,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public void setPIDGains() {
-        TalonHelper.setPIDGains(leftTalon, 0, kpLeft, kiLeft, kdLeft, kfLeft, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
-        TalonHelper.setPIDGains(rightTalon, 0, kpRight, kiRight, kdRight, kfRight, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+        TalonHelper.setPIDGains(leftMaster, 0, kpLeft, kiLeft, kdLeft, kfLeft, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+        TalonHelper.setPIDGains(rightMaster, 0, kpRight, kiRight, kdRight, kfRight, 0, 0); // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
     }
 
     public double nativeVelocityToRPM(double nativeVelocity) {

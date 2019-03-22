@@ -27,6 +27,7 @@ public interface Constants extends GamepadButtons {
 
     int intakeSolenoidForwardChannel = 0;
     int intakeSolenoidReverseChannel = 1;
+    int limitSwitchPort = 0;
 
     int leftDrivetrainMasterPDPSlot = 0;
     int leftDrivetrainSlave1PDPSlot = 0;

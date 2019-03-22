@@ -67,11 +67,11 @@ public class Arm extends PIDSubsystem implements Section, Constants {
 
         if (gamepad.rightBumper()) {
             getPIDController().disable();
-            armMotor.set(0.6);
+            setArmSpeedPercent(0.6);
             manual = true;
         } else if (gamepad.leftBumper()) {
             getPIDController().disable();
-            armMotor.set(-0.3);
+            setArmSpeedPercent(-0.3);
             manual = true;
         } else if (gamepad.a() && armDown) {
             getPIDController().enable();
@@ -118,10 +118,12 @@ public class Arm extends PIDSubsystem implements Section, Constants {
 */
         getPIDController().enable();
         usePIDOutput(getPIDController().get());
-
+/*
+        System.out.println("Forward: " + armMotor.getSensorCollection().isFwdLimitSwitchClosed());
+        System.out.println("Reverse: " + armMotor.getSensorCollection().isRevLimitSwitchClosed());*/
     }
 
-    private void zeroArm() {
+/*    private void zeroArm() {
         armMotor.set(ControlMode.Disabled, 0);
 
         armMotor.setSelectedSensorPosition(ArmPositions.armHomePosition, 0, Constants.kTimeoutMs);
@@ -129,8 +131,11 @@ public class Arm extends PIDSubsystem implements Section, Constants {
         armMotor.configReverseSoftLimitEnable(true, Constants.kTimeoutMs);
 
         armMotor.set(ControlMode.MotionMagic, ArmPositions.armHomePosition);
-    }
+    }*/
 
+    private void zeroArm() {
+
+    }
 
     private double degreesToSensorUnits(double degrees) {
         return ((degrees + armDegreeOffset)/360)*sensorUnitsPerRotationMag;
@@ -158,10 +163,16 @@ public class Arm extends PIDSubsystem implements Section, Constants {
         /*armMotor.getSensorCollection().setPulseWidthPosition(0, 0);*/
     }
 
+    public void setArmSpeedPercent(double speed) {
+        /*speed = speed < 0 && getLimitPressed() ? 0 : speed;*/
+        armMotor.set(ControlMode.PercentOutput, speed);
+
+    }
+
     @Override
     public void reset() {
         resetEncoders();
-        armMotor.set(ControlMode.PercentOutput, 0);
+        setArmSpeedPercent(0);
     }
 
     private void configTalon(WPI_TalonSRX talon) {
@@ -218,5 +229,9 @@ public class Arm extends PIDSubsystem implements Section, Constants {
     @Override
     protected void usePIDOutput(double output) {
         armMotor.pidWrite(-output);
+    }
+
+    public boolean getLimitPressed() {
+        return !armMotor.getSensorCollection().isFwdLimitSwitchClosed();
     }
 }

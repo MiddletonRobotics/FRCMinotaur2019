@@ -2,15 +2,16 @@ package frc.robot.Utilities.Constants.Positions;
 
 public class LiftPositions {
 
-    public static final int liftHomePosition = 0;
-    public static final double liftMaxHeight = 0;
+    public static final int liftHomePosition = -75;
+    public static final double liftMaxHeight = -53500;
     public static final double liftMinHeight = 0;
-    public static final double liftFirstHeight = -571;
-    public static final double liftSecondHeight = -20000;
-    public static final double liftThirdHeight = -41000;
+    public static final double liftFirstHeight = -5715;
+    public static final double liftSecondHeight = -25938;
+    public static final double liftSlowHeight = -2000;
+    public static final double liftThirdHeight = -47590;
     public static final double liftBallCargoHeight = -26000;
-    public static final double liftRocketFirstHeight = -11700;
-    public static final double liftRocketSecondHeight = -19000;
-    public static final double liftRocketThirdHeight = -26000;
+    public static final double liftRocketFirstHeight = -11536;
+    public static final double liftRocketSecondHeight = -31279;
+    public static final double liftRocketThirdHeight = -52748;
     public static final double liftHeightRange = liftMaxHeight - liftMinHeight;
 }

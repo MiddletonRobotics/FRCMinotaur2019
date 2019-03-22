@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
 import frc.robot.Robot;
@@ -21,7 +22,8 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
     private WPI_TalonSRX liftMasterMotor;
     private WPI_VictorSPX liftSlaveMotor1;
     private WPI_VictorSPX liftSlaveMotor2;
-    private WPI_TalonSRX liftSlaveMotor3;
+    private WPI_VictorSPX liftSlaveMotor3;
+    private DigitalInput limitSwitch;
 
     private static LiftPID instance = null;
     private int position = 0;
@@ -35,9 +37,10 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
         liftMasterMotor = new WPI_TalonSRX(liftMasterID);
         liftSlaveMotor1 = new WPI_VictorSPX(liftSlave1ID);
         liftSlaveMotor2 = new WPI_VictorSPX(liftSlave2ID);
-        liftSlaveMotor3 = new WPI_TalonSRX(liftSlave3ID);
+        liftSlaveMotor3 = new WPI_VictorSPX(liftSlave3ID);
+        limitSwitch = new DigitalInput(limitSwitchPort);
         /*topLimitSwitch = new DigitalInput(limitSwitchLiftBottomPort);
-        bottomLimitSwitch = new DigitalInput(limitSwitchLiftTopPort);*/
+        bottomLimitSwitch = new DgiitalInput(limitSwitchLiftTopPort);*/
 
         configTalon(liftMasterMotor);
 
@@ -54,11 +57,16 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
         return instance;
     }
 
+    public double getPosition() {
+        return liftMasterMotor.getSensorCollection().getQuadraturePosition();
+    }
+
     private void configTalon(WPI_TalonSRX motor) {
         motor.set(0);
 
         motor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, kTimeoutMs);
         motor.setSensorPhase(true);
+        motor.setInverted(true);
         // master.configClosedloopRamp(0.25, 0);
 /*
         motor.configOpenloopRamp(2, kTimeoutMs);
@@ -82,7 +90,7 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
 
         setupSlaves(motor, liftSlaveMotor1);
         setupSlaves(motor, liftSlaveMotor2);
-        liftSlaveMotor3.follow(liftMasterMotor);
+        setupSlaves(motor, liftSlaveMotor3);
 
         motor.configForwardSoftLimitEnable(false, kTimeoutMs);
         motor.configReverseSoftLimitEnable(false, kTimeoutMs);
@@ -109,16 +117,18 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
     @Override
     public void teleop(MinoGamepad gamepad) {
 
+/*
         System.out.println(liftMasterMotor.getSensorCollection().getQuadraturePosition());
+*/
         position += gamepad.getRawButtonReleased(DPAD_NORTH) ? position < 3 ? 1 : 0 : gamepad.getRawButtonReleased(DPAD_SOUTH) ? position > 0 ? -1 : 0 : 0;
 
         if (gamepad.y()) {
             getPIDController().disable();
-            setLiftSpeedPercent(-0.6);
+            setLiftSpeedPercent(0.6);
             manual = true;
         } else if (gamepad.b()) {
             getPIDController().disable();
-            setLiftSpeedPercent(0.6);
+            setLiftSpeedPercent(-0.6);
             manual = true;
         } /*else if (gamepad.dpadRight()) {
             getPIDController().enable();
@@ -149,6 +159,14 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
             stopPID();
 //            setLiftSpeedPercent(0);
         }
+
+
+        System.out.println(getSetpoint());
+
+/*
+        System.out.println("Input: " + gamepad.);
+*/
+
 /*        if (gamepad.y()) {
             getPIDController().disable();
             setLiftSpeedPercent(-0.6);
@@ -199,12 +217,10 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
     }
     @Override
     public void reset() {
-        /*zeroLift();*/
-        stopLift();
-        resetEnoder();
+        zeroLift();
     }
 
-    public void zeroLift() {
+/*    public void zeroLift() {
 
         liftMasterMotor.set(ControlMode.Disabled, 0);
         int homeLiftValue = (int)(LiftPositions.liftHomePosition * kLiftEncoderGearRatio * sensorUnitsPerRotationMag);
@@ -214,11 +230,24 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
 
         liftMasterMotor.set(ControlMode.MotionMagic, homeLiftValue);
 
-    }
+    }*/
 
     public void resetEnoder() {
         liftMasterMotor.getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
     }
+
+    public void zeroLift() {
+        new Thread( () -> {
+            long startTime = System.currentTimeMillis();
+            while (limitSwitch.get() && System.currentTimeMillis() - startTime < 3000) {
+                setLiftSpeedPercent(-0.2);
+            }
+            stopLift();
+            resetEnoder();
+        }).start();
+    }
+
+
     public void stopLift() {
             liftMasterMotor.set(0);
             liftSlaveMotor1.set(0);
@@ -246,15 +275,19 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
     }
 
     public void setLiftSpeedPercent(double speed) {
+        speed = speed < 0 && !limitSwitch.get() ? 0 : (speed < -.3 ? (getPosition() > LiftPositions.liftSlowHeight? -0.3: speed) : speed);
+/*
+        speed = getPosition() < LiftPositions.liftMaxHeight ? (speed > 0 ? 0: speed) : speed;
+*/
         liftMasterMotor.set(ControlMode.PercentOutput, speed);
         liftSlaveMotor1.set(ControlMode.PercentOutput, speed);
         liftSlaveMotor2.set(ControlMode.PercentOutput, speed);
         liftSlaveMotor3.set(ControlMode.PercentOutput, speed);
     }
 
-    public void setLiftSpeed(double speed) {
+/*    public void setLiftSpeed(double speed) {
         liftMasterMotor.set(ControlMode.Velocity, speed);
-    }
+    }*/
 
     public void setLiftHeightSensorUnits(double sensorUnits) {
         //hey dummy test limit switch pls thanks
@@ -300,6 +333,6 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
 
     @Override
     protected void usePIDOutput(double output) {
-        setLiftSpeedPercent(output);
+        setLiftSpeedPercent(-output);
     }
 }
