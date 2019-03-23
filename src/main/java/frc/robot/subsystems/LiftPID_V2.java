@@ -10,14 +10,12 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
 import frc.robot.Robot;
 import frc.robot.Utilities.Constants.Constants;
-import frc.robot.Utilities.Constants.Positions.ArmPositions;
 import frc.robot.Utilities.Constants.Positions.LiftPositions;
 import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.Utilities.Drivers.TalonHelper;
 import frc.robot.Utilities.Section;
-import frc.robot.Utilities.Utils;
 
-public class LiftPID extends PIDSubsystem implements Section, Constants {
+public class LiftPID_V2 implements Section, Constants {
 
     private WPI_TalonSRX liftMasterMotor;
     private WPI_VictorSPX liftSlaveMotor1;
@@ -25,14 +23,14 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
     private WPI_VictorSPX liftSlaveMotor3;
     private DigitalInput limitSwitch;
 
-    private static LiftPID instance = null;
+    private static LiftPID_V2 instance = null;
     private int position = 0;
     private boolean manual = true;
 
 /*    DigitalInput topLimitSwitch;
     DigitalInput bottomLimitSwitch;*/
 
-    private LiftPID() {
+    private LiftPID_V2() {
         super(kLiftKp, kLiftKi, kLiftKd);
         liftMasterMotor = new WPI_TalonSRX(liftMasterID);
         liftSlaveMotor1 = new WPI_VictorSPX(liftSlave1ID);
@@ -49,9 +47,9 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
         getPIDController().enable();
     }
 
-    public static LiftPID getInstance() {
+    public static LiftPID_V2 getInstance() {
         if(instance == null) {
-            instance = new LiftPID();
+            instance = new LiftPID_V2();
         }
 
         return instance;

@@ -61,9 +61,9 @@ public class Robot extends TimedRobot {
         intake = Intake.getInstance();
 
 
-        chooser.setDefaultOption("Do nothing :O", null);
+        chooser.addOption("Do nothing :O", null);
         chooser.addOption("TURN TEST", new TurnTest());
-        chooser.addOption("Teleop", new Teleop());
+        chooser.setDefaultOption("Teleop", new Teleop());
         //SmartDashboard.putNumber("Delay MS (C H A N G E T H I S E V E R Y M A T C H)", 0);
         SmartDashboard.putData(chooser);
 
