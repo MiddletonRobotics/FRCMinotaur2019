@@ -29,7 +29,7 @@ public class Robot extends TimedRobot {
     public static DriveTrain driveTrain;
 //    public static Vision vision;
 //    public static Lift lift;
-    public static LiftPID liftPID;
+    public static LiftPID_V2 liftPID;
     public static Arm arm;
     public static Intake intake;
 
@@ -56,7 +56,7 @@ public class Robot extends TimedRobot {
         driveTrain = DriveTrain.getInstance();
 //        vision = new Vision();
 //        lift = Lift.getInstance();
-        liftPID = LiftPID.getInstance();
+        liftPID = LiftPID_V2.getInstance();
         arm = Arm.getInstance();
         intake = Intake.getInstance();
 
@@ -132,6 +132,7 @@ public class Robot extends TimedRobot {
             a.loop();
         }
 
+        SmartDashboard.putNumber("Lift Error: ", liftPID.pidController.readPIDOutput());
 
     }
 
@@ -171,7 +172,7 @@ public class Robot extends TimedRobot {
 
        driveTrain.teleop(gamepad1);
 
-        SmartDashboard.putNumber("Lift Error: ", liftPID.getPIDController().getError());
+        SmartDashboard.putNumber("Lift Error: ", liftPID.pidController.get(Robot.liftPID.getLiftMasterMotor().getSensorCollection().getQuadraturePosition()));
 
        /*
         SmartDashboard.putNumber("left drive speed", driveTrain.getLeftTalon().getSensorCollection().getQuadratureVelocity());

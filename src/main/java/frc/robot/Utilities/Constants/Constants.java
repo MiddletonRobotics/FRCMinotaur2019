@@ -24,6 +24,8 @@ public interface Constants extends GamepadButtons {
     int armTalonID = 41;
     int intakeMasterRightID = 51;
     int intakeSlaveLeftID = 52;
+    int climberFrontID = -1;
+    int climberRearID = -1;
 
     int intakeSolenoidForwardChannel = 0;
     int intakeSolenoidReverseChannel = 1;
@@ -203,7 +205,8 @@ public interface Constants extends GamepadButtons {
 
 	int kLiftUpRateSlot = 0;
     int kLiftDownRateSlot = 1;
-    double kLiftKp = 0.0001;
+    double kLiftKp1 = 0.0001;
+    double kLiftKp2 = 0.000075;
     double kLiftKi = 0;
     double kLiftKd = 0;
     double kLiftKf = 0;
@@ -219,7 +222,7 @@ public interface Constants extends GamepadButtons {
 
     int kArmNormalRateSlot = 0;
     int kArmFastRateSlot = 1;
-    double kArmKp = 0.0006/*0.5*//*6.7*/;
+    double kArmKp = 0.00075;
     double kArmKi = 0;
     double kArmKd = 0/*11*/;
     double kArmKf = 0.055/*1*/;
@@ -239,6 +242,19 @@ public interface Constants extends GamepadButtons {
     int kArmMaxPeakCurrentDurationMS = getMSDurationForBreakerLimit(kArmMaxPeakCurrentLimit, kArmMaxContinuousCurrentLimit);
     double armDegreeOffset = 100;
     double armZeroStallCurrent = 0;
+
+
+    int kClimberFrontNormalRateSlot = 0;
+    double kClimberFrontKp = 0;
+    double kClimberFrontKi = 0;
+    double kClimberFrontKd = 0;
+    double kClimberFrontKf = 0;
+
+    int kClimberRearNormalRateSlot = 0;
+    double kClimberRearKp = 0;
+    double kClimberRearKi = 0;
+    double kClimberRearKd = 0;
+    double kClimberRearKf = 0;
 
     double kPDPBreakerModelA = 282.2962;
     double kPDPBreakerModelB = -6.6305;

@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -42,6 +43,9 @@ public class Intake extends Subsystem implements Section, Constants {
         leftIntakeSlave.set(0);
         rightIntakeMaster.configOpenloopRamp(0, 0);
         leftIntakeSlave.configOpenloopRamp(0, 0);
+        leftIntakeSlave.setNeutralMode(NeutralMode.Brake);
+        rightIntakeMaster.setNeutralMode(NeutralMode.Brake);
+
     }
 
     @Override
@@ -53,10 +57,14 @@ public class Intake extends Subsystem implements Section, Constants {
     public void teleop(MinoGamepad gamepad) {
 
 
-        if(gamepad.leftTrigger() > 0.2) {
-            setPercentSpeed(intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ? -0.3 : 1); //OUT
-        } else if (gamepad.rightTrigger() > 0.2){
-            setPercentSpeed(intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ? 0.3 : -0.7); //IN
+        if(gamepad.leftTriggerPressed()) {
+            rightIntakeMaster.configOpenloopRamp(0, kTimeoutMs);
+            leftIntakeSlave.configOpenloopRamp(0, kTimeoutMs);
+            setPercentSpeed(intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ? -1 : 1); //OUT
+        } else if (gamepad.rightTriggerPressed()){
+            rightIntakeMaster.configOpenloopRamp(0.25, kTimeoutMs);
+            leftIntakeSlave.configOpenloopRamp(0.25, kTimeoutMs);
+            setPercentSpeed(intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ? 0.3 : -1); //IN
         } else {
             setPercentSpeed(0);
         }

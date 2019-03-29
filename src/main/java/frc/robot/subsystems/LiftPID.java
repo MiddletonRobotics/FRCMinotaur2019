@@ -33,7 +33,7 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
     DigitalInput bottomLimitSwitch;*/
 
     private LiftPID() {
-        super(kLiftKp, kLiftKi, kLiftKd);
+        super(kLiftKp1, kLiftKi, kLiftKd);
         liftMasterMotor = new WPI_TalonSRX(liftMasterID);
         liftSlaveMotor1 = new WPI_VictorSPX(liftSlave1ID);
         liftSlaveMotor2 = new WPI_VictorSPX(liftSlave2ID);
@@ -79,14 +79,16 @@ public class LiftPID extends PIDSubsystem implements Section, Constants {
         motor.configAllowableClosedloopError(0, 0, kTimeoutMs);
 
 
+/*
 
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
-        TalonHelper.setPIDGains(motor, kLiftUpRateSlot, kLiftKp, kLiftKi, kLiftKd, kLiftKf, kLiftRampRate, kLiftIZone);
-        TalonHelper.setPIDGains(motor, kLiftDownRateSlot, kLiftKp, kLiftKi, kLiftKd, kLiftKf, kLiftRampRate, kLiftIZone);
+        TalonHelper.setPIDGains(motor, kLiftUpRateSlot, kLiftKp1, kLiftKi, kLiftKd, kLiftKf, kLiftRampRate, kLiftIZone);
+        TalonHelper.setPIDGains(motor, kLiftDownRateSlot, kLiftKp1, kLiftKi, kLiftKd, kLiftKf, kLiftRampRate, kLiftIZone);
         TalonHelper.setMotionMagicParams(motor, kLiftUpRateSlot, kLiftMaxVelocityUp, kLiftMaxAccelUp);
         TalonHelper.setMotionMagicParams(motor, kLiftDownRateSlot, kLiftMaxVelocityDown, kLiftMaxAccelDown);
         motor.selectProfileSlot(kLiftUpRateSlot, 0);
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+*/
 
         setupSlaves(motor, liftSlaveMotor1);
         setupSlaves(motor, liftSlaveMotor2);

@@ -13,6 +13,7 @@ import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Utilities.Constants.Positions.LiftPositions;
 import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.Utilities.Drivers.TalonHelper;
+import frc.robot.Utilities.PIDController;
 import frc.robot.Utilities.Section;
 
 public class LiftPID_V2 implements Section, Constants {
@@ -24,14 +25,17 @@ public class LiftPID_V2 implements Section, Constants {
     private DigitalInput limitSwitch;
 
     private static LiftPID_V2 instance = null;
+/*
     private int position = 0;
+*/
     private boolean manual = true;
+    private boolean resetting = false;
+    public PIDController pidController = new PIDController(kLiftKp1, kLiftKi, kLiftKd, 0);
 
 /*    DigitalInput topLimitSwitch;
     DigitalInput bottomLimitSwitch;*/
 
     private LiftPID_V2() {
-        super(kLiftKp, kLiftKi, kLiftKd);
         liftMasterMotor = new WPI_TalonSRX(liftMasterID);
         liftSlaveMotor1 = new WPI_VictorSPX(liftSlave1ID);
         liftSlaveMotor2 = new WPI_VictorSPX(liftSlave2ID);
@@ -42,9 +46,8 @@ public class LiftPID_V2 implements Section, Constants {
 
         configTalon(liftMasterMotor);
 
-        getPIDController().setContinuous(false);
-        setSetpoint(liftMasterMotor.getSensorCollection().getQuadraturePosition());
-        getPIDController().enable();
+        pidController.setSetpoint(liftMasterMotor.getSensorCollection().getQuadraturePosition());
+        pidController.enable();
     }
 
     public static LiftPID_V2 getInstance() {
@@ -74,17 +77,19 @@ public class LiftPID_V2 implements Section, Constants {
 
         //aster.configSen R);
 
+/*
         motor.configAllowableClosedloopError(0, 0, kTimeoutMs);
+*/
 
 
-
+/*
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
         TalonHelper.setPIDGains(motor, kLiftUpRateSlot, kLiftKp, kLiftKi, kLiftKd, kLiftKf, kLiftRampRate, kLiftIZone);
         TalonHelper.setPIDGains(motor, kLiftDownRateSlot, kLiftKp, kLiftKi, kLiftKd, kLiftKf, kLiftRampRate, kLiftIZone);
         TalonHelper.setMotionMagicParams(motor, kLiftUpRateSlot, kLiftMaxVelocityUp, kLiftMaxAccelUp);
         TalonHelper.setMotionMagicParams(motor, kLiftDownRateSlot, kLiftMaxVelocityDown, kLiftMaxAccelDown);
         motor.selectProfileSlot(kLiftUpRateSlot, 0);
-        // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
+        // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP*/
 
         setupSlaves(motor, liftSlaveMotor1);
         setupSlaves(motor, liftSlaveMotor2);
@@ -97,7 +102,6 @@ public class LiftPID_V2 implements Section, Constants {
         liftSlaveMotor1.setNeutralMode(NeutralMode.Brake);
         liftSlaveMotor2.setNeutralMode(NeutralMode.Brake);
         liftSlaveMotor3.setNeutralMode(NeutralMode.Brake);
-
 
     }
 
@@ -117,89 +121,90 @@ public class LiftPID_V2 implements Section, Constants {
 
 
 /*
-        System.out.println(liftMasterMotor.getSensorCollection().getQuadraturePosition());
-*/
         position += gamepad.getRawButtonReleased(DPAD_NORTH) ? position < 3 ? 1 : 0 : gamepad.getRawButtonReleased(DPAD_SOUTH) ? position > 0 ? -1 : 0 : 0;
+*/
 
         if (gamepad.y()) {
-            getPIDController().disable();
-            setLiftSpeedPercent(1);
+            pidController.disable();
+            setLiftSpeedPercent(0.25);
             manual = true;
         } else if (gamepad.b()) {
-            getPIDController().disable();
-            setLiftSpeedPercent(-1);
+            pidController.disable();
+            setLiftSpeedPercent(-0.25);
             manual = true;
         } /*else if (gamepad.dpadRight()) {
-            getPIDController().enable();
-            setSetpoint((LiftPositions.liftHomePosition));
+            pidController.enable();
+            pidController.setSetpoint((LiftPositions.liftHomePosition));
 
-            usePIDOutput((getPIDController().get()));
+            usePIDOutput(());
         }*/ else if (gamepad.dpadLeft()) {
-            getPIDController().enable();
-            setSetpoint(LiftPositions.liftHomePosition);
-            usePIDOutput((getPIDController().get()));
+            pidController.enable();
+            pidController.setSetpoint(LiftPositions.liftHomePosition);
+            usePIDOutput();
             manual = false;
         } else if (gamepad.dpadDown()) {
-            getPIDController().enable();
-            setSetpoint(Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ?  LiftPositions.liftFirstHeight : LiftPositions.liftRocketFirstHeight);
-            usePIDOutput((getPIDController().get()));
+            pidController.enable();
+            pidController.setSetpoint(Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ?  LiftPositions.liftFirstHeight : LiftPositions.liftRocketFirstHeight);
+            usePIDOutput();
             manual = false;
-        } /*else if (gamepad.dpadRight()) {
-            getPIDController().enable();
-            setSetpoint(Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ?  LiftPositions.liftSecondHeight : LiftPositions.liftRocketSecondHeight);
-            usePIDOutput((getPIDController().get()));
+        } else if (gamepad.dpadRight()) {
+            pidController.enable();
+            pidController.setSetpoint(Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ?  LiftPositions.liftSecondHeight : LiftPositions.liftRocketSecondHeight);
+            usePIDOutput();
             manual = false;
         } else if (gamepad.dpadUp()) {
-            getPIDController().enable();
-            setSetpoint(Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ?  LiftPositions.liftThirdHeight : LiftPositions.liftRocketThirdHeight);
-            usePIDOutput((getPIDController().get()));
+            pidController.enable();
+            pidController.setSetpoint(Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ?  LiftPositions.liftThirdHeight : LiftPositions.liftRocketThirdHeight);
+            usePIDOutput();
             manual = false;
-        }*/ else {
+        } else if(gamepad.back()) {
+            pidController.enable();
+            pidController.setSetpoint(LiftPositions.liftBallCargoHeight);
+            usePIDOutput();
+            manual = false;
+        } else {
             stopPID();
-//            setLiftSpeedPercent(0);
         }
 
 
-/*
-        System.out.println(getPosition());
-*/
+        System.out.println(pidController.getError());
 
 /*
         System.out.println("Input: " + gamepad.);
 */
 
 /*        if (gamepad.y()) {
-            getPIDController().disable();
+            pidController.disable();
             setLiftSpeedPercent(-0.6);
             manual = true;
         } else if (gamepad.b()) {
-            getPIDController().disable();
+            pidController.disable();
             setLiftSpeedPercent(0.6);
             manual = true;
         } *//*else if (gamepad.dpadRight()) {
-            getPIDController().enable();
-            setSetpoint((LiftPositions.liftHomePosition));
+            pidController.enable();
+            pidController.setSetpoint((LiftPositions.liftHomePosition));
 
-            usePIDOutput((getPIDController().get()));
+            usePIDOutput(());
         }*//* else if (position == 0 && gamepad.getRawButtonReleased(DPAD_NORTH) || gamepad.getRawButtonReleased(DPAD_SOUTH)) {
-            getPIDController().enable();
-            setSetpoint(LiftPositions.liftHomePosition);
-            usePIDOutput((getPIDController().get()));
+            pidController.enable();
+            pidController.setSetpoint(LiftPositions.liftHomePosition);
+            usePIDOutput(());
             manual = false;
         } else if (position == 1 && gamepad.getRawButtonReleased(DPAD_NORTH) || gamepad.getRawButtonReleased(DPAD_SOUTH)) {
-            getPIDController().enable();
-            setSetpoint(LiftPositions.liftFirstHeight);
-            usePIDOutput((getPIDController().get()));
+            pidController.enable();
+            pidController.setSetpoint(LiftPositions.liftFirstHeight);
+            usePIDOutput(());
             manual = false;
         } else if (position == 2 && gamepad.getRawButtonReleased(DPAD_NORTH) || gamepad.getRawButtonReleased(DPAD_SOUTH)) {
-            getPIDController().enable();
-            setSetpoint(LiftPositions.liftSecondHeight);
-            usePIDOutput((getPIDController().get()));
+            pidController.enable();
+            pidController.setSetpoint(LiftPositions.liftSecondHeight);
+            usePIDOutput(());
             manual = false;
         } else if (position == 3 && gamepad.getRawButtonReleased(DPAD_NORTH) || gamepad.getRawButtonReleased(DPAD_SOUTH)) {
-            getPIDController().enable();
-            setSetpoint(LiftPositions.liftThirdHeight);
-            usePIDOutput((getPIDController().get()));
+            pidController.enable();
+            pidController.setSetpoint(LiftPositions.liftThirdHeight);
+            usePIDOutput(());
             manual = false;
         } else {
             stopPID();
@@ -209,11 +214,14 @@ public class LiftPID_V2 implements Section, Constants {
 
     private void stopPID() {
         if (manual) {
-            setSetpoint(liftMasterMotor.getSensorCollection().getQuadraturePosition());
+            pidController.setSetpoint(liftMasterMotor.getSensorCollection().getQuadraturePosition());
+            manual = false;
         }
-        getPIDController().setF(kLiftKf);
-        getPIDController().enable();
-        usePIDOutput(getPIDController().get());
+/*
+        pidController.setF(kLiftKf);
+*/
+        pidController.enable();
+        usePIDOutput();
 
     }
 
@@ -243,23 +251,23 @@ public class LiftPID_V2 implements Section, Constants {
 
     public void zeroLift() {
         new Thread( () -> {
+            resetting = true;
             long startTime = System.currentTimeMillis();
             while (limitSwitch.get() && System.currentTimeMillis() - startTime < 3000) {
-                setLiftSpeedPercent(-0.2);
+                setLiftSpeedPercent(-0.1);
             }
             stopLift();
             resetEnoder();
+            resetting = false;
         }).start();
     }
-
-    @Override
-    protected double returnPIDInput() {
-        return liftMasterMotor.getSensorCollection().getQuadraturePosition();
-    }
-
-    @Override
-    protected void usePIDOutput(double output) {
-        setLiftSpeedPercent(-output);
+    
+    
+    protected void usePIDOutput() {
+        if (!resetting) {
+            pidController.setKp(getPosition() > pidController.getSetpoint() ? kLiftKp1 : kLiftKp2);
+            setLiftSpeedPercent(-pidController.get(getPosition()));
+        }
     }
 
     public void stopLift() {
@@ -275,7 +283,7 @@ public class LiftPID_V2 implements Section, Constants {
             liftSlaveMotor3.set(0);
         } else*/
 
-        //System.out.println("Er" + "ror: " + getPIDController().get() + " : " + liftMasterMotor.get() + " : " + potentiometer.pidGet());
+        //System.out.println("Er" + "ror: " +  + " : " + liftMasterMotor.get() + " : " + potentiometer.pidGet());
     }
 
    /* public void setLiftHeightInches(double heightInches) {
@@ -289,14 +297,17 @@ public class LiftPID_V2 implements Section, Constants {
     }*/
 
     public void setLiftSpeedPercent(double speed) {
-        speed = speed < 0 && !limitSwitch.get() ? 0 : (speed < -.15 ? (getPosition() > LiftPositions.liftSlowHeight? -0.15: speed) : speed);
+        speed = speed < 0 && !limitSwitch.get() ? 0 : (speed < -.15 ? (getPosition() > LiftPositions.liftSlowHeight && manual? -0.15: speed) : speed);
 /*
         speed = getPosition() < LiftPositions.liftMaxHeight ? (speed > 0 ? 0: speed) : speed;
 */
 
-/*        if (this.getPosition() <= LiftPositions.liftSecondHeight - 100 && speed > 0) {
-            speed = 0;
-        }*/
+/*
+        if (getPosition() < LiftPositions.liftFirstHeight + 1500 && !manual) {
+            speed = Math.min(Math.max(-0.8, speed), 0.8);
+        }
+*/
+
 
         liftMasterMotor.set(ControlMode.PercentOutput, speed);
         liftSlaveMotor1.set(ControlMode.PercentOutput, speed);
@@ -348,6 +359,8 @@ public class LiftPID_V2 implements Section, Constants {
         return Math.min(LiftPositions.liftMaxHeight, Math.max(LiftPositions.liftMinHeight, heightSensorUnits));
     }
 */
-
+    public WPI_TalonSRX getLiftMasterMotor() {
+        return liftMasterMotor;
+    }
 
 }

@@ -496,6 +496,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public void teleop(MinoGamepad gamepad) {
+
         //System.out.println("diff: " + (leftTalon.getSensorCollection().getQuadratureVelocity() + rightMaster.getSensorCollection().getQuadratureVelocity()));
         //System.out.println("right: "  + rightMaster.getSensorCollection().getQuadratureVelocity());
         double left_y = deadband(gamepad.getRawAxis(LEFT_Y_AXIS));

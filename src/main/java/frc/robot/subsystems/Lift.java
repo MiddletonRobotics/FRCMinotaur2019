@@ -64,8 +64,8 @@ public class Lift implements Section, Constants {
 
 
         // HEY YOU HAVE TO EDIT THE IZONE FROM ZERO FOR INTEGRAL WINDUP
-        TalonHelper.setPIDGains(motor, kLiftUpRateSlot, kLiftKp, kLiftKi, kLiftKd, kLiftKf, kLiftRampRate, kLiftIZone);
-        TalonHelper.setPIDGains(motor, kLiftDownRateSlot, kLiftKp, kLiftKi, kLiftKd, kLiftKf, kLiftRampRate, kLiftIZone);
+        TalonHelper.setPIDGains(motor, kLiftUpRateSlot, kLiftKp1, kLiftKi, kLiftKd, kLiftKf, kLiftRampRate, kLiftIZone);
+        TalonHelper.setPIDGains(motor, kLiftDownRateSlot, kLiftKp1, kLiftKi, kLiftKd, kLiftKf, kLiftRampRate, kLiftIZone);
         TalonHelper.setMotionMagicParams(motor, kLiftUpRateSlot, kLiftMaxVelocityUp, kLiftMaxAccelUp);
         TalonHelper.setMotionMagicParams(motor, kLiftDownRateSlot, kLiftMaxVelocityDown, kLiftMaxAccelDown);
         motor.selectProfileSlot(kLiftUpRateSlot, 0);

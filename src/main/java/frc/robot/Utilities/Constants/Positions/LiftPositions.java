@@ -5,9 +5,9 @@ public class LiftPositions {
     public static final int liftHomePosition = -75;
     public static final double liftMaxHeight = -53500;
     public static final double liftMinHeight = 0;
-    public static final double liftFirstHeight = -5715;
+    public static final double liftFirstHeight = -5500;
     public static final double liftSecondHeight = -25938;
-    public static final double liftSlowHeight = -3000;
+    public static final double liftSlowHeight = -3500;
     public static final double liftThirdHeight = -47590;
     public static final double liftBallCargoHeight = -26000;
     public static final double liftRocketFirstHeight = -11536;

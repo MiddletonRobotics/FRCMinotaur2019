@@ -21,6 +21,7 @@ public class Arm extends PIDSubsystem implements Section, Constants {
     private boolean manual = true;
     private boolean armDown = false;
     private boolean aPrev = false;
+    private boolean wasInCargoPickup = false;
 
     private Arm() {
         super(kArmKp,kArmKi,kArmKd);
@@ -68,37 +69,36 @@ public class Arm extends PIDSubsystem implements Section, Constants {
             getPIDController().disable();
             setArmSpeedPercent(-0.3);
             manual = true;
-        } else if (gamepad.a() && armDown) {
-            getPIDController().enable();
-/*          armMotor.setSelectedSensorPosition(ArmPositions.armDiscPosition, 0, Constants.kTimeoutMs);
-            armMotor.set(ControlMode.MotionMagic, ArmPositions.armDiscPosition);*/
-            setSetpoint(ArmPositions.armDiscPosition);
-            usePIDOutput(getPIDController().get());
-            manual = false;
-        } else if (gamepad.a() && !armDown) {
+        }  else if (gamepad.a() && !armDown) {
             getPIDController().enable();
 /*          armMotor.setSelectedSensorPosition(ArmPositions.armDiscPosition, 0, Constants.kTimeoutMs);
             armMotor.set(ControlMode.MotionMagic, ArmPositions.armDiscPosition);*/
             setSetpoint(Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kReverse && !Robot.liftPID.getManual() ? ArmPositions.armCargoShipPosition : ArmPositions.armUpPosition);
             usePIDOutput(getPIDController().get());
             manual = false;
-        } else if (gamepad.dpadLeft() && Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kReverse) {
+        } else if (gamepad.rightTriggerPressed() && Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kReverse && Robot.liftPID.getPosition() > -1000) {
             getPIDController().enable();
 /*          armMotor.setSelectedSensorPosition(ArmPositions.armDiscPosition, 0, Constants.kTimeoutMs);
             armMotor.set(ControlMode.MotionMagic, ArmPositions.armDiscPosition);*/
             setSetpoint(ArmPositions.armCargoPickupPosition);
             usePIDOutput(getPIDController().get());
+            wasInCargoPickup = true;
             manual = false;
-        } /*else if (gamepad.y()) {
+        } else if (gamepad.a() && armDown || wasInCargoPickup) {
             getPIDController().enable();
-            setSetpoint(ArmPositions.armUpPosition);
-            usePIDOutput((getPIDController().get()));
+/*          armMotor.setSelectedSensorPosition(ArmPositions.armDiscPosition, 0, Constants.kTimeoutMs);
+            armMotor.set(ControlMode.MotionMagic, ArmPositions.armDiscPosition);*/
+            setSetpoint(ArmPositions.armDiscPosition);
+            usePIDOutput(getPIDController().get());
             manual = false;
-        } */else {
+            wasInCargoPickup = false;
+        } else {
             stop();
         }
 
+/*
         System.out.println(armMotor.getSensorCollection().getQuadraturePosition());
+*/
 
         //System.out.println(/*armMotor.getSensorCollection().getQuadraturePosition()*/armMotor.getMotorOutputPercent());
 /*        if (gamepad.rightBumper()) {
@@ -113,6 +113,7 @@ public class Arm extends PIDSubsystem implements Section, Constants {
     private void stop() {
         if (manual) {
             setSetpoint(armMotor.getSensorCollection().getQuadraturePosition());
+            manual = false;
         }
 /*
         getPIDController().setF(Math.cos(getRotationAngle())*kArmKf);

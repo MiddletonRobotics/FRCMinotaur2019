@@ -22,7 +22,7 @@ public class MinoGamepad extends Joystick implements Constants {
     public boolean b() {
         return getRawButton(BTN_B);
     }    
-    
+
     public boolean x() {
         return getRawButton(BTN_X);
     }    
@@ -112,6 +112,14 @@ public class MinoGamepad extends Joystick implements Constants {
 
     public double rightTrigger() {
         return getRawAxis(RIGHT_T_AXIS);
+    }
+
+    public boolean rightTriggerPressed() {
+        return getRawAxis(RIGHT_T_AXIS) > 0.1 ? true: false;
+    }
+
+    public boolean leftTriggerPressed() {
+        return getRawAxis(LEFT_T_AXIS) > 0.1 ? true: false;
     }
 
 }
