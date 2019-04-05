@@ -2,7 +2,6 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -29,7 +28,7 @@ public class Robot extends TimedRobot {
     public static DriveTrain driveTrain;
 //    public static Vision vision;
 //    public static Lift lift;
-    public static LiftPID_V2 liftPID;
+    public static Lift liftPID;
     public static Arm arm;
     public static Intake intake;
 
@@ -56,7 +55,7 @@ public class Robot extends TimedRobot {
         driveTrain = DriveTrain.getInstance();
 //        vision = new Vision();
 //        lift = Lift.getInstance();
-        liftPID = LiftPID_V2.getInstance();
+        liftPID = Lift.getInstance();
         arm = Arm.getInstance();
         intake = Intake.getInstance();
 

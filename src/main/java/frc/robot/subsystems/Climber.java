@@ -22,15 +22,18 @@ public class Climber implements Section, Constants {
 
     private WPI_TalonSRX climberFrontMotor;
     private WPI_TalonSRX climberRearMotor;
+    private WPI_TalonSRX rearClimberDrive;
     private AHRS gyro = new AHRS(SPI.Port.kMXP);
 
 
-    private DigitalInput limitSwitch;
+    private DigitalInput frontLimitSwitch;
+    private DigitalInput rearLimitSwitch;
 
     private static Climber instance = null;
     private int position = 0;
     private boolean lifting = false;
     private boolean resetting = false;
+    private boolean startPrevious = false;
     public PIDController frontPID = new PIDController(kClimberFrontKp, kClimberFrontKi, kClimberFrontKd, 0);
     public PIDController rearPID = new PIDController(kClimberRearKp, kClimberRearKi, kClimberRearKd, 0);
 
@@ -39,15 +42,17 @@ public class Climber implements Section, Constants {
     private Climber() {
         climberFrontMotor = new WPI_TalonSRX(climberFrontID);
         climberRearMotor = new WPI_TalonSRX(climberRearID);
+        rearClimberDrive = new WPI_TalonSRX(rearClimberDriveID);
+        frontLimitSwitch = new DigitalInput(frontLimitSwitchPort);
+        rearLimitSwitch = new DigitalInput(rearLimitSwitchPort);
 
 
-        configTalon(climberFrontMotor);
-        configTalon(climberRearMotor);
+        configFrontTalon(climberFrontMotor);
+        configMiscTalon(climberRearMotor);
+        configMiscTalon(rearClimberDrive);
 
-/*
         frontPID.setSetpoint(getFrontPosition());
-*/
-        rearPID.setSetpoint(getRearPosition());
+        /*rearPID.setSetpoint(getRearPosition());*/
         frontPID.enable();
     }
 
@@ -60,23 +65,26 @@ public class Climber implements Section, Constants {
     }
 
 
-    public double getRearPosition() {
-        return climberRearMotor.getSensorCollection().getQuadraturePosition();
+    public double getFrontPosition() {
+        return climberFrontMotor.getSensorCollection().getQuadraturePosition();
     }
 
-    private void configTalon(WPI_TalonSRX motor) {
+    private void configFrontTalon(WPI_TalonSRX motor) {
         motor.set(0);
 
         motor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, kTimeoutMs);
-        motor.setSensorPhase(true);
-        motor.setInverted(true);
-
         motor.configAllowableClosedloopError(0, 0, kTimeoutMs);
-
 
         motor.configForwardSoftLimitEnable(false, kTimeoutMs);
         motor.configReverseSoftLimitEnable(false, kTimeoutMs);
 
+        motor.setNeutralMode(NeutralMode.Brake);
+    }
+
+    private void configMiscTalon(WPI_TalonSRX motor) {
+        motor.set(0);
+        motor.configForwardSoftLimitEnable(false, kTimeoutMs);
+        motor.configReverseSoftLimitEnable(false, kTimeoutMs);
         motor.setNeutralMode(NeutralMode.Brake);
     }
 
@@ -87,31 +95,66 @@ public class Climber implements Section, Constants {
 
     @Override
     public void teleop(MinoGamepad gamepad) {
-
+/*
 
         System.out.println(frontPID.getError());
 
-        if (gamepad.y()) {
-
-        } else {
-            stopPID();
+        if (gamepad.start()) {
+            if (startPrevious) {
+                lifting = !lifting;
+            }
         }
 
+
+
+        if (lifting) {
+            frontPID.enable();
+            rearPID.enable();
+            frontPID.setSetpoint(ClimberPositions.frontClimberOut);
+            rearPID.setSetpoint();
+            usePIDOutput();
+            rearClimberDrive.set(ControlMode.PercentOutput, gamepad.leftStickY());
+        } else {
+            frontPID.enable();
+            rearPID.enable();
+            frontPID.setSetpoint(ClimberPositions.frontClimberOut);
+            rearPID.setSetpoint();
+            usePIDOutput();
+            rearClimberDrive.set(ControlMode.PercentOutput, 0);
+
+        }
+
+        if (gamepad.rightTriggerPressed()) {
+            setClimberFrontSpeedPercent(0.1);
+        } else if (gamepad.leftTriggerPressed()) {
+            setClimberFrontSpeedPercent(-0.1);
+        } else {
+            stopClimber();
+        }
+
+        if (gamepad.rightBumper()) {
+            setClimberRearSpeedPercent(0.1);
+        } else if (gamepad.leftBumper()) {
+            setClimberRearSpeedPercent(-0.1);
+        } else {
+            stopClimber();
+        }
+*/
 
     }
 
-    private void stopPID() {
-        /*if (manual) {
+/*    private void stopPID() {
+        *//*if (manual) {
             frontPID.setSetpoint(climberFrontMotor.getSensorCollection().getQuadraturePosition());
         }
-*//*
+*//**//*
         frontPID.setF(kClimberKf);
-*/
+*//*
         frontPID.enable();
         rearPID.enable();
         usePIDOutput();
 
-    }
+    }*/
 
     public boolean getLifting() {
         return lifting;
@@ -132,7 +175,9 @@ public class Climber implements Section, Constants {
 
     @Override
     public void reset() {
-        /*zeroClimber();*/
+/*
+        zeroClimber();
+*/
     }
 
 /*    public void zeroClimber() {
@@ -151,28 +196,26 @@ public class Climber implements Section, Constants {
         climberFrontMotor.getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
         climberRearMotor.getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
     }
-/*
+
     public void zeroClimber() {
         new Thread( () -> {
             resetting = true;
             long startTime = System.currentTimeMillis();
-            while (limitSwitch.get() && System.currentTimeMillis() - startTime < 3000) {
-                setClimberSpeedPercent(-0.2);
+            while ((frontLimitSwitch.get() || rearLimitSwitch.get()) && System.currentTimeMillis() - startTime < 3000) {
+                setClimberFrontSpeedPercent(frontLimitSwitch.get()? -0.2 : 0);
+                setClimberRearSpeedPercent(rearLimitSwitch.get()? -0.2 : 0);
             }
             stopClimber();
-            resetEnoder();
+            resetEnoders();
             resetting = false;
+            frontPID.setSetpoint(ClimberPositions.frontClimberHome);
         }).start();
-    }*/
-    
-    
+    }
+
+
     protected void usePIDOutput() {
-        if (!resetting) {
-/*
-            setClimberFrontSpeedPercent(-frontPID.get(getFrontPosition()));
-*/
-            setClimberRearSpeedPercent(-rearPID.get(getRearPosition()));
-        }
+        setClimberRearSpeedPercent(-frontPID.get(getFrontPosition()));
+        setClimberRearSpeedPercent(-rearPID.get(gyro.getAngle()));
     }
 
     public void stopClimber() {

@@ -24,12 +24,15 @@ public interface Constants extends GamepadButtons {
     int armTalonID = 41;
     int intakeMasterRightID = 51;
     int intakeSlaveLeftID = 52;
-    int climberFrontID = -1;
-    int climberRearID = -1;
+    int climberFrontID = 01;
+    int climberRearID = 02;
+    int rearClimberDriveID = 03;
 
     int intakeSolenoidForwardChannel = 0;
     int intakeSolenoidReverseChannel = 1;
-    int limitSwitchPort = 0;
+    int liftLimitSwitchPort = 0;
+    int frontLimitSwitchPort = 1;
+    int rearLimitSwitchPort = 2;
 
     int leftDrivetrainMasterPDPSlot = 0;
     int leftDrivetrainSlave1PDPSlot = 0;
