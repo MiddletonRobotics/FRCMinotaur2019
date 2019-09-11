@@ -36,7 +36,8 @@ public class Robot extends TimedRobot {
     public static boolean isTeleop = false;
     public static boolean isDisabled = false;
 
-    SendableChooser<Auto> chooser = new SendableChooser<>();
+    SendableChooser<Auto> autoChooser = new SendableChooser<>();
+    public SendableChooser<Auto> gyroDriveChooser = new SendableChooser<>();
 
     /**
      * This function is run when the robot is first started up and should be
@@ -60,11 +61,17 @@ public class Robot extends TimedRobot {
         intake = Intake.getInstance();
 
 
-        chooser.addOption("Do nothing :O", null);
-        chooser.addOption("TURN TEST", new TurnTest());
-        chooser.setDefaultOption("Teleop", new Teleop());
+        autoChooser.addOption("Do nothing :O", null);
+        autoChooser.addOption("TURN TEST", new TurnTest());
+        autoChooser.setDefaultOption("Teleop", new Teleop());
+
+/*        Boolean gyroDrive = new Boolean(true);
+
+        gyroDriveChooser.setDefaultOption("On", );
+        gyroDriveChooser.setDefaultOption("On", gyroDrive);*/
+
         //SmartDashboard.putNumber("Delay MS (C H A N G E T H I S E V E R Y M A T C H)", 0);
-        SmartDashboard.putData(chooser);
+        SmartDashboard.putData(autoChooser);
 
         resetRobot();
     }
@@ -91,14 +98,14 @@ public class Robot extends TimedRobot {
     }
 
     /**
-     * This autonomous (along with the chooser code above) shows how to select
+     * This autonomous (along with the autoChooser code above) shows how to select
      * between different autonomous modes using the dashboard. The sendable
-     * chooser code works with the Java SmartDashboard. If you prefer the
-     * LabVIEW Dashboard, remove all of the chooser code and uncomment the
+     * autoChooser code works with the Java SmartDashboard. If you prefer the
+     * LabVIEW Dashboard, remove all of the autoChooser code and uncomment the
      * getString code to get the auto name from the text box below the Gyro
      * <p>
      * You can add additional auto modes by adding additional Autonomous to the
-     * chooser code above (like the commented example) or additional comparisons
+     * autoChooser code above (like the commented example) or additional comparisons
      * to the switch structure below with additional strings & Autonomous.
      */
 
@@ -111,7 +118,7 @@ public class Robot extends TimedRobot {
         //SmartDashboard.putNumber("Disabled Init Ran", 0);
         resetRobot();
 
-        a = chooser.getSelected();
+        a = autoChooser.getSelected();
 
         if (a != null) {
             a.auto();

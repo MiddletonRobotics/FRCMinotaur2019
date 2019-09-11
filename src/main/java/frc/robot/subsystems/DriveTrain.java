@@ -7,11 +7,14 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Robot;
 
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import frc.robot.Utilities.Constants.Positions.ArmPositions;
+import frc.robot.Utilities.Constants.Positions.LiftPositions;
 import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.Utilities.Drivers.TalonHelper;
 import frc.robot.Utilities.Section;
@@ -22,7 +25,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     private final WPI_TalonSRX leftMaster, rightMaster;
     private final WPI_VictorSPX leftSlave, rightSlave;
     private final WPI_VictorSPX leftSlave2, rightSlave2;
-    private AHRS gyro = new AHRS(SPI.Port.kMXP);
+    private AHRS gyro = new AHRS(SerialPort.Port.kUSB);
+    private Vision vision = new Vision();
 
     private static DriveTrain instance = null;
 
@@ -99,7 +103,9 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         TANK_DRIVE, NEED_4_SPEED
     }
 
+/*
     private TeleopDriveModes driveMode = TeleopDriveModes.NEED_4_SPEED;
+*/
 
     @Override
     public void reset() {
@@ -107,12 +113,15 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         setProfile(0);
         initializeVariables();
     }
+
     public void resetFull() {
         stopDrive();
         resetEncoders();
         resetGyro();
         setProfile(0);
         initializeVariables();
+        vision.disableLight();
+        desiredAngle = getGyroAngle();
     }
 
     private void setupSlaves(WPI_TalonSRX master, WPI_VictorSPX slave) {
@@ -228,11 +237,11 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public double getLeftVelocity() {
-        return leftMaster.getSensorCollection().getQuadratureVelocity()/NATIVE_PER_ROTATION;
+        return leftMaster.getSensorCollection().getQuadratureVelocity() / NATIVE_PER_ROTATION;
     }
 
     public double getRightVelocity() {
-        return rightMaster.getSensorCollection().getQuadratureVelocity()/NATIVE_PER_ROTATION;
+        return rightMaster.getSensorCollection().getQuadratureVelocity() / NATIVE_PER_ROTATION;
     }
 
     private double clip(double value, double min, double max) {
@@ -287,16 +296,16 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             double power = turnKp * error + turnKi * integral + turnKd * derivative;
             power = clip(power, -speed, +speed);
             setTarget(-power, +power, ControlMode.PercentOutput);
-        } 
+        }
         stopDrive();
     }
-
 
 
     private double prevErrorTPOM;
     private double integralTPOM;
     private long prevTimeTPOM;
     private boolean firstRunTPOM = true;
+
     public boolean turnPOM(double degrees, Direction direction) {
         if (firstRunTPOM) {
             resetEncoders();
@@ -307,10 +316,10 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
         double errorTPOM = direction.value * degrees - gyro.getAngle();
         System.out.println(errorTPOM);
-        if (Math.abs(errorTPOM) > angleTolerance? true: gyro.getRate() > ROBOT_THRESHOLD_DEGREES_PER_SECOND? true: false) {
+        if (Math.abs(errorTPOM) > angleTolerance ? true : gyro.getRate() > ROBOT_THRESHOLD_DEGREES_PER_SECOND ? true : false) {
             long dt = System.nanoTime() - prevTimeTPOM;
             double measurementTPOM = gyro.getAngle();
-            integralTPOM += gyro.getRate() <= ROBOT_MAX_DEGREES_PER_SECOND_INTEGRAL_LIMIT? errorTPOM * dt : 0;
+            integralTPOM += gyro.getRate() <= ROBOT_MAX_DEGREES_PER_SECOND_INTEGRAL_LIMIT ? errorTPOM * dt : 0;
             double derivative = (errorTPOM - prevErrorTPOM) / dt;
             prevErrorTPOM = errorTPOM;
             double velocity = -turnPOMKp * measurementTPOM + turnPOMKi * integralTPOM + turnPOMKd * derivative;
@@ -332,7 +341,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     private boolean firstRunMGDPOM = true;
     private double distanceIntegralMGDPOM = 0;
     private double angleIntegralMGDPOM = 0;
-    public boolean moveGyroDistancePOM(double inches, Direction direction,  double allowableError, double timeKill) {
+
+    public boolean moveGyroDistancePOM(double inches, Direction direction, double allowableError, double timeKill) {
 
 
         int targetClicks = (int) (inches * CLICKS_PER_INCH);
@@ -359,7 +369,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
             long dt = System.nanoTime() - prevTimeMGDPOM;
 
-            double measurement = Math.abs(rightMaster.getSensorCollection().getQuadraturePosition())/CLICKS_PER_INCH;
+            double measurement = Math.abs(rightMaster.getSensorCollection().getQuadraturePosition()) / CLICKS_PER_INCH;
 
             distanceIntegralMGDPOM += inchesRemaining * dt;
             angleIntegralMGDPOM += angularError * dt;
@@ -376,8 +386,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             double maxPower = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
 
             if (maxPower > maxNativeVelocity) {
-                leftSpeed *= (maxNativeVelocity/maxPower);
-                rightSpeed *= (maxNativeVelocity/maxPower);
+                leftSpeed *= (maxNativeVelocity / maxPower);
+                rightSpeed *= (maxNativeVelocity / maxPower);
             }
 
             setTarget(leftSpeed, -rightSpeed, ControlMode.Velocity);
@@ -390,8 +400,6 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             return true;
         }
     }
-
-
 
     public void moveByGyroDistance(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {
         int targetClicks = (int) (inches * CLICKS_PER_INCH);
@@ -492,24 +500,97 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public double deadband(double input) {
-        return Math.abs(input) < 0.1 ? 0.0 : input;
+        return Math.abs(input) < 0.125 ? 0.0 : input;
     }
 
-    public void teleop(MinoGamepad gamepad) {
+    private double desiredAngle;
+    private boolean isHolding = false;
+    private boolean wasVision = false;
+    private double previousArmPos;
+    private long previousTime = System.nanoTime();
+    private double previousXPos = vision.getXPos();
+    private boolean visionReady = false;
 
+
+    public void teleop(MinoGamepad gamepad) {
         //System.out.println("diff: " + (leftTalon.getSensorCollection().getQuadratureVelocity() + rightMaster.getSensorCollection().getQuadratureVelocity()));
         //System.out.println("right: "  + rightMaster.getSensorCollection().getQuadratureVelocity());
         double left_y = deadband(gamepad.getRawAxis(LEFT_Y_AXIS));
         double right_x = deadband(gamepad.getRawAxis(RIGHT_X_AXIS));
 
+/*
         if (gamepad.getRawButton(BTN_BACK))
             driveMode = TeleopDriveModes.TANK_DRIVE;
         if (gamepad.getRawButton(BTN_START))
             driveMode = TeleopDriveModes.NEED_4_SPEED;
+*/
 
 
-        double leftPower = left_y + right_x;
-        double rightPower = left_y - right_x;
+        double leftPower = teleopMultiplier*(left_y + right_x);
+        double rightPower = teleopMultiplier*(left_y - right_x);
+
+/*
+        double angularError = desiredAngle - getGyroAngle();
+*/
+
+        if (gamepad.start()) {
+            long deltaTime = System.nanoTime() - previousTime;
+            double derivative = (vision.getXPos() - previousXPos) / deltaTime;
+            vision.enableLight();
+            leftPower += vision.getXPos() * visionKP + visionKD * derivative;
+            rightPower -= vision.getXPos() * visionKP - visionKD * derivative;
+/*
+            desiredAngle = gyro.getAngle();
+*/
+            wasVision = true;
+            if (Robot.liftPID.getPosition() > LiftPositions.liftFirstHeight - 2000) {
+/*                if (!visionReady) {
+                    Robot.arm.getPIDController().setSetpoint(ArmPositions.a
+                    rmCargoShipPosition);
+                    if (Math.abs(Robot.arm.getPosition() - ArmPositions.armCargoShipPosition) < 500 && vision.isTarget() && Math.abs(vision.getXPos()) < 2 && Math.abs(derivative) < 0.05) {
+                        visionReady = true;
+                    }
+                } else {
+                    Robot.arm.getPIDController().setSetpoint(ArmPositions.armDiscPosition);
+                }*/
+                Robot.arm.getPIDController().setSetpoint(ArmPositions.armCargoShipPosition);
+            }
+            System.out.println(vision.isTarget());
+            previousTime = deltaTime > 1e7 ? System.nanoTime() : previousTime;
+            previousXPos = deltaTime > 1e7 ? vision.getXPos() : previousXPos;
+        } /*else if (Math.abs(left_y) > 0.05 && Math.abs(right_x) < 0.05 && !isHolding) {
+            desiredAngle = gyro.getAngle();
+            isHolding = true;
+            visionReady = false;
+            if (wasVision) {
+                Robot.arm.getPIDController().setSetpoint(ArmPositions.armDiscPosition);
+                wasVision = false;
+            }
+            vision.disableLight();
+        } else if (Math.abs(left_y) < 0.05 || Math.abs(right_x) > 0.05) {
+            isHolding = false;
+            visionReady = false;
+            if (wasVision) {
+                Robot.arm.getPIDController().setSetpoint(ArmPositions.armDiscPosition);
+                wasVision = false;
+            }
+            vision.disableLight();
+        }*/ else /*if (Math.abs(right_x) < 0.05)*/ {
+/*
+            double powerAdjustment = isHolding? gyroCorrectionKP * angularError : 0;
+*/
+            visionReady = false;
+            /*double powerAdjustment = *//*gamepad.rightTriggerPressed() ? gyroCorrectionKP * angularError :*//* 0;
+            leftPower += powerAdjustment;
+            rightPower -= powerAdjustment;*/
+            vision.disableLight();
+            if (wasVision) {
+                if (Robot.liftPID.getPosition() > LiftPositions.liftFirstHeight - 2000) {
+                    Robot.arm.getPIDController().setSetpoint(ArmPositions.armDiscPosition);
+                }
+                wasVision = false;
+            }
+        }
 
 
         double maxSpeed = Math.max(Math.abs(leftPower), Math.abs(rightPower));
@@ -517,8 +598,16 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             leftPower /= maxSpeed;
             rightPower /= maxSpeed;
         }
+/*
+        if (gamepad.start()) {
+            vision.enableLight();
+            leftPower = vision.getXPos()*visionKP;
+            rightPower = -vision.getXPos()*visionKP;
+        } else {
+            vision.disableLight();
+        }*/
 
-        if (/*gamepad.a()*/false ) {
+        if (/*gamepad.a()*/false) {
             leftMaster.set(ControlMode.Velocity, /*-maxNativeVelocity*leftPower*/1000);
             rightMaster.set(ControlMode.Velocity, /*maxNativeVelocity*rightPower*/-1000);
         } else {
@@ -529,10 +618,9 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             rightMaster.set(ControlMode.PercentOutput, -rightPower);
         }
 
-/*        System.out.println("Left: " + leftMaster.getSensorCollection().getQuadraturePosition());
-        System.out.println("Right: " + rightMaster.getSensorCollection().getQuadraturePosition());*/
+/*        System.out.println("Left: " + leftMaster.getMotorOutputPercent());
+        System.out.println("Right: " + rightMaster.getMotorOutputPercent());*/
     }
-
 
 
     public void initializeVariables() {
@@ -568,17 +656,21 @@ public class DriveTrain extends Subsystem implements Constants, Section {
     }
 
     public double nativeVelocityToRPM(double nativeVelocity) {
-        return (nativeVelocity/NATIVE_PER_ROTATION)*10*60;
+        return (nativeVelocity / NATIVE_PER_ROTATION) * 10 * 60;
     }
+
     public double nativeToRotations(double nativeUnits) {
-        return (nativeUnits/NATIVE_PER_ROTATION);
+        return (nativeUnits / NATIVE_PER_ROTATION);
     }
+
     public double nativeToInches(double nativeUnits) {
-        return nativeToRotations(nativeUnits)*(WHEEL_DIAMETER * Math.PI);
+        return nativeToRotations(nativeUnits) * (WHEEL_DIAMETER * Math.PI);
     }
+
     public double inchesToNative(double inches) {
-        return NATIVE_PER_ROTATION*(inchesToRotations(inches));
+        return NATIVE_PER_ROTATION * (inchesToRotations(inches));
     }
+
     public double inchesToRotations(double inches) {
         return inches / (WHEEL_DIAMETER * Math.PI);
     }

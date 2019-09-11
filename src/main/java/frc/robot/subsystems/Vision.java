@@ -16,32 +16,32 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.Utilities.Drivers.MinoGamepad;
 import frc.robot.Utilities.Section;
 
-/**
- * Add your docs here.
- */
-public class Vision extends Subsystem implements Constants, Section {
-  private NetworkTable table;
 
+public class Vision {
+    private NetworkTable table;
 
+    public Vision() {
+        table = NetworkTableInstance.getDefault().getTable("limelight");
 
-  public Vision() {
-    table = NetworkTableInstance.getDefault().getTable("limelight");
-  }
+    }
 
-  @Override
-  public void initDefaultCommand() {
-    System.out.println("Vision started");
-  }
+    public double getXPos() {
+        NetworkTableEntry tx = table.getEntry("tx");
+        return tx.getDouble(0.0);
+    }
 
-  @Override
-  public void teleop(MinoGamepad gamepad) {
-    NetworkTableEntry tx = table.getEntry("tx");
-    double x = tx.getDouble(0.0);
-    System.out.println(x);
-  }
+    public boolean isTarget() {
+        NetworkTableEntry tv = table.getEntry("tv");
+        return (tv.getNumber(0).intValue() == 1)? true: false;
+    }
 
-  @Override
-  public void reset() {
+    public void disableLight() {
+        NetworkTableEntry light = table.getEntry("ledMode");
+        light.setNumber(1);
+    }
 
-  }
+    public void enableLight() {
+        NetworkTableEntry light = table.getEntry("ledMode");
+        light.setNumber(3);
+    }
 }

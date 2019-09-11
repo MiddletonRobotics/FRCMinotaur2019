@@ -53,20 +53,28 @@ public class Intake extends Subsystem implements Section, Constants {
         System.out.println("yeah this thing sucks");
     }
 
+    private boolean intaking = false;
     @Override
     public void teleop(MinoGamepad gamepad) {
 
 
         if(gamepad.leftTriggerPressed()) {
+            intaking = false;
             rightIntakeMaster.configOpenloopRamp(0, kTimeoutMs);
             leftIntakeSlave.configOpenloopRamp(0, kTimeoutMs);
             setPercentSpeed(intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ? -1 : 1); //OUT
         } else if (gamepad.rightTriggerPressed()){
+            intaking = true;
             rightIntakeMaster.configOpenloopRamp(0.25, kTimeoutMs);
             leftIntakeSlave.configOpenloopRamp(0.25, kTimeoutMs);
             setPercentSpeed(intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ? 0.3 : -1); //IN
         } else {
-            setPercentSpeed(0);
+            if (intaking) {
+                setPercentSpeed(intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ? 0.05 : -0.05); //IN
+            } else {
+                setPercentSpeed(0);
+            }
+
         }
 
         if (gamepad.getRawButton(BTN_X)) {

@@ -93,13 +93,18 @@ public interface Constants extends GamepadButtons {
 
     double gyroDrivePOMKP = 110;
     double gyroDrivePOMKI = 0.00000015;
-    double gyroCorrectionKP = 0;
+    double gyroCorrectionKP = .025;
     double gyroCorrectionKI = 0;
+
+    double visionKP = 0.0325;
+    double visionKD = 5;
 
     double angleTolerance = 0.05;
     double distanceTolerance = 0.1;
 
     int maxNativeVelocity = 2700;
+
+    double teleopMultiplier = 1;
 
     float NOMINAL_OUTPUT_VOLTAGE = 0.0f;
     float PEAK_OUTPUT_VOLTAGE = 12.0f;
