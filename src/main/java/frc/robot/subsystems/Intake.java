@@ -104,7 +104,7 @@ public class Intake extends Subsystem implements Section, Constants {
     }
 
     public void setPercentSpeed(double speed) {
-        rightIntakeMaster.set(speed);
-        leftIntakeSlave.set(-speed);
+        rightIntakeMaster.set(-speed);
+        leftIntakeSlave.set(speed);
     }
 }
