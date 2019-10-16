@@ -76,7 +76,7 @@ public class Arm extends PIDSubsystem implements Section, Constants {
             setSetpoint(Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kReverse && !Robot.liftPID.getManual() ? ArmPositions.armCargoShipPosition : ArmPositions.armUpPosition);
             usePIDOutput(getPIDController().get());
             manual = false;
-        } else if (gamepad.rightTriggerPressed() && Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kReverse && Robot.liftPID.getPosition() > -1000) {
+        } else if (gamepad.rightTriggerPressed() && Robot.intake.intakeSolenoid.getValue() == DoubleSolenoid.Value.kReverse && Robot.liftPID.getPosition() > -2000) {
             getPIDController().enable();
 /*          armMotor.setSelectedSensorPosition(ArmPositions.armDiscPosition, 0, Constants.kTimeoutMs);
             armMotor.set(ControlMode.MotionMagic, ArmPositions.armDiscPosition);*/
@@ -96,9 +96,7 @@ public class Arm extends PIDSubsystem implements Section, Constants {
             stop();
         }
 
-/*
-        System.out.println(armMotor.getSensorCollection().getQuadraturePosition());
-*/
+//        System.out.println(armMotor.getSensorCollection().getQuadraturePosition());
 
         //System.out.println(/*armMotor.getSensorCollection().getQuadraturePosition()*/armMotor.getMotorOutputPercent());
 /*        if (gamepad.rightBumper()) {

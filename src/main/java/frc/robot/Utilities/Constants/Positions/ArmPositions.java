@@ -8,7 +8,7 @@ public class ArmPositions {
     public static final int armRotationRange = armMaxRotation - armMinRotation;
     public static final int armDiscPosition = 2400;
     public static final int armUpPosition = 300;
-    public static final int armCargoPickupPosition = 2650;
+    public static final int armCargoPickupPosition = 2750;
     public static final int armCargoShipPosition = 1250;
     public static final int armBallPosition = 2650;
 }

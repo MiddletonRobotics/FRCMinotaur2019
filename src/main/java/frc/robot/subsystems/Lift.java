@@ -165,9 +165,7 @@ public class Lift implements Section, Constants {
         }
 
 
-/*
         System.out.println(getPosition());
-*/
 
 /*
         System.out.println("Input: " + gamepad.);
