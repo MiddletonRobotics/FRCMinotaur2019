@@ -67,7 +67,7 @@ public class Intake extends Subsystem implements Section, Constants {
             intaking = true;
             rightIntakeMaster.configOpenloopRamp(0.25, kTimeoutMs);
             leftIntakeSlave.configOpenloopRamp(0.25, kTimeoutMs);
-            setPercentSpeed(intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ? 0.3 : -1); //IN
+            setPercentSpeed(intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ? 1 : -1); //IN
         } else {
             if (intaking) {
                 setPercentSpeed(intakeSolenoid.getValue() == DoubleSolenoid.Value.kForward ? 0.05 : -0.05); //IN
