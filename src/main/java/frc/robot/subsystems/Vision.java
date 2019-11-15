@@ -30,6 +30,11 @@ public class Vision {
         return tx.getDouble(0.0);
     }
 
+    public double getArea() {
+        NetworkTableEntry ta = table.getEntry("ta");
+        return ta.getDouble(0.0);
+    }
+
     public boolean isTarget() {
         NetworkTableEntry tv = table.getEntry("tv");
         return (tv.getNumber(0).intValue() == 1)? true: false;

@@ -31,8 +31,28 @@ public class StateMachineRunner {
                         nextState();
                     }
                     break;
+                case turn45Clockwise:
+                    if (Robot.driveTrain.turnPID(45, DriveTrain.Direction.CLOCKWISE, 1)) {
+                        nextState();
+                    }
+                    break;
+                case turn45CounterClockwise:
+                    if (Robot.driveTrain.turnPOM(45, DriveTrain.Direction.COUNTERCLOCKWISE)) {
+                        nextState();
+                    }
+                    break;
                 case drive10Inches:
                     if(Robot.driveTrain.moveGyroDistancePOM(10, DriveTrain.Direction.FORWARD, 1, 0)) {
+                        nextState();
+                    }
+                    break;
+                case drive1foot:
+                    if(Robot.driveTrain.moveGyroDistancePOM(12, DriveTrain.Direction.FORWARD, 1, 0)) {
+                        nextState();
+                    }
+                    break;
+                case limelightApproach:
+                    if (Robot.driveTrain.limelightApproach(5.0, 12)) {
                         nextState();
                     }
                     break;

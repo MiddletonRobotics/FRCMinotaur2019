@@ -63,6 +63,7 @@ public class Robot extends TimedRobot {
 
         autoChooser.addOption("Do nothing :O", null);
         autoChooser.addOption("TURN TEST", new TurnTest());
+        autoChooser.addOption("Drive To Tower", new DriveToTower());
         autoChooser.setDefaultOption("Teleop", new Teleop());
 
 /*        Boolean gyroDrive = new Boolean(true);

@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Utilities.Constants.Constants;
 import frc.robot.Robot;
 
@@ -278,7 +279,7 @@ public class DriveTrain extends Subsystem implements Constants, Section {
         stopDrive();
     }
 
-    public void turnPID(double degrees, Direction direction, double speed) {
+    /*public void turnPID(double degrees, Direction direction, double speed) {
         resetGyro();
 
         double error = direction.value * degrees - gyro.getAngle();
@@ -298,6 +299,39 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             setTarget(-power, +power, ControlMode.PercentOutput);
         }
         stopDrive();
+    }*/
+
+    private double prevErrorTPID;
+    private double integralTPID;
+    private long prevTimeTPID;
+    private boolean firstRunTPID = true;
+
+    public boolean turnPID(double degrees, Direction direction, double speed) {
+        if (firstRunTPID) {
+            resetEncoders();
+            resetGyro();
+            prevTimeTPID = System.nanoTime();
+            firstRunTPID = !firstRunTPID;
+        }
+
+        double error = direction.value * degrees - gyro.getAngle();
+        System.out.println(gyro.getAngle());
+        if (Math.abs(error) > angleTolerance) {
+            long dt = System.nanoTime() - prevTimeTPID;
+            prevTimeTPID = System.nanoTime();
+            //error = direction.value * degrees - gyro.getAngle();
+            integralTPID = turnIDamper * integralTPID + error * dt;
+            double derivative = (error - prevErrorTPID) / dt;
+            prevErrorTPID = error;
+            double power = turnKp * error + turnKi * integralTPID + turnKd * derivative;
+            power = clip(power, -speed, +speed);
+            System.out.println("POWER >> " + power);
+            setTarget(power, +power, ControlMode.PercentOutput);
+            return false;
+        } else {
+            stopDrive();
+            return true;
+        }
     }
 
 
@@ -314,8 +348,9 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             firstRunTPOM = !firstRunTPOM;
         }
 
-        double errorTPOM = direction.value * degrees - gyro.getAngle();
+        double errorTPOM = direction.value * degrees + gyro.getAngle();
         System.out.println(errorTPOM);
+        System.out.println("Rate: " + gyro.getRate());
         if (Math.abs(errorTPOM) > angleTolerance ? true : gyro.getRate() > ROBOT_THRESHOLD_DEGREES_PER_SECOND ? true : false) {
             long dt = System.nanoTime() - prevTimeTPOM;
             double measurementTPOM = gyro.getAngle();
@@ -354,7 +389,8 @@ public class DriveTrain extends Subsystem implements Constants, Section {
 
         double time = System.currentTimeMillis();
         // ADDDDDD MIN SPEED THRESHOLD
-        System.out.println(inchesRemaining);
+        System.out.println("in" + inchesRemaining);
+        System.out.println(angularError);
 
         if (firstRunMGDPOM) {
             resetEncoders();
@@ -399,6 +435,46 @@ public class DriveTrain extends Subsystem implements Constants, Section {
             resetFull();
             return true;
         }
+    }
+
+    // TODO:  Added by FRANK for Autonomous mode
+    boolean limelightInit = false;
+    double llApproachDistance = 0;
+
+    public boolean limelightApproach(double desiredArea, double distanceInInches) {
+        if (!limelightInit)
+        {
+            vision.enableLight();
+            // Horizontal Offset From Crosshair To Target (LL1: -27 degrees to 27 degrees | LL2: -29.8 to 29.8 degrees)
+            double tx = vision.getXPos();
+            // Target Area (0% of image to 100% of image)
+            double ta = vision.getArea();
+
+            SmartDashboard.putNumber("Limelight TX", tx);
+            SmartDashboard.putNumber("Limelight TA", ta);
+
+            if (ta > 0 && ta < desiredArea)
+            {
+                // Move closer
+                llApproachDistance = distanceInInches; // TODO: Maybe this could be a formula based on ta?
+            }
+
+            vision.disableLight();
+            this.limelightInit = true;
+        }
+
+        if (llApproachDistance > 0)
+        {
+            boolean moveResult = moveGyroDistancePOM(llApproachDistance, DriveTrain.Direction.FORWARD, 1, 0);
+            if (moveResult)
+            {
+                // Done moving.. reset values:
+                this.limelightInit = false;
+                this.llApproachDistance = 0;
+            }
+            return moveResult;
+        }
+        return true;
     }
 
     public void moveByGyroDistance(double inches, Direction direction, double speed, double allowableError, double timeKill) throws Exception {

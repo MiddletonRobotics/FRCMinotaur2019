@@ -81,14 +81,14 @@ public interface Constants extends GamepadButtons {
     double kiDriveTrainPos2 = 0.0;
     double kdDriveTrainPos2 = 0;
 
-    double turnKp = 0.025;
-    double turnKi = 0.0;
-    double turnKd = 0.0;
+    double turnKp = 0.015;
+    double turnKi = 0.000000000010;
+    double turnKd = 15;
     double turnIDamper = 1.0;
 
     double turnPOMKp = 0.05;
-    double turnPOMKi = 0.0000000015;
-    double turnPOMKd = 0.0;
+    double turnPOMKi = 0.0000000020;
+    double turnPOMKd = 0.1;
     double turnPOMIDamper = 1.0;
 
     double gyroDrivePOMKP = 110;
@@ -99,12 +99,12 @@ public interface Constants extends GamepadButtons {
     double visionKP = 0.0325;
     double visionKD = 5;
 
-    double angleTolerance = 0.05;
+    double angleTolerance = 0.5;
     double distanceTolerance = 0.1;
 
     int maxNativeVelocity = 2700;
 
-    double teleopMultiplier = 1;
+    double teleopMultiplier = 0.5;
 
     float NOMINAL_OUTPUT_VOLTAGE = 0.0f;
     float PEAK_OUTPUT_VOLTAGE = 12.0f;

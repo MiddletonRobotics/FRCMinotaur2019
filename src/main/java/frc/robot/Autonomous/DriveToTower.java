@@ -1,13 +1,23 @@
 package frc.robot.Autonomous;
 
 import frc.robot.Autonomous.StateMachine.AutoStates;
-import frc.robot.Robot;
+
 import java.util.Arrays;
 import java.util.List;
 
-public class TurnTest extends Auto {
+public class DriveToTower extends Auto
+{
 
-    private List<AutoStates> statesList =  Arrays.asList(AutoStates.turn45Clockwise, AutoStates.turn45Clockwise);
+    private List<AutoStates> statesList =  Arrays.asList(
+            AutoStates.drive1foot,
+            AutoStates.turn45CounterClockwise,
+            AutoStates.drive1foot,
+            AutoStates.turn45Clockwise,
+            AutoStates.drive1foot,
+            AutoStates.limelightApproach,
+            AutoStates.limelightApproach,
+            AutoStates.limelightApproach
+            );
 
     public void auto() {
         stateMachine.setStates(statesList);
@@ -21,7 +31,4 @@ public class TurnTest extends Auto {
     public void stop() {
         //Robot.driveTrain.stopDrive();
     }
-
 }
-
- 
